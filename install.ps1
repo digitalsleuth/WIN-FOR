@@ -10,7 +10,7 @@
         Additionally, the Win-FOR states allow for the automated installation of the Windows Subsystem for Linux v2, and comes with
         the REMnux and SIFT toolsets, making the VM a one-stop shop for forensics!
     .NOTES
-        Version        : 2.2
+        Version        : 2.3
         Author         : Corey Forman (https://github.com/digitalsleuth)
         Prerequisites  : Windows 10 1909 or later
                        : Set-ExecutionPolicy must allow for script execution
@@ -54,7 +54,7 @@ param (
   [switch]$WslOnly,
   [switch]$Help
 )
-[string]$installerVersion = 'v2.2'
+[string]$installerVersion = 'v2.3'
 [string]$saltstackVersion = '3004.1-1'
 [string]$saltstackFile = 'Salt-Minion-' + $saltstackVersion + '-Py3-AMD64-Setup.exe'
 [string]$saltstackHash = "C1E57767B6AB19CB1F724DB6EC2232C0DD6232A53D5CCF754CCE3AE0FB25B86F"
@@ -64,6 +64,7 @@ param (
 [string]$gitFile = 'Git-' + $gitVersion + '.2-64-bit.exe'
 [string]$gitHash = "77768D0D1B01E84E8570D54264BE87194AA424EC7E527883280B9DA9761F0A2A"
 [string]$gitUrl = "https://github.com/git-for-windows/git/releases/download/v" + $gitVersion + ".windows.2/" + $gitFile
+[string]$versionFile = "C:\ProgramData\Salt Project\Salt\srv\salt\winfor-version"
 
 function Compare-Hash($FileName, $HashName) {
     $fileHash = (Get-FileHash $FileName -Algorithm SHA256).Hash
@@ -77,7 +78,7 @@ function Compare-Hash($FileName, $HashName) {
 
 function Test-Saltstack {
     $InstalledSalt = (Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object {$_.DisplayName -clike 'Salt Minion*' } | Select-Object DisplayName, DisplayVersion)
-    if ($InstalledSalt.DisplayName -eq $null) {
+    if ($null -eq $InstalledSalt.DisplayName) {
         return $False
     } elseif ($InstalledSalt.DisplayName -clike 'Salt Minion*' -and $InstalledSalt.DisplayVersion -eq $saltstackVersion) {
         return $True
@@ -113,7 +114,7 @@ function Install-Saltstack {
 
 function Test-Git {
     $InstalledGit = (Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object {$_.DisplayName -clike 'Git*' } | Select-Object DisplayName, DisplayVersion)
-    if ($InstalledGit.DisplayName -eq $null) {
+    if ($null -eq $InstalledGit.DisplayName) {
         return $False
     } elseif ($InstalledGit.DisplayName -clike 'Git*' -and $InstalledGit.DisplayVersion -clike "$gitVersion*") {
         return $True
@@ -211,7 +212,7 @@ function Install-WinFOR {
     $errors = (Select-String -Path $logFile -Pattern '          ID:' -Context 0,6 | ForEach-Object{$_.Line; $_.Context.DisplayPostContext + "`r-------------"})
     }
 	$errorLogFile = "C:\winfor-errors-$installVersion.log"
-    if ($failures -ne 0 -and $failures -ne $null) {
+    if ($failures -ne 0 -and $null -ne $failures) {
         $errors | Out-File $errorLogFile -Append
         Write-Host $results -ForegroundColor Yellow
         Write-Host "[!] To determine the cause of the failures, review the log file $logFile and search for lines containing [ERROR   ] or review $errorLogFile for a less verbose listing." -ForegroundColor Yellow
@@ -229,7 +230,6 @@ function Install-WinFOR {
 }
 
 function Invoke-WinFORInstaller {
-    $versionFile = "C:\ProgramData\Salt Project\Salt\srv\salt\winfor-version"
     $runningUser = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     if (-Not $runningUser.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Write-Host "[!] Not running as administrator, please re-run this script as Administrator" -ForegroundColor Red
@@ -279,7 +279,6 @@ function Invoke-WSLInstaller {
         $apiUri = "https://api.github.com/repos/digitalsleuth/winfor-salt/releases/latest"
         $latestVersion = ((((Invoke-WebRequest $apiUri -UseBasicParsing).Content) | ConvertFrom-Json).zipball_url).Split('/')[-1]
         $installVersion = $latestVersion
-        $logFile = "C:\winfor-saltstack-$installVersion.log"
         Get-WinFORRelease $installVersion
     }
     Write-Host "[+] Preparing for WSLv2 Installation" -ForegroundColor Green
@@ -289,7 +288,7 @@ function Invoke-WSLInstaller {
     ### If the above is successful, the following lines have no effect, as a reboot will have occurred.
     ### However, if they are not successful, the following will log the errors in a separate file for examination.
     $wslErrors = (Select-String -Path $wslLogFile -Pattern '          ID:' -Context 0,6 | ForEach-Object{$_.Line; $_.Context.DisplayPostContext + "`r-------------"})
-    if ($wslErrors -ne 0 -and $wslErrors -ne $null) {
+    if ($wslErrors -ne 0 -and $null -ne $wslErrors) {
         $wslErrors | Out-File $wslErrorLog -Append
     }
 }
@@ -312,7 +311,6 @@ Usage:
 }
 
 function Get-WinFORVersion {
-    $versionFile = "C:\ProgramData\Salt Project\Salt\srv\salt\winfor-version"
     if(-Not (Test-Path $versionFile)) {
         $winforVersion = 'not installed'
     } else {
