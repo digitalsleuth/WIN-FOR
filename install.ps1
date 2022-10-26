@@ -10,7 +10,7 @@
         Additionally, the Win-FOR states allow for the automated installation of the Windows Subsystem for Linux v2, and comes with
         the REMnux and SIFT toolsets, making the VM a one-stop shop for forensics!
     .NOTES
-        Version        : 3.1
+        Version        : 3.1.1
         Author         : Corey Forman (https://github.com/digitalsleuth)
         Prerequisites  : Windows 10 1909 or later
                        : Set-ExecutionPolicy must allow for script execution
@@ -51,6 +51,8 @@
 param (
   [string]$User = "",
   [string]$Mode = "",
+  [string]$XUser = "",
+  [string]$XPass = "",
   [switch]$Update,
   [switch]$Upgrade,
   [switch]$Version,
@@ -58,7 +60,7 @@ param (
   [switch]$WslOnly,
   [switch]$Help
 )
-[string]$installerVersion = 'v3.1'
+[string]$installerVersion = 'v3.1.1'
 [string]$saltstackVersion = '3004.2-1'
 [string]$saltstackFile = 'Salt-Minion-' + $saltstackVersion + '-Py3-AMD64-Setup.exe'
 [string]$saltstackHash = "0216A7E800B4C2BD6D7C69D25E4997439F6A5F35E015ED4D0933D5654E89D4C9"
