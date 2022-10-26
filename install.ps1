@@ -10,7 +10,7 @@
         Additionally, the Win-FOR states allow for the automated installation of the Windows Subsystem for Linux v2, and comes with
         the REMnux and SIFT toolsets, making the VM a one-stop shop for forensics!
     .NOTES
-        Version        : 3.0
+        Version        : 3.1
         Author         : Corey Forman (https://github.com/digitalsleuth)
         Prerequisites  : Windows 10 1909 or later
                        : Set-ExecutionPolicy must allow for script execution
@@ -29,6 +29,10 @@
         Identifies the latest version of Win-FOR and will install that version
     .PARAMETER Version
         Print the current version of the installed Win-FOR environment
+    .PARAMETER XUser
+        The Username for the X-Ways portal - Required to download and install X-Ways
+    .PARAMETER XPass
+        The Password for the X-Ways portal - Required to download and install X-Ways - "QUOTES REQUIRED"
     .PARAMETER IncludeWsl
         When selected, will install the Windows Subsystem for Linux v2, and will install the SIFT and REMnux toolsets.
         This option assumes you also want the full Win-FOR suite, and will install that first, then WSL last
@@ -37,7 +41,7 @@
         or you only want that particular feature and nothing else, this option will do just that. It will not install the Win-FOR
         states.
     .Example
-        .\install.ps1 -User forensics -Mode dedicated -IncludeWsl
+        .\install.ps1 -User forensics -Mode dedicated -IncludeWsl -XUser forensics -XPass "password123"
 	.\install.ps1 -WslOnly
         .\install.ps1 -Version
         .\install.ps1 -Update
@@ -54,7 +58,7 @@ param (
   [switch]$WslOnly,
   [switch]$Help
 )
-[string]$installerVersion = 'v3.0'
+[string]$installerVersion = 'v3.1'
 [string]$saltstackVersion = '3004.2-1'
 [string]$saltstackFile = 'Salt-Minion-' + $saltstackVersion + '-Py3-AMD64-Setup.exe'
 [string]$saltstackHash = "0216A7E800B4C2BD6D7C69D25E4997439F6A5F35E015ED4D0933D5654E89D4C9"
@@ -202,6 +206,10 @@ function Install-WinFOR {
     $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
     $logFile = "C:\winfor-saltstack-$installVersion.log"
     Get-WinFORRelease $installVersion
+    if (($XUser -ne "") -and ($XPass -ne "")) {
+        $AuthToken = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($XUser + ":" + $XPass))
+        ((Get-Content 'C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls') -replace ' = "TOKENPLACEHOLDER"', (" = "+ '"' + $AuthToken + '"')) | Set-Content 'C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls'
+        }
     Write-Host "[+] The Win-FOR installer command is running, configuring for user $User - this will take a while... please be patient" -ForegroundColor Green
     Start-Process -Wait -FilePath "C:\Program Files\Salt Project\Salt\salt-call.bat" -ArgumentList ("-l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.$Mode pillar=`"{'winfor_user': '$User'}`" --log-file-level=debug --log-file=`"$logFile`" --out-file=`"$logFile`" --out-file-append") | Out-Null
     if (-Not (Test-Path $logFile)) {
@@ -304,6 +312,8 @@ Usage:
     -Update       Identifies the current version of WIN-FOR and re-installs all states from that version
     -Upgrade      Identifies the latest version of WIN-FOR and will install that version
     -Version      Displays the current version of WIN-FOR (if installed) then exits
+    -XUser        The Username for the X-Ways portal - Required to download and install X-Ways
+    -XPass        The Password for the X-Ways portal - Required to download and install X-Ways - USE QUOTES
     -IncludeWsl   Will install the Windows Subsystem for Linux v2 with SIFT and REMnux toolsets
                   This option assumes you also want the full WIN-FOR suite, install that first, then WSL
     -WslOnly      If you wish to only install WSLv2 with SIFT and REMnux separately, without the tools
