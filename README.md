@@ -8,7 +8,7 @@ install all of the packages.
 If using the PowerShell script, the install requires that the `Set-ExecutionPolicy Bypass` feature be set to allow the script to run at least twice, depending on your choices.
 This is best left to you to decide what is acceptable in your organization.
 
-If using the standalone executable script, you can execute this from and Administrator Command Prompt.
+If using the standalone executable script, you can execute this from an Administrator Command Prompt.
 
 Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
 
