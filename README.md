@@ -50,3 +50,5 @@ Installs [Saltstack 3005.1-3](https://repo.saltproject.io/windows/Salt-Minion-30
 git clone https://github.com/digitalsleuth/winfor-salt/ "C:\ProgramData\Salt Project\Salt\srv\salt"
 salt-call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.$mode pillar="{'winfor_user': '$user'}" --log-file="C:\winfor-saltstack.log" --log-file-level=debug --out-file="C:\winfor-saltstack.log" --out-file-append
 ```
+  
+The standalone executable installer converted from PowerShell to executable using [PS2EXE](https://github.com/MScholtes/PS2EXE)
