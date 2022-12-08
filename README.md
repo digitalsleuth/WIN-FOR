@@ -1,5 +1,5 @@
-# WIN-FOR
-Windows Forensics System Builder
+# Win-FOR
+Windows Forensics Environment (Win-FOR) Builder
 
 The design behind this is to use a barebones Windows 10 VM or a Windows machine (preferably 1909 and higher to support WSLv2).
 Once configured, and activated (to support customization features), then you can use the winfor-cli.ps1 file to
@@ -10,17 +10,17 @@ This is best left to you to decide what is acceptable in your organization.
 
 If using the standalone executable script, you can execute this from and Administrator Command Prompt.
 
-Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section at the [Win-FOR repo](https://github.com/digitalsleuth/WIN-FOR) for the most up-to-date installers.
+Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
 
 ## Usage
 ```text
-Usage:
-  .\winfor-cli.ps1 -Install -User <user> -Mode <mode> -IncludeWsl -XUser forensics -XPass "password123"
-  .\winfor-cli.ps1 -Update
-  .\winfor-cli.ps1 -Upgrade
-  .\winfor-cli.ps1 -WslOnly
-  .\winfor-cli.ps1 -Version
-  .\winfor-cli.ps1 -Help
+Usage (.\winfor-cli.ps1 or winfor-cli.exe):
+  winfor-cli -Install -User <user> -Mode <mode> -IncludeWsl -XUser forensics -XPass "password123"
+  winfor-cli -Update
+  winfor-cli -Upgrade
+  winfor-cli -WslOnly
+  winfor-cli -Version
+  winfor-cli -Help
 
 Usage:
     -Install      Installs the Win-FOR environment
