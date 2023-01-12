@@ -42,15 +42,12 @@ Usage:
 
 ## Issues
 
-All issues should be raised at the [WIN-FOR Repo](https://github.com/digitalsleuth/WIN-FOR)
+All issues should be raised [here](https://github.com/digitalsleuth/WIN-FOR/Issues)
 
 ## What the winfor-cli.ps1 and the winfor-cli.exe installers do:
 
-Installs [Saltstack 3005.1-3](https://repo.saltproject.io/windows/Salt-Minion-3005.1-3-Py3-AMD64-Setup.exe) then installs
-[Git](https://git-scm.com/download/win), then runs the following commands:
-```
-git clone https://github.com/digitalsleuth/winfor-salt/ "C:\ProgramData\Salt Project\Salt\srv\salt"
-salt-call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.$mode pillar="{'winfor_user': '$user', 'inpath': '$StandalonesPath'}" --log-file="C:\winfor-saltstack.log" --log-file-level=debug --out-file="C:\winfor-saltstack.log" --out-file-append
-```
+Installs [Saltstack 3005.1-3](https://repo.saltproject.io/windows/Salt-Minion-3005.1-3-Py3-AMD64-Setup.exe)  
+Installs [Git](https://git-scm.com/download/win)  
+Executes the salt states from [winfor-salt](https://github.com/digitalsleuth/winfor-salt)  
   
 The standalone executable installer converted from PowerShell to executable using [PS2EXE](https://github.com/MScholtes/PS2EXE)
