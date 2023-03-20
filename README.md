@@ -8,7 +8,7 @@ install all of the packages.
 
 The installation methods are:
 
-- Win-FOR Customizer COMING SOON: graphical interface to click and choose which items you want, and to enter the settings you need
+- Win-FOR Customizer **COMING SOON**: graphical interface to click and choose which items you want, and to enter the settings you need
 - winfor-cli.exe: a command-line tool, requiring execution from an Administrator command prompt
 - winfor-cli.ps1: a PowerShell based tool, exactly the same as the command-line exe, but requires an Administrator PowerShell prompt and to have the `Set-ExecutionPolicy Bypass` parameter set
 
@@ -16,7 +16,7 @@ Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) sect
 
 ## Win-FOR Customizer
 
-**FIRST OFF - Requires .NET 6.0 Desktop Runtime**
+**FIRST OFF - Requires .NET 6.0 Desktop Runtime**  
 **If you do not have it, you will be prompted to install at execution**
 
 Why a GUI? Who doesn't like a good GUI!?
@@ -33,6 +33,8 @@ The customizer tool gives you the following features:
 - Graphically enter any settings you need!
 
 **The `Install` and `WSL Only` features are only accessible if the Customizer is run as Administrator (since these need Admin privileges to execute)**
+
+![screenshot-v6 0 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v6.0.0.0.png)
 
 ## PowerShell or CLI
 
