@@ -1,18 +1,48 @@
 # Win-FOR
+
 Windows Forensics Environment (Win-FOR) Builder
 
 The design behind this is to use a barebones Windows 10 VM or a Windows machine (preferably 1909 and higher to support WSLv2).
-Once configured, and activated (to support customization features), then you can use the winfor-cli.ps1 file to
+Once configured, and activated (to support customization features), then you can use one of the installers to
 install all of the packages.
+
+The installation methods are:
+
+- Win-FOR Customizer COMING SOON: graphical interface to click and choose which items you want, and to enter the settings you need
+- winfor-cli.exe: a command-line tool, requiring execution from an Administrator command prompt
+- winfor-cli.ps1: a PowerShell based tool, exactly the same as the command-line exe, but requires an Administrator PowerShell prompt and to have the `Set-ExecutionPolicy Bypass` parameter set
+
+Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
+
+## Win-FOR Customizer
+
+**FIRST OFF - Requires .NET 6.0 Desktop Runtime**
+**If you do not have it, you will be prompted to install at execution**
+
+Why a GUI? Who doesn't like a good GUI!?
+Not everyone enjoys Windows command line or PowerShell, especially when just starting out in Digital Forensics.
+This makes it much easier to get your environment set up without having to worry about CMD or PS!
+
+The customizer tool gives you the following features:
+
+- Point and click to choose which tools you want installed in your distro (instead of just choosing them all)
+- Checkboxes to choose if you want the WSLv2 with SIFT and REMnux installed during the process, or click `WSL Only` to install it at a later date
+- Save your current selections in a custom SaltStack State file for your own purposes or record
+- Identify the current version of the Win-FOR environment with a single click
+- Check for updates to the Customizer
+- Graphically enter any settings you need!
+
+**The `Install` and `WSL Only` features are only accessible if the Customizer is run as Administrator (since these need Admin privileges to execute)**
+
+## PowerShell or CLI
 
 If using the PowerShell script, the install requires that the `Set-ExecutionPolicy Bypass` feature be set to allow the script to run at least twice, depending on your choices.
 This is best left to you to decide what is acceptable in your organization.
 
 If using the standalone executable script, you can execute this from an Administrator Command Prompt.
 
-Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
+### Usage of the CLI or PowerShell script
 
-## Usage
 ```text
 Usage (.\winfor-cli.ps1 or winfor-cli.exe):
   winfor-cli -Install -User <user> -Mode <mode> -IncludeWsl -XUser forensics -XPass "<your_password>"
@@ -44,10 +74,4 @@ Usage:
 
 All issues should be raised [here](https://github.com/digitalsleuth/WIN-FOR/Issues)
 
-## What the winfor-cli.ps1 and the winfor-cli.exe installers do:
-
-Installs [Saltstack 3005.1-3](https://repo.saltproject.io/windows/Salt-Minion-3005.1-3-Py3-AMD64-Setup.exe)  
-Installs [Git](https://git-scm.com/download/win)  
-Executes the salt states from [winfor-salt](https://github.com/digitalsleuth/winfor-salt)  
-  
 The standalone executable installer converted from PowerShell to executable using [PS2EXE](https://github.com/MScholtes/PS2EXE)
