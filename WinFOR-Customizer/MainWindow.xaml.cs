@@ -50,7 +50,7 @@ namespace WinFOR_Customizer
                 install_wsl_button.IsEnabled = false;
                 download_button.IsEnabled = false;
             }
-            Version.Content = $"v{appversion}-rc5";
+            Version.Content = $"v{appversion}";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -63,12 +63,16 @@ namespace WinFOR_Customizer
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowCRA, new KeyGesture(Key.R, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowWIN, (sender, e) => { WINFOR_Default(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowWIN, new KeyGesture(Key.W, ModifierKeys.Control)));
-            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckAll, (sender, e) => { Check_All(); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckAll, new KeyGesture(Key.A, ModifierKeys.Control)));
-            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.UnCheckAll, (sender, e) => { UnCheck_All(); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.UnCheckAll, new KeyGesture(Key.U, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.DownloadToolList, (sender, e) => { Download_ToolList(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.DownloadToolList, new KeyGesture(Key.T, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckForUpdates, (sender, e) => { Check_Updates(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckForUpdates, new KeyGesture(Key.U, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowLatest, (sender, e) => { Show_LatestRelease(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowLatest, new KeyGesture(Key.G, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckDistroVersion, (sender, e) => { Check_DistroVersion(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.V, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowAbout, (sender, e) => { Show_About(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowAbout, new KeyGesture(Key.A, ModifierKeys.Control)));
         }
         public static class KeyboardShortcuts
         // Setup bindings and RoutedCommands for Keyboard Shortcuts for the Menu
@@ -80,20 +84,23 @@ namespace WinFOR_Customizer
                 ShowCPC = new RoutedCommand("ShowCPC", typeof(MainWindow));
                 ShowCRA = new RoutedCommand("ShowCRA", typeof(MainWindow));
                 ShowWIN = new RoutedCommand("ShowWIN", typeof(MainWindow));
-                CheckAll = new RoutedCommand("CheckAll", typeof(MainWindow));
-                UnCheckAll = new RoutedCommand("UnCheckAll", typeof(MainWindow));
                 DownloadToolList = new RoutedCommand("DownloadToolList", typeof(MainWindow));
+                CheckForUpdates = new RoutedCommand("CheckForUpdates", typeof(MainWindow));
+                ShowLatest = new RoutedCommand("ShowLatest", typeof(MainWindow));
+                CheckDistroVersion = new RoutedCommand("CheckDistroVersion", typeof(MainWindow));
+                ShowAbout = new RoutedCommand("ShowAbout", typeof(MainWindow));
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
             public static RoutedCommand ShowCPC { get; private set; }
             public static RoutedCommand ShowCRA { get; private set; }
             public static RoutedCommand ShowWIN { get; private set; }
-            public static RoutedCommand CheckAll { get; private set; }
-            public static RoutedCommand UnCheckAll { get; private set; }
             public static RoutedCommand DownloadToolList { get; private set; }
+            public static RoutedCommand CheckForUpdates { get; private set; }
+            public static RoutedCommand ShowLatest { get; private set; }
+            public static RoutedCommand CheckDistroVersion { get; private set; }
+            public static RoutedCommand ShowAbout { get; private set; }
         }
-
         public class TextBoxOutputter : TextWriter
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
         {
@@ -1533,11 +1540,11 @@ namespace WinFOR_Customizer
                         await readOutput;
                         if (saltproc.HasExited && saltproc.ExitCode != 0)
                         {
-                            Console_Output("SaltStack installation has completed with errors.");
+                            Console_Output("Installation has completed with errors.");
                         }
                         else if (saltproc.HasExited && saltproc.ExitCode == 0)
                         {
-                            Console_Output("SaltStack installation has completed successfully.");
+                            Console_Output("Installation has completed successfully.");
                         }
                     }
                 }
@@ -1592,11 +1599,11 @@ namespace WinFOR_Customizer
                         await readOutput;
                         if (saltproc.HasExited && saltproc.ExitCode != 0)
                         {
-                            Console_Output("SaltStack installation has completed with errors.");
+                            Console_Output("Download process has completed with errors.");
                         }
                         else if (saltproc.HasExited && saltproc.ExitCode == 0)
                         {
-                            Console_Output("SaltStack installation has completed successfully.");
+                            Console_Output("Download process has completed successfully.");
                         }
                     }
                 }
@@ -1668,11 +1675,11 @@ namespace WinFOR_Customizer
                         await readOutput;
                         if (wslproc.HasExited && wslproc.ExitCode != 0)
                         {
-                            Console_Output("SaltStack installation has completed with errors.");
+                            Console_Output("WSL installation has completed with errors.");
                         }
                         else if (wslproc.HasExited && wslproc.ExitCode == 0)
                         {
-                            Console_Output("SaltStack installation has completed successfully.");
+                            Console_Output("WSL installation has completed successfully.");
                         }
                     }
                 }
@@ -1953,7 +1960,7 @@ namespace WinFOR_Customizer
                     MessageBoxResult result = MessageBox.Show(
                        $"New version found: {release_tag}\n" +
                        $"Current version: {appversion}\n\n" +
-                       $"Would you like to download the new version?", $"New Version Found - {release_tag}", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                       $"Would you like to download the new version of Win-FOR Customizer?", $"New Version Found - {release_tag}", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result == MessageBoxResult.Yes)
                     {
                         Process.Start(new ProcessStartInfo($"{new_release}") { UseShellExecute = true });
@@ -1961,7 +1968,7 @@ namespace WinFOR_Customizer
                 }
                 else if (release_tag <= appversion)
                 {
-                    MessageBox.Show($"No new release found: {appversion} is the most recent release.", "No new release found", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"No new release of Win-FOR Customizer found:\n{appversion} is the most recent release.", "No new release of Win-FOR Customizer found", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else if (appversion > release_tag)
                 {
@@ -2126,6 +2133,21 @@ namespace WinFOR_Customizer
                 output += $"{line}\n";
             }
             return output;
+        }
+        private async void Show_LatestRelease(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                List<string> release_data = await Identify_Release();
+                MessageBox.Show($"The latest version of Win-FOR is {release_data[0]}\nIf you wish to update, simply select your tools\nand click Install", $"{release_data[0]} is the latest version", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                OutputExpander.IsEnabled = true;
+                OutputExpander.Visibility = Visibility.Visible;
+                OutputExpander.IsExpanded = true;
+                Console_Output($"[ERROR] Unable to determine the latest version:\n{ex}");
+            }
         }
         private void Test_Button(object sender, RoutedEventArgs e)
         // Simply used to test a function without having to modify the GUI environment
