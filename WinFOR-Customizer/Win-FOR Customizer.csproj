@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+    <RootNamespace>WinFOR_Customizer</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Title>Win-FOR Customizer $(AssemblyVersion)</Title>
+    <PackageIcon>fp128.png</PackageIcon>
+    <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <ApplicationIcon>Images\fp.ico</ApplicationIcon>
+    <Version>6.0.0</Version>
+    <AssemblyVersion>6.0.0</AssemblyVersion>
+    <FileVersion>6.0.0</FileVersion>
+    <Authors>Corey Forman (digitalsleuth)</Authors>
+    <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
+    <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>
+    <PackageTags>winfor;crawin;cpcwin;digitalsleuth</PackageTags>
+    <Copyright>Corey Forman (digitalsleuth)</Copyright>
+    <Company>digitalsleuth</Company>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageId>WinFOR.Customizer</PackageId>
+	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\Thumbs.db" />
+    <None Remove="Thumbs.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\fp.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\fpw120.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="docs\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="docs\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Images\fp128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="licenses\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
