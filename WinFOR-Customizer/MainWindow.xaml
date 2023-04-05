@@ -146,6 +146,7 @@
                     <CheckBox x:Name="standalones_scdbg" Content="scdbg" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_scylla" Content="Scylla" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_setdllcharacteristics" Content="setdllcharacteristics" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="standalones_trid" Content="TrID" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_upx" Content="UPX" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="installers_vbdecompiler" Content="VB-Decompiler" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="installers_windbg" Content="WinDbg" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
