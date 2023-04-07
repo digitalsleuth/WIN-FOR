@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Win-FOR Customizer" SizeToContent="Height" Width="540"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen">
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="White">
             <MenuItem Header="_File" x:Name="FileMenu">
@@ -18,6 +19,8 @@
                 <MenuItem Header="C_PC-WIN default tools" x:Name="CPCWINDefaults" Click="CPC_Default" InputGestureText="Ctrl+P"/>
                 <MenuItem Header="C_RA-WIN default tools" x:Name="CRAWINDefaults" Click="CRA_Default" InputGestureText="Ctrl+R"/>
                 <MenuItem Header="_Win-FOR default tools" x:Name="WinFORDefaults" Click="WINFOR_Default" InputGestureText="Ctrl+W"/>
+                <Separator />
+                <MenuItem Header="Clear Console" x:Name="ClearConsole" Click="Clear_Console" />
             </MenuItem>
             <MenuItem Header="_Tools" x:Name="ToolsMenu">
                 <MenuItem Header="_Download Tool List" x:Name="ToolList" Click="Download_ToolList" ToolTip="This will download the PDF tool list from the Win-FOR GitHub Repo" InputGestureText="Ctrl+T"/>
@@ -274,6 +277,7 @@
                     <CheckBox x:Name="packages_wiebetech_writeblocking_validation_utility" Content="WiebeTech WriteBlocking Validation" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_windowgrid" Content="WindowGrid" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="installers_windows_winget" Content="Windows Winget" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="standalones_winfor_customizer" Content="Win-FOR Customizer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" IsEnabled="False"/>                    
                     <CheckBox x:Name="packages_winmerge" Content="WinMerge" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                 </TreeViewItem>
                 <TreeViewItem x:Name="tvi_windows" IsExpanded="False" IsTabStop="True" TabIndex="15">

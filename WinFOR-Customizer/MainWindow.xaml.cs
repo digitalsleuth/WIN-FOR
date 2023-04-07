@@ -50,7 +50,7 @@ namespace WinFOR_Customizer
                 install_wsl_button.IsEnabled = false;
                 download_button.IsEnabled = false;
             }
-            Version.Content = $"v{appversion}";
+            Version.Content = $"v{appversion}-rc8";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -73,6 +73,8 @@ namespace WinFOR_Customizer
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.V, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowAbout, (sender, e) => { Show_About(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowAbout, new KeyGesture(Key.A, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ToolList, (sender, e) => { Tool_List(); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ToolList, new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift)));
         }
         public static class KeyboardShortcuts
         // Setup bindings and RoutedCommands for Keyboard Shortcuts for the Menu
@@ -89,6 +91,7 @@ namespace WinFOR_Customizer
                 ShowLatest = new RoutedCommand("ShowLatest", typeof(MainWindow));
                 CheckDistroVersion = new RoutedCommand("CheckDistroVersion", typeof(MainWindow));
                 ShowAbout = new RoutedCommand("ShowAbout", typeof(MainWindow));
+                ToolList = new RoutedCommand("ToolList", typeof(MainWindow));
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
@@ -100,6 +103,7 @@ namespace WinFOR_Customizer
             public static RoutedCommand ShowLatest { get; private set; }
             public static RoutedCommand CheckDistroVersion { get; private set; }
             public static RoutedCommand ShowAbout { get; private set; }
+            public static RoutedCommand ToolList { get; private set; }
         }
         public class TextBoxOutputter : TextWriter
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
@@ -129,11 +133,10 @@ namespace WinFOR_Customizer
         public static bool IsAdministrator()
         // Some functions require administrative privilege - Check to see if the application is run as Admin
         {
-            return new WindowsPrincipal(WindowsIdentity.GetCurrent())
-                      .IsInRole(WindowsBuiltInRole.Administrator);
+            return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        // Loop through Visual objects and find children of the item to perform operations
+            // Loop through Visual objects and find children of the item to perform operations
         {
             if (depObj == null) yield return (T)Enumerable.Empty<T>();
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
@@ -151,7 +154,7 @@ namespace WinFOR_Customizer
             return logicalCollection;
         }
         private static void GetLogicalChildCollection<T>(DependencyObject parent, List<T> logicalCollection) where T : DependencyObject
-        // Loop through Logical objects (visible or not) to perform operations on them.
+            // Loop through Logical objects (visible or not) to perform operations on them.
         {
             IEnumerable children = LogicalTreeHelper.GetChildren(parent);
             foreach (object child in children)
@@ -176,7 +179,7 @@ namespace WinFOR_Customizer
                 e.Handled = true;
             }
             catch (Exception ex)
-            { 
+            {
                 Console_Output($"[ERROR] Unable to launch process:\n{ex}");
             }
         }
@@ -278,86 +281,148 @@ namespace WinFOR_Customizer
                 Expand_All();
                 foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
                 {
-                    cb.IsChecked = true;
+                    cb.IsChecked = false;
                     cb.IsEnabled = true;
                 }
-                List<CheckBox> non_cpc_items = new()
-            {
-                packages_4n6_email_forensics_wizard,
-                packages_agentransack,
-                packages_brim,
-                packages_eventlog_explorer,
-                packages_ksdumper11,
-                packages_ntcore_explorersuite,
-                packages_plist_editor,
-                packages_pst_walker,
-                packages_razorsql_x64,
-                packages_winmerge,
-                installers_cygwin,
-                installers_fec,
-                installers_vbdecompiler,
-                installers_windbg,
-                installers_windows_sandbox,
-                installers_windows_terminal,
-                installers_windows_winget,
-                standalones_aurora,
-                standalones_autoit_extractor,
-                standalones_bytecode_viewer,
-                standalones_capa,
-                standalones_chainsaw,
-                standalones_cutter,
-                standalones_densityscout,
-                standalones_dex2jar,
-                standalones_die,
-                standalones_dotpeek,
-                standalones_email_header_analyzer,
-                standalones_exeinfope,
-                standalones_exiftoolgui,
-                standalones_floss,
-                standalones_hollows_hunter,
-                standalones_ilspy,
-                standalones_innoextract,
-                standalones_innounp,
-                standalones_jd_gui,
-                standalones_lessmsi,
-                standalones_lrc_cedarpelta,
-                standalones_malcat,
-                standalones_mal_unpack,
-                standalones_memprocfs,
-                standalones_network_miner,
-                standalones_officemalscanner,
-                standalones_pe_bear,
-                standalones_peid,
-                standalones_pe_sieve,
-                standalones_pestudio,
-                standalones_pev,
-                standalones_photorec,
-                standalones_ppee,
-                standalones_procdot,
-                standalones_py2exedecompiler,
-                standalones_regshot,
-                standalones_resource_hacker,
-                standalones_scdbg,
-                standalones_scylla,
-                standalones_setdllcharacteristics,
-                standalones_thumbcacheviewer,
-                standalones_trid,
-                standalones_unautoit,
-                standalones_uniextract2,
-                standalones_upx,
-                standalones_windows_timeline,
-                standalones_x64dbg,
-                python2_tools_flare_fakenet_ng,
-                python3_tools_bmc_tools,
-                python3_tools_decompyle3,
-                python3_tools_naft,
-                python3_tools_noriben,
-                python3_tools_pcodedmp,
-                python3_tools_pyinstxtractor
-            };
-                foreach (CheckBox c in non_cpc_items)
+                List<CheckBox> cpc_items = new()
                 {
-                    c.IsChecked = false;
+                    installers_data_dump,
+                    installers_dcode,
+                    installers_fastcopy,
+                    installers_hxd,
+                    installers_irfanview_plugins,
+                    installers_magnet_axiom,
+                    installers_mobaxterm,
+                    installers_systools_pst_viewer,
+                    packages_active_disk_editor,
+                    packages_apimonitor,
+                    packages_autopsy,
+                    packages_bulk_extractor,
+                    packages_bulkrenameutility,
+                    packages_burpsuite_community,
+                    packages_cerbero_suite,
+                    packages_chrome,
+                    packages_db_browser_sqlite,
+                    packages_dbeaver,
+                    packages_elcomsoft_efdd,
+                    packages_fiddler,
+                    packages_fileinsight,
+                    packages_firefox,
+                    packages_free_hex_editor_neo,
+                    packages_ftk_imager,
+                    packages_google_earth_pro,
+                    packages_hashcheck,
+                    packages_httplogbrowser,
+                    packages_irfanview,
+                    packages_itunes,
+                    packages_kernel_edb_viewer,
+                    packages_kernel_ost_viewer,
+                    packages_kernel_pst_viewer,
+                    packages_libreoffice,
+                    packages_logparser,
+                    packages_magnet_acquire,
+                    packages_magnet_chromebook_acquisition,
+                    packages_mdf_viewer,
+                    packages_monolith_notes,
+                    packages_ms_powertoys,
+                    packages_npp,
+                    packages_nuix_evidence_mover,
+                    packages_openhashtab,
+                    packages_passware_encryption_analyzer,
+                    packages_pdfstreamdumper,
+                    packages_process_hacker,
+                    packages_putty,
+                    packages_sqlitestudio,
+                    packages_sublime_text,
+                    packages_tableau_firmware_update,
+                    packages_tableau_imager,
+                    packages_vcxsrv,
+                    packages_veracrypt,
+                    packages_virtualbox,
+                    packages_vlc,
+                    packages_vscode,
+                    packages_wiebetech_writeblocking_validation_utility,
+                    packages_wireshark,
+                    python2_tools_volatility2,
+                    python3_tools_aleapp,
+                    python3_tools_amcache,
+                    python3_tools_autotimeliner,
+                    python3_tools_bitsparser,
+                    python3_tools_ileapp,
+                    python3_tools_iptools,
+                    python3_tools_msoffcrypto_crack,
+                    python3_tools_msoffcrypto_tool,
+                    python3_tools_oledump,
+                    python3_tools_olefile,
+                    python3_tools_oletools,
+                    python3_tools_pdf_parser,
+                    python3_tools_pdfid,
+                    python3_tools_rtfdump,
+                    python3_tools_time_decode,
+                    python3_tools_usbdeviceforensics,
+                    python3_tools_usn_journal_parser,
+                    python3_tools_vleapp,
+                    python3_tools_volatility3,
+                    python3_tools_wleapp,
+                    python3_tools_xlmmacrodeobfuscator,
+                    python3_tools_yara_python,
+                    standalones_arsenal_image_mounter,
+                    standalones_autorunner,
+                    standalones_bintext,
+                    standalones_bitrecover_eml_viewer,
+                    standalones_bulkrenameutility_portable,
+                    standalones_caine,
+                    standalones_cyberchef,
+                    standalones_eventfinder,
+                    standalones_evtx_dump,
+                    standalones_exiftool,
+                    standalones_glossary_generator,
+                    standalones_hayabusa,
+                    standalones_hex2guid,
+                    standalones_hibernation_recon,
+                    standalones_hindsight,
+                    standalones_iphone_analyzer,
+                    standalones_kansa,
+                    standalones_kape,
+                    standalones_logfileparser,
+                    standalones_logparser_studio,
+                    standalones_logviewer2,
+                    standalones_magnet_edd,
+                    standalones_magnet_process_capture,
+                    standalones_magnet_ram_capture,
+                    standalones_magnet_response,
+                    standalones_magnet_web_page_saver_portable,
+                    standalones_megatools,
+                    standalones_mftbrowser,
+                    standalones_mimikatz,
+                    standalones_mitec,
+                    standalones_nirsoft,
+                    standalones_ntcore,
+                    standalones_ntfs_log_tracker,
+                    standalones_offvis,
+                    standalones_pilfer,
+                    standalones_psdecode,
+                    standalones_regripper,
+                    standalones_rufus,
+                    standalones_shadowexplorer,
+                    standalones_silketw,
+                    standalones_sleuthkit,
+                    standalones_smi_parser,
+                    standalones_srum_dump2,
+                    standalones_sysinternals,
+                    standalones_usb_write_blocker,
+                    standalones_usbdetective,
+                    standalones_velociraptor,
+                    standalones_vssmount,
+                    standalones_windowgrid,
+                    standalones_winpmem,
+                    standalones_wmi_parser,
+                    standalones_x_ways,
+                    standalones_zimmerman
+                };
+                foreach (CheckBox c in cpc_items)
+                {
+                    c.IsChecked = true;
                 }
             }
             catch (Exception ex)
@@ -373,100 +438,135 @@ namespace WinFOR_Customizer
                 Expand_All();
                 foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
                 {
-                    cb.IsChecked = true;
+                    cb.IsChecked = false;
                     cb.IsEnabled = true;
                 }
-                List<CheckBox> non_cra_items = new()
+                List<CheckBox> cra_items = new()
             {
-                packages_4n6_email_forensics_wizard,
-                packages_agentransack,
-                packages_brim,
-                packages_bulkrenameutility,
-                packages_elcomsoft_efdd,
-                packages_eventlog_explorer,
-                packages_google_earth_pro,
-                packages_itunes,
-                packages_ksdumper11,
-                packages_ms_powertoys,
-                packages_ntcore_explorersuite,
-                packages_plist_editor,
-                packages_razorsql_x64,
-                packages_veracrypt,
-                packages_virtualbox,
-                packages_vlc,
-                packages_wiebetech_writeblocking_validation_utility,
-                packages_winmerge,
-                installers_cygwin,
-                installers_vbdecompiler,
-                installers_windbg,
-                installers_windows_sandbox,
-                installers_windows_terminal,
-                installers_windows_winget,
-                standalones_aurora,
-                standalones_autoit_extractor,
-                standalones_bitrecover_eml_viewer,
-                standalones_bulkrenameutility_portable,
-                standalones_caine,
-                standalones_capa,
-                standalones_chainsaw,
-                standalones_cutter,
-                standalones_densityscout,
-                standalones_dex2jar,
-                standalones_die,
-                standalones_dotpeek,
-                standalones_email_header_analyzer,
-                standalones_exeinfope,
-                standalones_exiftoolgui,
-                standalones_floss,
-                standalones_glossary_generator,
-                standalones_hex2guid,
-                standalones_hibernation_recon,
-                standalones_hollows_hunter,
-                standalones_ilspy,
-                standalones_innoextract,
-                standalones_innounp,
-                standalones_jd_gui,
-                standalones_lessmsi,
-                standalones_lrc_cedarpelta,
-                standalones_malcat,
-                standalones_mal_unpack,
-                standalones_memprocfs,
-                standalones_network_miner,
-                standalones_ntcore,
-                standalones_pe_bear,
-                standalones_peid,
-                standalones_pe_sieve,
-                standalones_pestudio,
-                standalones_pev,
-                standalones_photorec,
-                standalones_ppee,
-                standalones_procdot,
-                standalones_py2exedecompiler,
-                standalones_regshot,
-                standalones_resource_hacker,
-                standalones_scdbg,
-                standalones_scylla,
-                standalones_setdllcharacteristics,
-                standalones_smi_parser,
-                standalones_thumbcacheviewer,
-                standalones_trid,
-                standalones_unautoit,
-                standalones_uniextract2,
-                standalones_upx,
-                standalones_usbdetective,
-                standalones_windows_timeline,
-                standalones_x64dbg,
-                python2_tools_flare_fakenet_ng,
-                python3_tools_bmc_tools,
-                python3_tools_decompyle3,
-                python3_tools_naft,
-                python3_tools_noriben,
-                python3_tools_pcodedmp,
-                python3_tools_pyinstxtractor
+                    installers_data_dump,
+                    installers_dcode,
+                    installers_fastcopy,
+                    installers_fec,
+                    installers_hxd,
+                    installers_irfanview_plugins,
+                    installers_magnet_axiom,
+                    installers_mobaxterm,
+                    installers_systools_pst_viewer,
+                    packages_active_disk_editor,
+                    packages_apimonitor,
+                    packages_autopsy,
+                    packages_bulk_extractor,
+                    packages_burpsuite_community,
+                    packages_cerbero_suite,
+                    packages_chrome,
+                    packages_db_browser_sqlite,
+                    packages_dbeaver,
+                    packages_fiddler,
+                    packages_fileinsight,
+                    packages_firefox,
+                    packages_free_hex_editor_neo,
+                    packages_ftk_imager,
+                    packages_hashcheck,
+                    packages_httplogbrowser,
+                    packages_irfanview,
+                    packages_kernel_edb_viewer,
+                    packages_kernel_ost_viewer,
+                    packages_kernel_pst_viewer,
+                    packages_libreoffice,
+                    packages_logparser,
+                    packages_magnet_acquire,
+                    packages_magnet_chromebook_acquisition,
+                    packages_mdf_viewer,
+                    packages_monolith_notes,
+                    packages_npp,
+                    packages_nuix_evidence_mover,
+                    packages_openhashtab,
+                    packages_passware_encryption_analyzer,
+                    packages_pdfstreamdumper,
+                    packages_process_hacker,
+                    packages_pst_walker,
+                    packages_putty,
+                    packages_sqlitestudio,
+                    packages_sublime_text,
+                    packages_tableau_firmware_update,
+                    packages_tableau_imager,
+                    packages_vcxsrv,
+                    packages_vlc,
+                    packages_vscode,
+                    packages_wireshark,
+                    python2_tools_volatility2,
+                    python3_tools_aleapp,
+                    python3_tools_amcache,
+                    python3_tools_autotimeliner,
+                    python3_tools_bitsparser,
+                    python3_tools_ileapp,
+                    python3_tools_iptools,
+                    python3_tools_msoffcrypto_crack,
+                    python3_tools_msoffcrypto_tool,
+                    python3_tools_oledump,
+                    python3_tools_olefile,
+                    python3_tools_oletools,
+                    python3_tools_pdf_parser,
+                    python3_tools_pdfid,
+                    python3_tools_rtfdump,
+                    python3_tools_time_decode,
+                    python3_tools_usbdeviceforensics,
+                    python3_tools_usn_journal_parser,
+                    python3_tools_vleapp,
+                    python3_tools_volatility3,
+                    python3_tools_wleapp,
+                    python3_tools_xlmmacrodeobfuscator,
+                    python3_tools_yara_python,
+                    standalones_arsenal_image_mounter,
+                    standalones_autorunner,
+                    standalones_bintext,
+                    standalones_bytecode_viewer,
+                    standalones_cyberchef,
+                    standalones_eventfinder,
+                    standalones_evtx_dump,
+                    standalones_exiftool,
+                    standalones_hayabusa,
+                    standalones_hindsight,
+                    standalones_iphone_analyzer,
+                    standalones_kansa,
+                    standalones_kape,
+                    standalones_logfileparser,
+                    standalones_logparser_studio,
+                    standalones_logviewer2,
+                    standalones_magnet_edd,
+                    standalones_magnet_process_capture,
+                    standalones_magnet_ram_capture,
+                    standalones_magnet_response,
+                    standalones_magnet_web_page_saver_portable,
+                    standalones_megatools,
+                    standalones_mftbrowser,
+                    standalones_mimikatz,
+                    standalones_mitec,
+                    standalones_nirsoft,
+                    standalones_ntfs_log_tracker,
+                    standalones_officemalscanner,
+                    standalones_offvis,
+                    standalones_pilfer,
+                    standalones_psdecode,
+                    standalones_regripper,
+                    standalones_rufus,
+                    standalones_shadowexplorer,
+                    standalones_silketw,
+                    standalones_sleuthkit,
+                    standalones_srum_dump2,
+                    standalones_sysinternals,
+                    standalones_usb_write_blocker,
+                    standalones_velociraptor,
+                    standalones_vssmount,
+                    standalones_windowgrid,
+                    standalones_winpmem,
+                    standalones_wmi_parser,
+                    standalones_x_ways,
+                    standalones_zimmerman
             };
-                foreach (CheckBox c in non_cra_items)
+                foreach (CheckBox c in cra_items)
                 {
-                    c.IsChecked = false;
+                    c.IsChecked = true;
                 }
             }
             catch (Exception ex)
@@ -503,7 +603,7 @@ namespace WinFOR_Customizer
         // Determine if the X-Ways CheckBox is checked, and enables the user/pass boxes to enter credentials for the portal
         {
             if (XUser == null || XPass == null)
-            { 
+            {
                 return;
             }
             XUser.IsEnabled = true;
@@ -515,7 +615,7 @@ namespace WinFOR_Customizer
         // Determine if the X-Ways CheckBox is unchecked, and disables the user/pass boxes
         {
             if (XUser == null || XPass == null)
-            { 
+            {
                 return;
             }
             XUser.IsEnabled = false;
@@ -761,7 +861,7 @@ namespace WinFOR_Customizer
             List<string> checked_items_content = new();
             try
             {
-                
+
                 foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
                 {
                     if (cb.IsChecked == true)
@@ -1061,7 +1161,7 @@ namespace WinFOR_Customizer
                 {
                     git_installed = false;
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -2103,7 +2203,7 @@ namespace WinFOR_Customizer
                 }
             }
             catch (IOException)
-            { 
+            {
                 Console_Output($"{logfile} is being used by another process.");
                 output = $"{logfile} is being used by another process.\n";
             }
@@ -2124,17 +2224,18 @@ namespace WinFOR_Customizer
         {
             Process.Start(new ProcessStartInfo($"https://github.com/digitalsleuth/WIN-FOR/raw/main/WIN-FOR-Tool-List.pdf") { UseShellExecute = true });
         }
-        private string Tool_List()
-        // Currently not implemented, but will provide the Proper Name for the tools selected
+        private void Tool_List()
+        // Currently not 'implemented', but will provide the Proper Name for the tools selected
         {
+            OutputExpander.IsEnabled = true;
+            OutputExpander.Visibility = Visibility.Visible;
+            OutputExpander.IsExpanded = true;
             (_, List<string> checked_content) = GetCheck_Status();
-            string output = "";
+            //(List<string> checked_tools, List<string> checked_content) = GetCheck_Status();
             checked_content.Sort();
-            foreach (string line in checked_content)
-            {
-                output += $"{line}\n";
-            }
-            return output;
+            //var result = checked_tools.Zip(checked_content, (a, b) => new { tool_name = a, tool_content = b });
+            //Console.WriteLine($"{string.Join("\n", result)}");
+            Console.WriteLine($"{string.Join("\n", checked_content)}");
         }
         private async void Show_LatestRelease(object sender, RoutedEventArgs e)
         {
@@ -2151,10 +2252,16 @@ namespace WinFOR_Customizer
                 Console_Output($"[ERROR] Unable to determine the latest version:\n{ex}");
             }
         }
-        private void Test_Button(object sender, RoutedEventArgs e)
-        // Simply used to test a function without having to modify the GUI environment
+        public void Test_Button(object sender, RoutedEventArgs e)
         {
-
+            
+        }
+        private void Clear_Console(object sender, RoutedEventArgs e)
+        {
+            OutputConsole.Clear();
+            OutputExpander.IsEnabled = false;
+            OutputExpander.Visibility = Visibility.Hidden;
+            OutputExpander.IsExpanded = false;
         }
     }
 }
