@@ -50,7 +50,7 @@ namespace WinFOR_Customizer
                 install_wsl_button.IsEnabled = false;
                 download_button.IsEnabled = false;
             }
-            Version.Content = $"v{appversion}-rc8";
+            Version.Content = $"v{appversion}-rc9";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
