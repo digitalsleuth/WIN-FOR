@@ -7,10 +7,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
-using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
 namespace WinFOR_Customizer
@@ -40,17 +41,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            if (!IsAdministrator())
-            {
-                MessageBox.Show("In order to use the Install function of this application,\nit must be run as Administrator",
-                                "Not running as Administrator - Install function disabled!",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Exclamation);
-                install_button.IsEnabled = false;
-                install_wsl_button.IsEnabled = false;
-                download_button.IsEnabled = false;
-            }
-            Version.Content = $"v{appversion}-rc9";
+            Version.Content = $"v{appversion}-rc10";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -70,12 +61,15 @@ namespace WinFOR_Customizer
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowLatest, (sender, e) => { Show_LatestRelease(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowLatest, new KeyGesture(Key.G, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckDistroVersion, (sender, e) => { Check_DistroVersion(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.V, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.F, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowAbout, (sender, e) => { Show_About(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowAbout, new KeyGesture(Key.A, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ToolList, (sender, e) => { Tool_List(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ToolList, new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LocalLayout, (sender, e) => { _ = Local_Layout(); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.LocalLayout, new KeyGesture(Key.L, ModifierKeys.Control | ModifierKeys.Shift)));
         }
+
         public static class KeyboardShortcuts
         // Setup bindings and RoutedCommands for Keyboard Shortcuts for the Menu
         {
@@ -92,6 +86,7 @@ namespace WinFOR_Customizer
                 CheckDistroVersion = new RoutedCommand("CheckDistroVersion", typeof(MainWindow));
                 ShowAbout = new RoutedCommand("ShowAbout", typeof(MainWindow));
                 ToolList = new RoutedCommand("ToolList", typeof(MainWindow));
+                LocalLayout = new RoutedCommand("LocalLayout", typeof(MainWindow));
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
@@ -104,6 +99,7 @@ namespace WinFOR_Customizer
             public static RoutedCommand CheckDistroVersion { get; private set; }
             public static RoutedCommand ShowAbout { get; private set; }
             public static RoutedCommand ToolList { get; private set; }
+            public static RoutedCommand LocalLayout { get; private set; }
         }
         public class TextBoxOutputter : TextWriter
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
@@ -129,11 +125,6 @@ namespace WinFOR_Customizer
             {
                 get { return System.Text.Encoding.UTF8; }
             }
-        }
-        public static bool IsAdministrator()
-        // Some functions require administrative privilege - Check to see if the application is run as Admin
-        {
-            return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
             // Loop through Visual objects and find children of the item to perform operations
@@ -661,8 +652,6 @@ namespace WinFOR_Customizer
                 };
                 if (openFile.ShowDialog() == true)
                 {
-                    OutputExpander.Visibility = Visibility.Visible;
-                    OutputExpander.IsExpanded = true;
                     string[] custom_state = File.ReadAllLines(openFile.FileName);
                     string file = openFile.FileName;
                     Expand_All();
@@ -706,8 +695,6 @@ namespace WinFOR_Customizer
                         }
                         else
                         {
-                            OutputExpander.Visibility = Visibility.Visible;
-                            OutputExpander.IsExpanded = true;
                             Console_Output($"{tool} is not an available option - please check your custom state and try again.");
                         }
                     }
@@ -903,8 +890,6 @@ namespace WinFOR_Customizer
         {
             try
             {
-                OutputExpander.Visibility = Visibility.Visible;
-                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
@@ -973,9 +958,9 @@ namespace WinFOR_Customizer
                     user_name = UserName.Text;
                 }
                 Console_Output($"Selected user is {user_name}");
-                if (Standalones.Text != "")
+                if (StandalonesPath.Text != "")
                 {
-                    standalones_path = $@"{Standalones.Text}";
+                    standalones_path = $@"{StandalonesPath.Text}";
                     Console_Output($"Standalones path is {standalones_path}");
                 }
                 else
@@ -1061,6 +1046,11 @@ namespace WinFOR_Customizer
                         Console_Output("Adding authentication token to X-Ways state");
                         Insert_XWaysToken(xways_token);
                     }
+                    if (is_themed)
+                    {
+                        string layout = await Generate_Layout(standalones_path);
+                        File.WriteAllText(@$"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\layout\WIN-FOR-StartLayout.xml", layout);
+                    }
                     bool copied = Copy_CustomState(state_file);
                     if (!copied)
                     {
@@ -1086,7 +1076,7 @@ namespace WinFOR_Customizer
                 Console_Output("SaltStack installation process completed.");
             }
         }
-        public static void Create_TempDirectory(string temp_dir)
+        public void Create_TempDirectory(string temp_dir)
         // Creates a pre-defined temp directory to store required files
         {
             try
@@ -1095,7 +1085,7 @@ namespace WinFOR_Customizer
                 {
                     Console_Output($"Directory {temp_dir} already exists");
                     DirectoryInfo di_temp = new(temp_dir);
-                    di_temp.Attributes &= ~FileAttributes.ReadOnly;
+                    di_temp.Attributes &= ~System.IO.FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_temp = new();
                     securityRules_temp.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_temp.SetAccessControl(securityRules_temp);
@@ -1104,7 +1094,7 @@ namespace WinFOR_Customizer
                 else
                 {
                     DirectoryInfo di_temp = Directory.CreateDirectory(temp_dir);
-                    di_temp.Attributes &= ~FileAttributes.ReadOnly;
+                    di_temp.Attributes &= ~System.IO.FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_temp = new();
                     securityRules_temp.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_temp.SetAccessControl(securityRules_temp);
@@ -1116,7 +1106,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public static bool Check_SaltStackInstalled(string salt_version)
+        public bool Check_SaltStackInstalled(string salt_version)
         // Checks if the pre-determined version of SaltStack is installed
         {
             bool salt_installed = false;
@@ -1142,7 +1132,7 @@ namespace WinFOR_Customizer
             }
             return salt_installed;
         }
-        private static bool Check_GitInstalled(string git_version)
+        private bool Check_GitInstalled(string git_version)
         // Checks if the pre-determined version of Git is installed, required for the implementation of most of the Salt states
         {
             bool git_installed = false;
@@ -1179,7 +1169,7 @@ namespace WinFOR_Customizer
             byte[] fileBytes = await httpClient.GetByteArrayAsync(uri);
             File.WriteAllBytes(download_location, fileBytes);
         }
-        private static async Task Download_SaltStack(string temp_dir, string salt_version, string salt_hash)
+        private async Task Download_SaltStack(string temp_dir, string salt_version, string salt_hash)
         // Downloads the pre-determined version of SaltStack
         {
             try
@@ -1218,7 +1208,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private static async Task Install_Saltstack(string temp_dir, string salt_version)
+        private async Task Install_Saltstack(string temp_dir, string salt_version)
         // Installs the pre-determined version of SaltStack, provided it can be downloaded, or is already downloaded in the temp_dir
         {
             try
@@ -1250,7 +1240,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private static async Task Download_Git(string temp_dir, string git_version, string git_hash)
+        private async Task Download_Git(string temp_dir, string git_version, string git_hash)
         // Downloads the pre-determined version of Git
         {
             string git_file = $"Git-{git_version}-64-bit.exe";
@@ -1288,7 +1278,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private static async Task Install_Git(string temp_dir, string git_version)
+        private async Task Install_Git(string temp_dir, string git_version)
         // Installs the pre-determined version of Git, provided it can be downloaded, or is available in the temp_dir
         {
             try
@@ -1345,7 +1335,7 @@ namespace WinFOR_Customizer
             }
             return release_data;
         }
-        private static async Task Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
+        private async Task Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
         // Downloads the latest winfor-salt states
         {
             try
@@ -1368,7 +1358,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public static bool Compare_Hash(string hash_value, string file)
+        public bool Compare_Hash(string hash_value, string file)
         // Used to calculate the SHA256 hash of a file, and compare it to a given hash
         {
             bool match = false;
@@ -1403,7 +1393,7 @@ namespace WinFOR_Customizer
             }
             return match;
         }
-        private static bool Extract_States(string temp_dir, string release)
+        private bool Extract_States(string temp_dir, string release)
         // Once downloaded, or available, this will extract the winfor-salt states to the required location in the Salt Project\Salt folder
         {
             bool extracted = false;
@@ -1430,14 +1420,14 @@ namespace WinFOR_Customizer
                 if (Directory.Exists(distro_dest))
                 {
                     DirectoryInfo di_dest = new(distro_dest);
-                    di_dest.Attributes &= ~FileAttributes.ReadOnly;
+                    di_dest.Attributes &= ~System.IO.FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_dest = new();
                     securityRules_dest.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_dest.SetAccessControl(securityRules_dest);
                     Directory.Delete(distro_dest, true);
                 }
                 DirectoryInfo di_distro = new(distro_folder);
-                di_distro.Attributes &= ~FileAttributes.ReadOnly;
+                di_distro.Attributes &= ~System.IO.FileAttributes.ReadOnly;
                 DirectorySecurity securityRules_distro = new();
                 securityRules_distro.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                 di_distro.SetAccessControl(securityRules_distro);
@@ -1450,7 +1440,7 @@ namespace WinFOR_Customizer
             }
             return extracted;
         }
-        private static void Insert_XWaysToken(string authtoken)
+        private void Insert_XWaysToken(string authtoken)
         // This function will take the provided authtoken and insert it in the required spot in the x-ways.sls State file once available.
         {
             string state_file = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls";
@@ -1470,7 +1460,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public static bool Copy_CustomState(string state_file)
+        public bool Copy_CustomState(string state_file)
         // A simple copy of the generated custom state_file (from the Generate_State function) to the proper location
         {
             bool copied = false;
@@ -1486,13 +1476,11 @@ namespace WinFOR_Customizer
             }
             return copied;
         }
-        private async void Download_Only(object sender, RoutedEventArgs e)
+        private async void Download_Only(object? sender, RoutedEventArgs e)
         // This is used to generate a custom state for simply downloading the selected files, without any installation or modification
         {
             try
             {
-                OutputExpander.Visibility = Visibility.Visible;
-                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string state_list = Generate_State("download", false);
@@ -1717,7 +1705,7 @@ namespace WinFOR_Customizer
                 await Task.WhenAny(ProcHandled.Task, Task.Delay(1000));
             }
         }
-        private void Process_Exited(object sender, EventArgs e)
+        private void Process_Exited(object? sender, EventArgs e)
         // An Event Handler for tracking the Execute_SaltStack and Execute_SaltStackDownloads functions
         {
             if (sender is Process proc)
@@ -1793,7 +1781,7 @@ namespace WinFOR_Customizer
                 await Task.WhenAny(wslHandled.Task, Task.Delay(3000));
             }
         }
-        private void WslProcess_Exited(object sender, EventArgs e)
+        private void WslProcess_Exited(object? sender, EventArgs e)
         // An Event Handler for tracking the Execute_Wsl process
         {
             if (sender is Process proc)
@@ -1811,8 +1799,6 @@ namespace WinFOR_Customizer
         {
             try
             {
-                OutputExpander.Visibility = Visibility.Visible;
-                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
@@ -1836,9 +1822,9 @@ namespace WinFOR_Customizer
                     user_name = UserName.Text;
                 }
                 Console_Output($"Selected user is {user_name}");
-                if (Standalones.Text != "")
+                if (StandalonesPath.Text != "")
                 {
-                    standalones_path = $@"{Standalones.Text}";
+                    standalones_path = $@"{StandalonesPath.Text}";
                     Console_Output($"Standalones path is {standalones_path}");
                 }
                 else
@@ -1997,9 +1983,6 @@ namespace WinFOR_Customizer
         private async void Save_ConsoleOutput(object sender, RoutedEventArgs? e)
         // Saves the TextBox console Output for log analysis or review
         {
-            OutputExpander.IsEnabled = true;
-            OutputExpander.Visibility = Visibility.Visible;
-            OutputExpander.IsExpanded = true;
             await Task.Delay(100);
             string dtnow = $"{DateTime.Now:yyyyMMdd-hhmmss}";
             string filename;
@@ -2175,7 +2158,7 @@ namespace WinFOR_Customizer
             }
             return line_numbers;
         }
-        private static string Parse_Log(string logfile, string search_text)
+        private string Parse_Log(string logfile, string search_text)
         // The function for actually parsing the log file provided and searching for the given text
         {
             StringBuilder summary = new();
@@ -2214,9 +2197,12 @@ namespace WinFOR_Customizer
             }
             return output;
         }
-        private static void Console_Output(string message)
+        private void Console_Output(string message)
         // Function to output the given content with a date/time value in front of it for tracking events
         {
+            OutputExpander.IsEnabled = true;
+            OutputExpander.Visibility = Visibility.Visible;
+            OutputExpander.IsExpanded = true;
             Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} - {message}");
         }
         private void Download_ToolList(object sender, RoutedEventArgs e)
@@ -2234,7 +2220,6 @@ namespace WinFOR_Customizer
             //(List<string> checked_tools, List<string> checked_content) = GetCheck_Status();
             checked_content.Sort();
             //var result = checked_tools.Zip(checked_content, (a, b) => new { tool_name = a, tool_content = b });
-            //Console.WriteLine($"{string.Join("\n", result)}");
             Console.WriteLine($"{string.Join("\n", checked_content)}");
         }
         private async void Show_LatestRelease(object sender, RoutedEventArgs e)
@@ -2246,15 +2231,257 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
-                OutputExpander.IsEnabled = true;
-                OutputExpander.Visibility = Visibility.Visible;
-                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to determine the latest version:\n{ex}");
             }
         }
-        public void Test_Button(object sender, RoutedEventArgs e)
+        void OnStandalonesChanged(object sender, TextChangedEventArgs e)
         {
-            
+            if (StandalonesPath.Text == "")
+            {
+                ImageBrush sbgImageBrush = new()
+                {
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/standalonesbg.gif", UriKind.Absolute)),
+                    AlignmentX = AlignmentX.Left,
+                    Stretch = Stretch.None
+                };
+                StandalonesPath.Background = sbgImageBrush;
+            }
+            else
+            {
+                StandalonesPath.Background = null;
+            }
+        }
+        void OnDownloadsChanged(object sender, TextChangedEventArgs e)
+        {
+            if (DownloadsPath.Text == "")
+            {
+                ImageBrush dlbgImageBrush = new()
+                {
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/downloadsbg.gif", UriKind.Absolute)),
+                    AlignmentX = AlignmentX.Left,
+                    Stretch = Stretch.None
+                };
+                DownloadsPath.Background = dlbgImageBrush;
+            }
+            else
+            {
+                DownloadsPath.Background = null;
+            }
+        }
+        public class TreeItems
+        {
+            public string? TVI { get; set; }
+            public string? HeaderName { get; set; }
+            public string? HeaderContent { get; set; }
+            public Dictionary<string, ToolsList>? Tools { get; set; }
+        }
+        public class ToolsList
+        {
+            public string? CbName { get; set; }
+            public string? CbContent { get; set; }
+            public string? DAID { get; set; }
+            public bool AUMID { get; set; }
+            public bool DALP { get; set; }
+            public bool StartMenu { get; set; }
+
+            public string[]? ExtraTiles { get; set; }
+        }
+        public async Task<string> Generate_Layout(string s_path)
+        {
+            StringBuilder xmlOutput = new();
+            string XMLHEADER = @"<LayoutModificationTemplate xmlns:defaultlayout=""http://schemas.microsoft.com/Start/2014/FullDefaultLayout"" xmlns:start=""http://schemas.microsoft.com/Start/2014/StartLayout"" Version=""1"" xmlns=""http://schemas.microsoft.com/Start/2014/LayoutModification"">" + '\n';
+            XMLHEADER += @"  <LayoutOptions StartTileGroupCellWidth=""6"" StartTileGroupsColumnCount=""1""/>" + '\n';
+            XMLHEADER += @"  <DefaultLayoutOverride>" + '\n';
+            XMLHEADER += @"    <StartLayoutCollection>" + '\n';
+            XMLHEADER += @"      <defaultlayout:StartLayout GroupCellWidth=""6"">" + '\n';
+            xmlOutput.Append(XMLHEADER);
+            string GROUPNAME;
+            HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+            string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
+            List<TreeItems>? json_query = await httpClient.GetFromJsonAsync<List<TreeItems>?>(uri);
+            int count = json_query!.Count;
+            (List<string> checked_items, _) = GetCheck_Status();
+            for (int i = 0; i < count; i++)
+            {
+                int row = 0;
+                int column = 0;
+                string TVI = json_query[i].TVI!;
+                string section_title = json_query[i].HeaderContent!;
+                TreeViewItem? tvi_label = this.FindName(TVI) as TreeViewItem;
+                int count_checked = 0;
+                foreach (object item in tvi_label!.Items)
+                {
+                    if (item.GetType() == typeof(CheckBox))
+                    {
+                        CheckBox cb = (CheckBox)item;
+                        if (cb.IsChecked == true)
+                        {
+                            count_checked++;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else { continue; }
+                }
+                if (count_checked > 0)
+                {
+                    GROUPNAME = $@"        <start:Group Name=""{section_title}"">" + '\n';
+                    xmlOutput.Append(GROUPNAME);
+                    var tools = json_query[i].Tools;
+                    foreach (var item in tools!)
+                    {
+                        string cbname = item.Value.CbName!;
+                        if (checked_items.Contains(cbname))
+                        {
+                            string tile;
+                            string toolName = item.Key;
+                            string? DAID = item.Value.DAID;
+                            DAID = DAID!.Replace("PLACEHOLDER_PATH", s_path);
+                            bool AUMID = item.Value.AUMID;
+                            bool DALP = item.Value.DALP;
+                            bool StartMenu = item.Value.StartMenu;
+                            string[]? ExtraTiles = item.Value.ExtraTiles;
+                            if (AUMID && StartMenu)
+                            {
+                                tile = $@"          <start:Tile Size=""1x1"" Column=""{column}"" Row=""{row}"" AppUserModelID=""{DAID}"" />" + '\n';
+                            }
+                            else if (DALP && StartMenu)
+                            {
+                                tile = $@"          <start:DesktopApplicationTile Size=""1x1"" Column=""{column}"" Row=""{row}"" DesktopApplicationLinkPath=""{DAID}"" />" + '\n';
+                            }
+                            else if ((!DALP && !AUMID) && StartMenu)
+                            {
+                                tile = $@"          <start:DesktopApplicationTile Size=""1x1"" Column=""{column}"" Row=""{row}"" DesktopApplicationID=""{DAID}"" />" + '\n';
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                            xmlOutput.Append(tile);
+                            column++;
+                            if (column > 5)
+                            { column = 0; row++; }
+                            if (ExtraTiles?.Length > 0)
+                            {
+                                foreach (string extra_tile in ExtraTiles)
+                                {
+                                    if (column > 5)
+                                    { row += 1; column = 0; }
+                                    string new_tile = extra_tile!.Replace("PLACEHOLDER_PATH", s_path);
+                                    if (AUMID && StartMenu)
+                                    {
+                                        tile = $@"          <start:Tile Size=""1x1"" Column=""{column}"" Row=""{row}"" AppUserModelID=""{new_tile}"" />" + '\n';
+                                    }
+                                    else if (DALP && StartMenu)
+                                    {
+                                        tile = $@"          <start:DesktopApplicationTile Size=""1x1"" Column=""{column}"" Row=""{row}"" DesktopApplicationLinkPath=""{new_tile}"" />" + '\n';
+                                    }
+                                    else if ((!DALP && !AUMID) && StartMenu)
+                                    {
+                                        tile = $@"          <start:DesktopApplicationTile Size=""1x1"" Column=""{column}"" Row=""{row}"" DesktopApplicationID=""{new_tile}"" />" + '\n';
+                                    }
+                                    column++;
+
+                                }
+                                xmlOutput.Append(tile);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+                xmlOutput.Append("        </start:Group>\n");
+            }
+            xmlOutput.Append("      </defaultlayout:StartLayout>\n");
+            xmlOutput.Append("    </StartLayoutCollection>\n");
+            xmlOutput.Append("  </DefaultLayoutOverride>\n");
+            xmlOutput.Append("</LayoutModificationTemplate>");
+            string xmlLayout = xmlOutput.ToString();
+            return xmlLayout;
+        }
+        private async Task Local_Layout()
+        {
+            MessageBoxResult dlgResult = MessageBox.Show("On the following Dialog Box, please select where your Standalone Executables are stored from your previous installation.", "Important - Please Read!", MessageBoxButton.OKCancel, MessageBoxImage.Exclamation);
+            if (dlgResult != MessageBoxResult.OK)
+            {
+                return;
+            }
+            string folder_path = "";
+            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
+            {
+                Description = "Select the directory where your standalone programs are stored...",
+                ShowNewFolderButton = false,
+                UseDescriptionForTitle = true,
+                RootFolder = Environment.SpecialFolder.Desktop,
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                folder_path = folderDlg.SelectedPath;
+            }
+            if (folder_path != "")
+            {
+                string layout = await Generate_Layout(folder_path);
+                File.WriteAllText($@"{folder_path}\WIN-FOR-StartLayout.xml", layout);
+                Console_Output(@$"Customized Start Layout written to {folder_path}\Win-FOR-StartLayout.xml");
+                MessageBox.Show(@$"Customized Start Layout written to {folder_path}\Win-FOR-StartLayout.xml", "Customized Start Layout Saved!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        private async void LocalLayout_Click(object sender, RoutedEventArgs e)
+        { 
+            await Local_Layout();
+        }
+        private void Standalones_Picker(object sender, RoutedEventArgs e)
+        {
+            string s_path = "";
+            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
+            {
+                Description = "Select the directory where you would like to store your standalone files",
+                ShowNewFolderButton = true,
+                UseDescriptionForTitle = true,
+                RootFolder = Environment.SpecialFolder.Desktop,
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                s_path = folderDlg.SelectedPath;
+            }
+            if (s_path != "")
+            {
+                StandalonesPath.Text = s_path;
+            }
+        }
+        private void Downloads_Picker(object sender, RoutedEventArgs e)
+        {
+            string s_path = "";
+            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
+            {
+                Description = "Select the directory where you would like to store your standalone files",
+                ShowNewFolderButton = true,
+                UseDescriptionForTitle = true,
+                RootFolder = Environment.SpecialFolder.Desktop,
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                s_path = folderDlg.SelectedPath;
+            }
+            if (s_path != "")
+            {
+                DownloadsPath.Text = s_path;
+            }
+        }
+        private async void Test_Button(object sender, RoutedEventArgs e)
+        {
+            await Local_Layout();
         }
         private void Clear_Console(object sender, RoutedEventArgs e)
         {

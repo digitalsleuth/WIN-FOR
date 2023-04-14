@@ -24,11 +24,12 @@
             </MenuItem>
             <MenuItem Header="_Tools" x:Name="ToolsMenu">
                 <MenuItem Header="_Download Tool List" x:Name="ToolList" Click="Download_ToolList" ToolTip="This will download the PDF tool list from the Win-FOR GitHub Repo" InputGestureText="Ctrl+T"/>
+                <MenuItem Header="Generate Start Menu _Layout" x:Name="LocalLayout" Click="LocalLayout_Click" ToolTip="This will generate a Start Menu Layout based on the selected items" InputGestureText="Ctrl+Shift+L"/>
             </MenuItem>
             <MenuItem Header="_Help" x:Name="HelpMenu">
                 <MenuItem Header="Check for Win-FOR Customizer _Updates" x:Name="CheckForUpdates" Click="Check_Updates" InputGestureText="Ctrl+U"/>
                 <MenuItem Header="Check GitHub for latest Win-FOR version" x:Name="CheckLatestWinFOR" Click="Show_LatestRelease" InputGestureText="Ctrl+G"/>
-                <MenuItem Header="Show installed Win-FOR _version" x:Name="CheckWinFORVersion" Click="Check_DistroVersion" InputGestureText="Ctrl+V"/>
+                <MenuItem Header="Show installed Win-_FOR version" x:Name="CheckWinFORVersion" Click="Check_DistroVersion" InputGestureText="Ctrl+F"/>
                 <Separator />
                 <MenuItem Header="About" x:Name="ShowAboutBox" Click="Show_About" />
             </MenuItem>
@@ -175,6 +176,7 @@
                     </TreeViewItem.Header>
                     <CheckBox x:Name="standalones_chainsaw" Content="Chainsaw" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_eventfinder" Content="EventFinder" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="packages_eventlog_explorer" Content="Event Log Explorer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_evtx_dump" Content="evtx_dump" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_hayabusa" Content="Hayabusa" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_httplogbrowser" Content="HttpLogBrowser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
@@ -201,7 +203,7 @@
                     </TreeViewItem.Header>
                     <CheckBox x:Name="packages_brim" Content="Brim" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_burpsuite_community" Content="Burp Suite Community Edition" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python2_tools_flare_fakenet_ng" Content="Fakenet-NG" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="python3_tools_flare_fakenet_ng" Content="Fakenet-NG" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="python3_tools_naft" Content="NAFT - Network Appliance Forensic Toolkit" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_network_miner" Content="Network Miner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_putty" Content="PuTTY" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
@@ -248,7 +250,7 @@
                     <CheckBox x:Name="packages_graphviz" Content="Graphviz" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="installers_jre8" Content="Java Runtime Environment 8" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_ms_vcpp_2010_redist_x64" Content="Microsoft Visual C++ 2010 Redistributable" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ms_vcpp_2015_build_tools" Content="Microsoft Visual C++ Build Tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="packages_ms_vcpp_2015_build_tools" Content="Microsoft Visual C++ 2015 Build Tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_portals" Content="Portals" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_python2" Content="Python 2.7" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_python3" Content="Python 3.10" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
@@ -309,7 +311,6 @@
                     <CheckBox x:Name="python3_tools_autotimeliner" Content="autotimeliner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="python3_tools_bitsparser" Content="bitsparser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="python3_tools_bmc_tools" Content="bmc-tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_eventlog_explorer" Content="Event Log Explorer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_hibernation_recon" Content="Hibernation Recon" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_hindsight" Content="Hindsight" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_kansa" Content="Kansa" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
@@ -365,10 +366,32 @@
             <Label x:Name="ThemeLabel" Content="Theme:" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="116,335,0,0" VerticalAlignment="Top" Width="63" FontSize="16" ToolTip="Choose your distro - If no distro is chosen, Win-FOR is chosen by default" Height="31"/>
             <Label x:Name="UserNameLabel" Target="{Binding ElementName=UserName}" Content="User:" HorizontalAlignment="Left" Margin="131,365,0,0" VerticalAlignment="Top" FontSize="16" ToolTip="Enter the username for whom to install and customize the environment.&#x0a;If the user does not exist, it will be created" Height="31" Width="45"/>
             <TextBox x:Name="UserName" HorizontalAlignment="Left" Margin="181,369,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsTabStop="True" TabIndex="28"/>
-            <Label x:Name="StandalonesLabel" Target="{Binding ElementName=Standalones}" Content="Standalones Path:" HorizontalAlignment="Left" Margin="3,394,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="Choose where the standalone tools will be installed on your system.&#x0a;If left blank, the default is C:\standalones" Height="30" Width="127"/>
-            <TextBox x:Name="Standalones" HorizontalAlignment="Left" Margin="181,399,0,0" TextWrapping="NoWrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="29"/>
+            <Label x:Name="StandalonesLabel" Target="{Binding ElementName=StandalonesPath}" Content="Standalones Path:" HorizontalAlignment="Left" Margin="3,394,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="Choose where the standalone tools will be installed on your system.&#x0a;If left blank, the default is C:\standalone" Height="30" Width="127"/>
+            <TextBox x:Name="StandalonesPath" HorizontalAlignment="Left" Margin="181,399,0,0" TextWrapping="NoWrap" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="29" ToolTip="Choose where the standalone tools will be installed on your system.&#x0a;If left blank, the default is C:\standalone" TextChanged="OnStandalonesChanged">
+                <TextBox.Background>
+                    <ImageBrush ImageSource="Images\standalonesbg.gif" AlignmentX="Left" Stretch="None" />
+                </TextBox.Background>
+            </TextBox>
             <Label x:Name="DownloadsLabel" Target="{Binding ElementName=DownloadsPath}" Content="Downloads Path:" HorizontalAlignment="Left" Margin="3,424,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="If selecting the 'Download' option,&#x0a;use this to choose where the files will be downloaded.&#x0a;If left blank, the default is C:\winfor-downloads" Height="30" Width="127"/>
-            <TextBox x:Name="DownloadsPath" HorizontalAlignment="Left" Margin="181,429,0,0" TextWrapping="NoWrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="30"/>
+            <TextBox x:Name="DownloadsPath" HorizontalAlignment="Left" Margin="181,429,0,0" TextWrapping="NoWrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="30" TextChanged="OnDownloadsChanged" ToolTip="If selecting the 'Download' option,&#x0a;use this to choose where the files will be downloaded.&#x0a;If left blank, the default is C:\winfor-downloads">
+                <TextBox.Background>
+                    <ImageBrush ImageSource="Images\downloadsbg.gif" AlignmentX="Left" Stretch="None" />
+                </TextBox.Background>
+            </TextBox>
+            <Button x:Name="StandalonesPicker" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,399,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="Standalones_Picker">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="DownloadsPicker" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,429,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="Downloads_Picker">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
             <Label x:Name="XUserLabel" Target="{Binding ElementName=XUser}" Content="X-Ways Portal Username:" HorizontalAlignment="Left" Margin="3,454,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Username&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="176"/>
             <TextBox x:Name="XUser" HorizontalAlignment="Left" Margin="181,459,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="31"/>
             <Label x:Name="XPassLabel" Target="{Binding ElementName=XPass}" Content="X-Ways Portal Password:" HorizontalAlignment="Left" Margin="3,485,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Password&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="171"/>
@@ -376,7 +399,8 @@
             <Expander x:Name="OutputExpander" HorizontalAlignment="Left" Width="520" Height="Auto" Header="Output" Margin="6,516,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" IsExpanded="False" Visibility="Hidden">
                 <TextBox x:Name="OutputConsole" HorizontalAlignment="Left" Width="502" Height="130" Margin="0,4,0,18" Grid.ColumnSpan="2" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
             </Expander>
-            <Button x:Name="TestButton" Grid.Column="1" Content="Test Button" HorizontalAlignment="Right" Margin="0,350,20,0" Width="90" Height="25" VerticalAlignment="Top" Click="Test_Button" Visibility="Hidden"/>
+            <Button x:Name="TestButton" Grid.Column="1" Content="Test Button" HorizontalAlignment="Right" Margin="0,315,20,0" Width="90" Height="25" VerticalAlignment="Top" Click="Test_Button" Visibility="Hidden"/>
+
         </Grid>
     </DockPanel>
 </Window>

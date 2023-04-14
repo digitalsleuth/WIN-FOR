@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>Images\fp.ico</ApplicationIcon>
-    <Version>6.0.0-rc9</Version>
+    <Version>6.0.0-rc10</Version>
     <AssemblyVersion>6.0.0</AssemblyVersion>
     <FileVersion>6.0.0</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
@@ -27,6 +27,8 @@
     <PackageId>WinFOR.Customizer</PackageId>
 	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 	<NeutralLanguage>en</NeutralLanguage>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
+	<UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,6 +40,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\downloadsbg.gif" />
+    <None Remove="Images\standalonesbg.gif" />
     <None Remove="Images\Thumbs.db" />
     <None Remove="Thumbs.db" />
   </ItemGroup>
@@ -47,8 +51,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\downloadsbg.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Images\fpw120.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\standalonesbg.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 
