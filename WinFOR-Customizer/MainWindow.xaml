@@ -82,7 +82,6 @@
                     </TreeViewItem.Header>
                     <CheckBox x:Name="standalones_exiftool" Content="ExifTool" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_exiftoolgui" Content="ExifTool GUI" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_libreoffice" Content="LibreOffice" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="python3_tools_msoffcrypto_crack" Content="msoffcrypto-crack.py" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="python3_tools_msoffcrypto_tool" Content="msoffcrypto-tool" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_npp" Content="Notepad++" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>

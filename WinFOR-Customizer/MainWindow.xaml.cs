@@ -309,7 +309,6 @@ namespace WinFOR_Customizer
                     packages_kernel_edb_viewer,
                     packages_kernel_ost_viewer,
                     packages_kernel_pst_viewer,
-                    packages_libreoffice,
                     packages_logparser,
                     packages_magnet_acquire,
                     packages_magnet_chromebook_acquisition,
@@ -463,7 +462,6 @@ namespace WinFOR_Customizer
                     packages_kernel_edb_viewer,
                     packages_kernel_ost_viewer,
                     packages_kernel_pst_viewer,
-                    packages_libreoffice,
                     packages_logparser,
                     packages_magnet_acquire,
                     packages_magnet_chromebook_acquisition,
@@ -1071,10 +1069,6 @@ namespace WinFOR_Customizer
             {
                 Console_Output($"[ERROR] Unable to complete the installation process:\n{ex}");
             }
-            finally
-            {
-                Console_Output("SaltStack installation process completed.");
-            }
         }
         public void Create_TempDirectory(string temp_dir)
         // Creates a pre-defined temp directory to store required files
@@ -1624,7 +1618,7 @@ namespace WinFOR_Customizer
                             $"  --log-file=\"C:\\winfor-saltstack-{release}.log\"\n" +
                             $"  --log-file-level=debug\n"
                             );
-                        saltproc.Exited += new EventHandler(Process_Exited);
+                        saltproc.Exited += new EventHandler(Install_Exited);
                         saltproc.Start();
                         Task readOutput = saltproc.StandardOutput.ReadToEndAsync();
                         await readOutput;
@@ -1643,7 +1637,7 @@ namespace WinFOR_Customizer
                     Console_Output($"[ERROR] Unable to execute SaltStack install:\n{ex}");
                     return;
                 }
-                await Task.WhenAny(ProcHandled.Task, Task.Delay(3000));
+                await Task.WhenAny(ProcHandled.Task, Task.Delay(10000));
             }
         }
         private async Task Execute_SaltStackDownloads(string release, string download_path)
@@ -1683,7 +1677,7 @@ namespace WinFOR_Customizer
                             $"  --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\"\n" +
                             $"  --log-file-level=debug"
                             );
-                        saltproc.Exited += new EventHandler(Process_Exited);
+                        saltproc.Exited += new EventHandler(Download_Exited);
                         saltproc.Start();
                         Task readOutput = saltproc.StandardOutput.ReadToEndAsync();
                         await readOutput;
@@ -1702,19 +1696,47 @@ namespace WinFOR_Customizer
                     Console_Output($"[ERROR] Unable to execute SaltStack download install:\n{ex}");
                     return;
                 }
-                await Task.WhenAny(ProcHandled.Task, Task.Delay(1000));
+                await Task.WhenAny(ProcHandled.Task, Task.Delay(10000));
             }
         }
-        private void Process_Exited(object? sender, EventArgs e)
+        private async void Install_Exited(object? sender, EventArgs e)
         // An Event Handler for tracking the Execute_SaltStack and Execute_SaltStackDownloads functions
         {
             if (sender is Process proc)
             {
-                Console_Output(
-                $"\nExited\t\t: {proc.ExitTime}\n" +
-                $"Exit code \t: {proc.ExitCode}\n" +
-                $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
-                ProcHandled?.TrySetResult(true);
+                try
+                {
+                    await proc.WaitForExitAsync();
+                    Console_Output(
+                    $"\nExited\t\t: {proc.ExitTime}\n" +
+                    $"Exit code \t: {proc.ExitCode}\n" +
+                    $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
+                    ProcHandled?.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unable to display out exit details: {ex}","Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        private async void Download_Exited(object? sender, EventArgs e)
+        // An Event Handler for tracking the Execute_SaltStack and Execute_SaltStackDownloads functions
+        {
+            if (sender is Process proc)
+            {
+                try
+                {
+                    await proc.WaitForExitAsync();
+                    Console_Output(
+                    $"\nExited\t\t: {proc.ExitTime}\n" +
+                    $"Exit code \t: {proc.ExitCode}\n" +
+                    $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
+                    ProcHandled?.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unable to display out exit details: {ex}", "Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
         private async Task Execute_Wsl(string username, string release, string standalones_path, bool wait_for_salt)
@@ -1778,19 +1800,27 @@ namespace WinFOR_Customizer
                     Console_Output($"[ERROR] Unable to execute WSLv2 install:\n{ex}");
                     return;
                 }
-                await Task.WhenAny(wslHandled.Task, Task.Delay(3000));
+                await Task.WhenAny(wslHandled.Task, Task.Delay(10000));
             }
         }
-        private void WslProcess_Exited(object? sender, EventArgs e)
+        private async void WslProcess_Exited(object? sender, EventArgs e)
         // An Event Handler for tracking the Execute_Wsl process
         {
             if (sender is Process proc)
             {
-                Console_Output(
-                $"Exited\t\t: {proc.ExitTime}\n" +
-                $"Exit code \t: {proc.ExitCode}\n" +
-                $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
-                wslHandled?.TrySetResult(true);
+                try
+                {
+                    await proc.WaitForExitAsync();
+                    Console_Output(
+                    $"Exited\t\t: {proc.ExitTime}\n" +
+                    $"Exit code \t: {proc.ExitCode}\n" +
+                    $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
+                    wslHandled?.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Unable to display out exit details: {ex}", "Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
         private async void Install_WslOnly(object sender, RoutedEventArgs e)
