@@ -16,10 +16,6 @@
                 <MenuItem Header="_Exit" x:Name="Exit" Click="FileExit_Click" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_View" x:Name="ViewMenu">
-                <MenuItem Header="C_PC-WIN default tools" x:Name="CPCWINDefaults" Click="CPC_Default" InputGestureText="Ctrl+P"/>
-                <MenuItem Header="C_RA-WIN default tools" x:Name="CRAWINDefaults" Click="CRA_Default" InputGestureText="Ctrl+R"/>
-                <MenuItem Header="_Win-FOR default tools" x:Name="WinFORDefaults" Click="WINFOR_Default" InputGestureText="Ctrl+W"/>
-                <Separator />
                 <MenuItem Header="Clear Console" x:Name="ClearConsole" Click="Clear_Console" />
             </MenuItem>
             <MenuItem Header="_Tools" x:Name="ToolsMenu">
@@ -40,307 +36,7 @@
                 <ColumnDefinition Width="20*"/>
             </Grid.ColumnDefinitions>
             <TreeView x:Name="AllTools" Height="330" Width="390" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" FontSize="16"  BorderBrush="{x:Null}">
-                <TreeViewItem x:Name="tvi_acquisition" IsExpanded="False" IsTabStop="True" TabIndex="1">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_acquisition" Content="Acquisition and Analysis" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_active_disk_editor" Content="Active Disk Editor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_arsenal_image_mounter" Content="Arsenal Image Mounter" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_autopsy" Content="Autopsy" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_cerbero_suite" Content="Cerbero Suite" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ftk_imager" Content="FTK Imager" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_magnet_acquire" Content="Magnet Acquire" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_magnet_axiom" Content="Magnet AXIOM" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_magnet_chromebook_acquisition" Content="Magnet Chromebook Acquisition" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_magnet_ram_capture" Content="Magnet RAM Capture (MRC)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_magnet_response" Content="Magnet RESPONSE" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_pilfer" Content="Pilfer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_tableau_imager" Content="Tableau Imager" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_winpmem" Content="winpmem" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_x_ways" Content="X-Ways Forensics" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="XWays_Checked" Unchecked="XWays_Unchecked"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_browsers"  IsExpanded="False" IsTabStop="True" TabIndex="2">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_browsers" Content="Browsers" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_chrome" Content="Chrome" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_firefox" Content="Firefox" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_databases" IsExpanded="False" IsTabStop="True" TabIndex="3">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_databases" Content="Databases" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_db_browser_sqlite" Content="DB Browser for SQLite" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_dbeaver" Content="dbeaver" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_razorsql_x64" Content="RazorSQL" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_sqlitestudio" Content="SQLiteStudio" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_mdf_viewer" Content="SysTools SQL MDF Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_documents" IsExpanded="False" IsTabStop="True" TabIndex="4">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_documents" Content="Documents / Editors" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="standalones_exiftool" Content="ExifTool" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_exiftoolgui" Content="ExifTool GUI" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_msoffcrypto_crack" Content="msoffcrypto-crack.py" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_msoffcrypto_tool" Content="msoffcrypto-tool" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_npp" Content="Notepad++" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_officemalscanner" Content="OfficeMalScanner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_offvis" Content="OffVis" VerticalAlignment="Top"  VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_oledump" Content="oledump.py" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_olefile" Content="olefile" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_oletools" Content="oletools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_pcodedmp" Content="pcodedmp" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_pdfid" Content="pdfid" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_pdf_parser" Content="pdf-parser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_pdfstreamdumper" Content="PDFStream Dumper" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_rtfdump" Content="rtfdump.py" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_sublime_text" Content="Sublime Text" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_vscode" Content="VSCode (Visual Studio Code)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_xlmmacrodeobfuscator" Content="XLMMacroDeobfuscator" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_email" IsExpanded="False" IsTabStop="True" TabIndex="5">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_email" Content="Email" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_4n6_email_forensics_wizard" Content="4n6 Email Forensics" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_bitrecover_eml_viewer" Content="BitRecover EML File Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_email_header_analyzer" Content="Email Header Analyzer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_fec" Content="Forensic Email Collector (FEC)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_kernel_edb_viewer" Content="Kernel EDB Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_kernel_ost_viewer" Content="Kernel OST Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_kernel_pst_viewer" Content="Kernel PST Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_pst_walker" Content="PST Walker" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_systools_pst_viewer" Content="SysTools Outlook PST Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_executables" IsExpanded="False" IsTabStop="True" TabIndex="6">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_executables" Content="Executables" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_apimonitor" Content="API Monitor v2 Alpha" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_bintext" Content="Bintext" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_capa" Content="capa" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_cutter" Content="Cutter" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_decompyle3" Content="Decompyle3" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_densityscout" Content="densityscout" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_die" Content="DIE (Detect It Easy)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_dotpeek" Content="dotPeek" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_exeinfope" Content="exeinfope" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_fileinsight" Content="File Insight" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_floss" Content="FLOSS (FLARE Obfuscated String Solver)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_hollows_hunter" Content="hollows_hunter" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_ilspy" Content="ilspy" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ksdumper11" Content="KsDumper 11" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_magnet_process_capture" Content="Magnet Process Capture" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_malcat" Content="MalCat" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_mal_unpack" Content="mal_unpack" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_noriben" Content="Noriben" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ntcore_explorersuite" Content="NTCore Explorer Suite" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_pe_bear" Content="PE-Bear" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_peid" Content="PEiD" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_pe_sieve" Content="pe-sieve" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_pestudio" Content="PEStudio" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_pev" Content="pev" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_ppee" Content="PPEE (puppy)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_procdot" Content="ProcDOT" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_process_hacker" Content="Process Hacker" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_psdecode" Content="PSDecode" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_resource_hacker" Content="Resource Hacker" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_scdbg" Content="scdbg" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_scylla" Content="Scylla" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_setdllcharacteristics" Content="setdllcharacteristics" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_trid" Content="TrID" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_upx" Content="UPX" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_vbdecompiler" Content="VB-Decompiler" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_windbg" Content="WinDbg" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_windows_sandbox" Content="Windows Sandbox" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_x64dbg" Content="x64dbg" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_installers" IsExpanded="False" IsTabStop="True" TabIndex="7">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_installers" Content="Installers" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="standalones_autoit_extractor" Content="AutoIt Extractor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_innoextract" Content="InnoExtract" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_innounp" Content="Innounp" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_lessmsi" Content="lessmsi" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_py2exedecompiler" Content="Py2ExeDecompiler" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_pyinstxtractor" Content="Pyinstaller Extractor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_unautoit" Content="UnAutoIt" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_uniextract2" Content="UniExtract2" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_logs" IsExpanded="False" IsTabStop="True" TabIndex="8">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_logs" Content="Logs" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="standalones_chainsaw" Content="Chainsaw" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_eventfinder" Content="EventFinder" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_eventlog_explorer" Content="Event Log Explorer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_evtx_dump" Content="evtx_dump" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_hayabusa" Content="Hayabusa" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_httplogbrowser" Content="HttpLogBrowser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_logparser" Content="Log Parser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_logparser_studio" Content="LogParser Studio" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_logviewer2" Content="LogViewer2" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_mobile" IsExpanded="False" IsTabStop="True" TabIndex="9">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_mobile" Content="Mobile Analysis" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="python3_tools_aleapp" Content="ALEAPP" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_bytecode_viewer" Content="Bytecode Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_dex2jar" Content="dex2jar" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_ileapp" Content="ILEAPP" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_iphone_analyzer" Content="iphoneanalyzer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_jd_gui" Content="jd-gui" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_plist_editor" Content="Plist Editor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_vleapp" Content="VLEAPP" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_network" IsExpanded="False" IsTabStop="True" TabIndex="10">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_network" Content="Network" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_brim" Content="Brim" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_burpsuite_community" Content="Burp Suite Community Edition" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_flare_fakenet_ng" Content="Fakenet-NG" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_naft" Content="NAFT - Network Appliance Forensic Toolkit" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_network_miner" Content="Network Miner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_putty" Content="PuTTY" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_fiddler" Content="Telerik Fiddler" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_magnet_web_page_saver_portable" Content="Webpage Saver" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_wireshark" Content="Wireshark" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_raw" IsExpanded="False" IsTabStop="True" TabIndex="11">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_raw" Content="Raw Parsers / Decoders" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_bulk_extractor" Content="Bulk Extractor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_cyberchef" Content="CyberChef" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_data_dump" Content="Data Dump" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_dcode" Content="DCode" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_elcomsoft_efdd" Content="Elcomsoft Forensic Disk Decryptor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_free_hex_editor_neo" Content="Hex Editor Neo" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_hxd" Content="HxD" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_iptools" Content="iptools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_memprocfs" Content="MemProcFS" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_passware_encryption_analyzer" Content="Passware Encryption Analyzer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_photorec" Content="photorec / testdisk" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_smi_parser" Content="SMI Parser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_time_decode" Content="time-decode" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_yara_python" Content="yara-python" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_registry" IsExpanded="False" IsTabStop="True" TabIndex="12">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_registry" Content="Registry" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <Label x:Name="RegistryExplorer" Content="Registry Explorer comes with Zimmerman Tools" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="14" IsEnabled="False"/>
-                    <CheckBox x:Name="standalones_regripper" Content="regripper" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_regshot" Content="regshot" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_requirements" IsExpanded="False" IsTabStop="True" TabIndex="13">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_requirements" Content="Requirements" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All" ToolTip="NOTE: Some of these requirements, whether selected or not,&#x0a;may be installed anyways, as they may be a requirement&#x0a;for another application to function properly."/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_7zip" Content="7-Zip" VerticalAlignment="Top" VerticalContentAlignment="Center" FontSize="14" IsChecked="True"/>
-                    <CheckBox x:Name="packages_adobereader" Content="Adobe Reader" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_dotnet6_desktop_runtime" Content=".NET 6 Desktop Runtime" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_dotnetfx35" Content=".NET 3.5 Framework" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_git" Content="Git" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_graphviz" Content="Graphviz" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_jre8" Content="Java Runtime Environment 8" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ms_vcpp_2010_redist_x64" Content="Microsoft Visual C++ 2010 Redistributable" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ms_vcpp_2015_build_tools" Content="Microsoft Visual C++ 2015 Build Tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_portals" Content="Portals" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_python2" Content="Python 2.7" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_python3" Content="Python 3.10" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_strawberryperl" Content="Strawberry Perl" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_vcforpython27" Content="Visual C++ Compiler for Python 2.7" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_vs_community_2022" Content="Visual Studio Community 2022" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_terminals" IsExpanded="False" IsTabStop="True" TabIndex="14">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_terminals" Content="Terminals" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="installers_cygwin" Content="Cygwin" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_mobaxterm" Content="MobaXTerm" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_windows_terminal" Content="Windows Terminal" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_utilities" IsExpanded="False" IsTabStop="True" TabIndex="15">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_utilities" Content="Utilities" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="packages_agentransack" Content="Agent Ransack" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_aurora" Content="Aurora Incident Response" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_bulkrenameutility" Content="Bulk Rename Utility" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_bulkrenameutility_portable" Content="Bulk Rename Utility (Portable)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_caine" Content="CAiNE ISO" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_magnet_edd" Content="Encrypted Disk Detector (EDD)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_fastcopy" Content="FastCopy" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_glossary_generator" Content="Glossary Generator" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_google_earth_pro" Content="Google Earth Pro" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_hashcheck" Content="HashCheck" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_hex2guid" Content="Hex2GUID" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_irfanview" Content="Irfanview x64" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_irfanview_plugins" Content="Irfanview x64 Plugins" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_itunes" Content="iTunes" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_megatools" Content="megatools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_ms_powertoys" Content="Microsoft PowerToys" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_monolith_notes" Content="Monolith Notes" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_nuix_evidence_mover" Content="Nuix Evidence Mover" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_openhashtab" Content="OpenHashTab" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_rufus" Content="Rufus" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_tableau_firmware_update" Content="Tableau Firmware Updater" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_usb_write_blocker" Content="USB Registry Write Blocker" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_vcxsrv" Content="VcXsrv Windows X Server" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_veracrypt" Content="Veracrypt" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_virtualbox" Content="VirtualBox" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_vlc" Content="VLC" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_voidtools_everything" Content="Voidtools Everything" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="packages_wiebetech_writeblocking_validation_utility" Content="WiebeTech WriteBlocking Validation" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_windowgrid" Content="WindowGrid" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="installers_windows_winget" Content="Windows Winget" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_winfor_customizer" Content="Win-FOR Customizer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" IsEnabled="False"/>
-                    <CheckBox x:Name="packages_winmerge" Content="WinMerge" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
-                <TreeViewItem x:Name="tvi_windows" IsExpanded="False" IsTabStop="True" TabIndex="16">
-                    <TreeViewItem.Header>
-                        <CheckBox x:Name="header_windows" Content="Windows Analysis" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True" Checked="SectionCheck_All" Unchecked="SectionUncheck_All"/>
-                    </TreeViewItem.Header>
-                    <CheckBox x:Name="python3_tools_amcache" Content="amcache.py" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_autorunner" Content="Autorunner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_autotimeliner" Content="autotimeliner" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_bitsparser" Content="bitsparser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_bmc_tools" Content="bmc-tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_hibernation_recon" Content="Hibernation Recon" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_hindsight" Content="Hindsight" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_kansa" Content="Kansa" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_kape" Content="kape" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_lrc_cedarpelta" Content="Live Response Collection (Cedarpelta)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_logfileparser" Content="LogFileParser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_mftbrowser" Content="MFT Browser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_mimikatz" Content="mimikatz" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_mitec" Content="MiTeC Tool Suite" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_nirsoft" Content="Nirsoft" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_ntcore" Content="NTCore DriverList and NetUnpack" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_ntfs_log_tracker" Content="NTFS Log Tracker" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_shadowexplorer" Content="Shadow Explorer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_silketw" Content="SilkETW" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_srum_dump2" Content="srum-dump" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_sysinternals" Content="Sysinternals" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_sleuthkit" Content="The Sleuth Kit" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_thumbcacheviewer" Content="ThumbCache Viewer" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_usbdetective" Content="USB Detective" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_usbdeviceforensics" Content="usbdeviceforensics" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_usn_journal_parser" Content="USN Journal Parser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_velociraptor" Content="Velociraptor" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python2_tools_volatility2" Content="Volatility (Python 2.7)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_volatility3" Content="Volatility 3 (Python 3)" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_vssmount" Content="vssmount" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_windows_timeline" Content="Windows Timeline" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="python3_tools_wleapp" Content="WLEAPP" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_wmi_parser" Content="WMI Parser" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                    <CheckBox x:Name="standalones_zimmerman" Content="Zimmerman Tools" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
-                </TreeViewItem>
+
             </TreeView>
             <Button x:Name="expand_all" Grid.Column="1" Content="_Expand All" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnExpand_All" ToolTip="Expand all sections" Height="25" IsTabStop="True" TabIndex="16" />
             <Button x:Name="collapse_all" Grid.Column="1" Content="_Collapse All" HorizontalAlignment="Right" Margin="0,35,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnCollapse_All" ToolTip="Collapse all sections" Height="25" IsTabStop="True" TabIndex="17"/>
@@ -353,9 +49,9 @@
             <Button x:Name="results_button" Grid.Column="1" Content="_Results" HorizontalAlignment="Right" Margin="0,280,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="Results_Button" ToolTip="Check for Win-FOR installation status results." Height="25" IsTabStop="True" TabIndex="24" Visibility="Visible"/>
             <CheckBox x:Name="themed" Content="Themed" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="Enable_Theme" Unchecked="Disable_Theme" FontSize="16" Margin="10,341,0,0" ToolTip="This adds theme customization, Start Menu layout, and distro-specific Wallpaper" Height="20" Width="92" IsTabStop="True" TabIndex="26"/>
             <CheckBox x:Name="wsl" Content="WSL v2" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" FontSize="16" Margin="10,370,0,0" ToolTip="Select this option if you wish to install the Windows Subsystem for Linux v2 with SIFT and REMnux" Height="20" Width="72" IsTabStop="True" TabIndex="25"/>
-            <Image x:Name="DS_FingerPrint" Grid.Column="1" HorizontalAlignment="Left" Height="80" Margin="64,401,0,0" VerticalAlignment="Top" Width="80" Source="/Images/fpw120.png"/>
-            <Label x:Name="Version" Grid.Column="1" Content="" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Margin="0,491,4,0" VerticalAlignment="Top" FontSize="10" Height="21" Width="117"/>
-            <TextBlock x:Name="GitHub" HorizontalAlignment="Center" Margin="0,479,0,0" VerticalAlignment="Top" FontSize="11" Grid.Column="1" Height="15" Width="158">
+            <Image x:Name="DS_FingerPrint" Grid.Column="1" HorizontalAlignment="Left" Height="80" Margin="64,432,0,0" VerticalAlignment="Top" Width="80" Source="/Images/fpw120.png"/>
+            <Label x:Name="Version" Grid.Column="1" Content="" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Margin="0,522,4,0" VerticalAlignment="Top" FontSize="10" Height="21" Width="117"/>
+            <TextBlock x:Name="GitHub" TextAlignment="Center" HorizontalAlignment="Center" Margin="0,510,0,0" VerticalAlignment="Top" FontSize="11" Grid.Column="1" Height="15" Width="158">
             <Hyperlink NavigateUri="https://github.com/digitalsleuth/win-for" RequestNavigate="Visit_Github">github.com/digitalsleuth/win-for</Hyperlink>
             </TextBlock>
             <ComboBox x:Name="Theme" HorizontalAlignment="Left" Margin="181,339,0,0" VerticalAlignment="Top" Width="80" MaxDropDownHeight="479" Height="22" IsTabStop="True" TabIndex="27" IsEnabled="False" Loaded="BtnCheck_All">
@@ -392,14 +88,15 @@
                     </Style>
                 </Button.Resources>
             </Button>
-            <Label x:Name="XUserLabel" Target="{Binding ElementName=XUser}" Content="X-Ways Portal Username:" HorizontalAlignment="Left" Margin="3,454,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Username&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="176"/>
-            <TextBox x:Name="XUser" HorizontalAlignment="Left" Margin="181,459,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="31"/>
-            <Label x:Name="XPassLabel" Target="{Binding ElementName=XPass}" Content="X-Ways Portal Password:" HorizontalAlignment="Left" Margin="3,485,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Password&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="171"/>
-            <TextBox x:Name="XPass" HorizontalAlignment="Left" Margin="181,489,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="32"/>
-            <Expander x:Name="OutputExpander" HorizontalAlignment="Left" Width="520" Height="Auto" Header="Output" Margin="6,516,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" IsExpanded="False" Visibility="Visible" IsEnabled="True">
+            <Label x:Name="XUserLabel" Target="{Binding ElementName=XUser}" Content="X-Ways Portal Username:" HorizontalAlignment="Left" Margin="3,454,0,0" VerticalAlignment="Top" FontSize="15" IsEnabled="False" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Username&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="176"/>
+            <TextBox x:Name="XUser" HorizontalAlignment="Left" Margin="181,459,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="False" IsTabStop="True" TabIndex="31"/>
+            <Label x:Name="XPassLabel" Target="{Binding ElementName=XPass}" Content="X-Ways Portal Password:" HorizontalAlignment="Left" Margin="3,485,0,0" VerticalAlignment="Top" FontSize="15" IsEnabled="False" ToolTip="If X-Ways is selected as a tool, enter the X-Ways Portal Password&#x0a;to download the latest version of X-Ways.&#x0a;This is required if X-Ways is selected!&#x0a;If X-Ways is not selected, this can be left blank." Height="30" Width="171"/>
+            <TextBox x:Name="XPass" HorizontalAlignment="Left" Margin="181,489,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="False" IsTabStop="True" TabIndex="32"/>
+            <Expander x:Name="OutputExpander" HorizontalAlignment="Left" Width="520" Height="Auto" Header="Output" Margin="6,524,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" IsExpanded="False" Visibility="Visible" IsEnabled="True">
                 <TextBox x:Name="OutputConsole" HorizontalAlignment="Left" Width="502" Height="130" Margin="0,4,0,18" Grid.ColumnSpan="2" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
             </Expander>
             <Button x:Name="TestButton" Grid.Column="1" Content="Test Button" HorizontalAlignment="Right" Margin="0,315,20,0" Width="90" Height="25" VerticalAlignment="Top" Click="Test_Button" Visibility="Hidden"/>
+            <CheckBox x:Name="cbXways" Content="X-Ways" Margin="313,462,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="XWays_Checked" Unchecked="XWays_Unchecked" Grid.ColumnSpan="2" Width="77" FontSize="15"/>
 
         </Grid>
     </DockPanel>

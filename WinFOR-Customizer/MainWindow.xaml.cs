@@ -41,19 +41,13 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc11";
+            Version.Content = $"v{appversion}-rc12";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.LoadFile, new KeyGesture(Key.L, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.SaveFile, (sender, e) => { File_Save(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.SaveFile, new KeyGesture(Key.S, ModifierKeys.Control)));
-            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowCPC, (sender, e) => { CPC_Default(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowCPC, new KeyGesture(Key.P, ModifierKeys.Control)));
-            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowCRA, (sender, e) => { CRA_Default(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowCRA, new KeyGesture(Key.R, ModifierKeys.Control)));
-            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowWIN, (sender, e) => { WINFOR_Default(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowWIN, new KeyGesture(Key.W, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.DownloadToolList, (sender, e) => { Download_ToolList(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.DownloadToolList, new KeyGesture(Key.T, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckForUpdates, (sender, e) => { Check_Updates(sender, e); }, (sender, e) => { e.CanExecute = true; }));
@@ -71,6 +65,7 @@ namespace WinFOR_Customizer
             OutputExpander.Visibility = Visibility.Visible;
             OutputExpander.IsEnabled = true;
             OutputExpander.IsExpanded = false;
+            var buildTree = Generate_Tree();
         }
 
         public static class KeyboardShortcuts
@@ -80,9 +75,6 @@ namespace WinFOR_Customizer
             {
                 LoadFile = new RoutedCommand("LoadFile", typeof(MainWindow));
                 SaveFile = new RoutedCommand("SaveFile", typeof(MainWindow));
-                ShowCPC = new RoutedCommand("ShowCPC", typeof(MainWindow));
-                ShowCRA = new RoutedCommand("ShowCRA", typeof(MainWindow));
-                ShowWIN = new RoutedCommand("ShowWIN", typeof(MainWindow));
                 DownloadToolList = new RoutedCommand("DownloadToolList", typeof(MainWindow));
                 CheckForUpdates = new RoutedCommand("CheckForUpdates", typeof(MainWindow));
                 ShowLatest = new RoutedCommand("ShowLatest", typeof(MainWindow));
@@ -93,9 +85,6 @@ namespace WinFOR_Customizer
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
-            public static RoutedCommand ShowCPC { get; private set; }
-            public static RoutedCommand ShowCRA { get; private set; }
-            public static RoutedCommand ShowWIN { get; private set; }
             public static RoutedCommand DownloadToolList { get; private set; }
             public static RoutedCommand CheckForUpdates { get; private set; }
             public static RoutedCommand ShowLatest { get; private set; }
@@ -272,333 +261,6 @@ namespace WinFOR_Customizer
                 Console_Output($"[ERROR] Unable to Check All:\n{ex}");
             }
         }
-        private void CPC_Default(object sender, RoutedEventArgs e)
-        // Display the default tools available in the CPC Theme
-        {
-            try
-            {
-                Expand_All();
-                foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
-                {
-                    cb.IsChecked = false;
-                    cb.IsEnabled = true;
-                }
-                List<CheckBox> cpc_items = new()
-                {
-                    installers_data_dump,
-                    installers_dcode,
-                    installers_fastcopy,
-                    installers_hxd,
-                    installers_irfanview_plugins,
-                    installers_magnet_axiom,
-                    installers_mobaxterm,
-                    installers_systools_pst_viewer,
-                    packages_active_disk_editor,
-                    packages_apimonitor,
-                    packages_autopsy,
-                    packages_bulk_extractor,
-                    packages_bulkrenameutility,
-                    packages_burpsuite_community,
-                    packages_cerbero_suite,
-                    packages_chrome,
-                    packages_db_browser_sqlite,
-                    packages_dbeaver,
-                    packages_elcomsoft_efdd,
-                    packages_fiddler,
-                    packages_fileinsight,
-                    packages_firefox,
-                    packages_free_hex_editor_neo,
-                    packages_ftk_imager,
-                    packages_google_earth_pro,
-                    packages_hashcheck,
-                    packages_httplogbrowser,
-                    packages_irfanview,
-                    packages_itunes,
-                    packages_kernel_edb_viewer,
-                    packages_kernel_ost_viewer,
-                    packages_kernel_pst_viewer,
-                    packages_logparser,
-                    packages_magnet_acquire,
-                    packages_magnet_chromebook_acquisition,
-                    packages_mdf_viewer,
-                    packages_monolith_notes,
-                    packages_ms_powertoys,
-                    packages_npp,
-                    packages_nuix_evidence_mover,
-                    packages_openhashtab,
-                    packages_passware_encryption_analyzer,
-                    packages_pdfstreamdumper,
-                    packages_process_hacker,
-                    packages_putty,
-                    packages_sqlitestudio,
-                    packages_sublime_text,
-                    packages_tableau_firmware_update,
-                    packages_tableau_imager,
-                    packages_vcxsrv,
-                    packages_veracrypt,
-                    packages_virtualbox,
-                    packages_vlc,
-                    packages_vscode,
-                    packages_wiebetech_writeblocking_validation_utility,
-                    packages_wireshark,
-                    python2_tools_volatility2,
-                    python3_tools_aleapp,
-                    python3_tools_amcache,
-                    python3_tools_autotimeliner,
-                    python3_tools_bitsparser,
-                    python3_tools_ileapp,
-                    python3_tools_iptools,
-                    python3_tools_msoffcrypto_crack,
-                    python3_tools_msoffcrypto_tool,
-                    python3_tools_oledump,
-                    python3_tools_olefile,
-                    python3_tools_oletools,
-                    python3_tools_pdf_parser,
-                    python3_tools_pdfid,
-                    python3_tools_rtfdump,
-                    python3_tools_time_decode,
-                    python3_tools_usbdeviceforensics,
-                    python3_tools_usn_journal_parser,
-                    python3_tools_vleapp,
-                    python3_tools_volatility3,
-                    python3_tools_wleapp,
-                    python3_tools_xlmmacrodeobfuscator,
-                    python3_tools_yara_python,
-                    standalones_arsenal_image_mounter,
-                    standalones_autorunner,
-                    standalones_bintext,
-                    standalones_bitrecover_eml_viewer,
-                    standalones_bulkrenameutility_portable,
-                    standalones_caine,
-                    standalones_cyberchef,
-                    standalones_eventfinder,
-                    standalones_evtx_dump,
-                    standalones_exiftool,
-                    standalones_glossary_generator,
-                    standalones_hayabusa,
-                    standalones_hex2guid,
-                    standalones_hibernation_recon,
-                    standalones_hindsight,
-                    standalones_iphone_analyzer,
-                    standalones_kansa,
-                    standalones_kape,
-                    standalones_logfileparser,
-                    standalones_logparser_studio,
-                    standalones_logviewer2,
-                    standalones_magnet_edd,
-                    standalones_magnet_process_capture,
-                    standalones_magnet_ram_capture,
-                    standalones_magnet_response,
-                    standalones_magnet_web_page_saver_portable,
-                    standalones_megatools,
-                    standalones_mftbrowser,
-                    standalones_mimikatz,
-                    standalones_mitec,
-                    standalones_nirsoft,
-                    standalones_ntcore,
-                    standalones_ntfs_log_tracker,
-                    standalones_offvis,
-                    standalones_pilfer,
-                    standalones_psdecode,
-                    standalones_regripper,
-                    standalones_rufus,
-                    standalones_shadowexplorer,
-                    standalones_silketw,
-                    standalones_sleuthkit,
-                    standalones_smi_parser,
-                    standalones_srum_dump2,
-                    standalones_sysinternals,
-                    standalones_usb_write_blocker,
-                    standalones_usbdetective,
-                    standalones_velociraptor,
-                    standalones_vssmount,
-                    standalones_windowgrid,
-                    standalones_winpmem,
-                    standalones_wmi_parser,
-                    standalones_x_ways,
-                    standalones_zimmerman
-                };
-                foreach (CheckBox c in cpc_items)
-                {
-                    c.IsChecked = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                OutputExpander.IsExpanded = true;
-                Console_Output($"[ERROR] Unable to display CPC Default tools:\n{ex}");
-            }
-        }
-        private void CRA_Default(object sender, RoutedEventArgs e)
-        // Display the default tools available in the CRA Theme
-        {
-            try
-            {
-                Expand_All();
-                foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
-                {
-                    cb.IsChecked = false;
-                    cb.IsEnabled = true;
-                }
-                List<CheckBox> cra_items = new()
-            {
-                    installers_data_dump,
-                    installers_dcode,
-                    installers_fastcopy,
-                    installers_fec,
-                    installers_hxd,
-                    installers_irfanview_plugins,
-                    installers_magnet_axiom,
-                    installers_mobaxterm,
-                    installers_systools_pst_viewer,
-                    packages_active_disk_editor,
-                    packages_apimonitor,
-                    packages_autopsy,
-                    packages_bulk_extractor,
-                    packages_burpsuite_community,
-                    packages_cerbero_suite,
-                    packages_chrome,
-                    packages_db_browser_sqlite,
-                    packages_dbeaver,
-                    packages_fiddler,
-                    packages_fileinsight,
-                    packages_firefox,
-                    packages_free_hex_editor_neo,
-                    packages_ftk_imager,
-                    packages_hashcheck,
-                    packages_httplogbrowser,
-                    packages_irfanview,
-                    packages_kernel_edb_viewer,
-                    packages_kernel_ost_viewer,
-                    packages_kernel_pst_viewer,
-                    packages_logparser,
-                    packages_magnet_acquire,
-                    packages_magnet_chromebook_acquisition,
-                    packages_mdf_viewer,
-                    packages_monolith_notes,
-                    packages_npp,
-                    packages_nuix_evidence_mover,
-                    packages_openhashtab,
-                    packages_passware_encryption_analyzer,
-                    packages_pdfstreamdumper,
-                    packages_process_hacker,
-                    packages_pst_walker,
-                    packages_putty,
-                    packages_sqlitestudio,
-                    packages_sublime_text,
-                    packages_tableau_firmware_update,
-                    packages_tableau_imager,
-                    packages_vcxsrv,
-                    packages_vlc,
-                    packages_vscode,
-                    packages_wireshark,
-                    python2_tools_volatility2,
-                    python3_tools_aleapp,
-                    python3_tools_amcache,
-                    python3_tools_autotimeliner,
-                    python3_tools_bitsparser,
-                    python3_tools_ileapp,
-                    python3_tools_iptools,
-                    python3_tools_msoffcrypto_crack,
-                    python3_tools_msoffcrypto_tool,
-                    python3_tools_oledump,
-                    python3_tools_olefile,
-                    python3_tools_oletools,
-                    python3_tools_pdf_parser,
-                    python3_tools_pdfid,
-                    python3_tools_rtfdump,
-                    python3_tools_time_decode,
-                    python3_tools_usbdeviceforensics,
-                    python3_tools_usn_journal_parser,
-                    python3_tools_vleapp,
-                    python3_tools_volatility3,
-                    python3_tools_wleapp,
-                    python3_tools_xlmmacrodeobfuscator,
-                    python3_tools_yara_python,
-                    standalones_arsenal_image_mounter,
-                    standalones_autorunner,
-                    standalones_bintext,
-                    standalones_bytecode_viewer,
-                    standalones_cyberchef,
-                    standalones_eventfinder,
-                    standalones_evtx_dump,
-                    standalones_exiftool,
-                    standalones_hayabusa,
-                    standalones_hindsight,
-                    standalones_iphone_analyzer,
-                    standalones_kansa,
-                    standalones_kape,
-                    standalones_logfileparser,
-                    standalones_logparser_studio,
-                    standalones_logviewer2,
-                    standalones_magnet_edd,
-                    standalones_magnet_process_capture,
-                    standalones_magnet_ram_capture,
-                    standalones_magnet_response,
-                    standalones_magnet_web_page_saver_portable,
-                    standalones_megatools,
-                    standalones_mftbrowser,
-                    standalones_mimikatz,
-                    standalones_mitec,
-                    standalones_nirsoft,
-                    standalones_ntfs_log_tracker,
-                    standalones_officemalscanner,
-                    standalones_offvis,
-                    standalones_pilfer,
-                    standalones_psdecode,
-                    standalones_regripper,
-                    standalones_rufus,
-                    standalones_shadowexplorer,
-                    standalones_silketw,
-                    standalones_sleuthkit,
-                    standalones_srum_dump2,
-                    standalones_sysinternals,
-                    standalones_usb_write_blocker,
-                    standalones_velociraptor,
-                    standalones_vssmount,
-                    standalones_windowgrid,
-                    standalones_winpmem,
-                    standalones_wmi_parser,
-                    standalones_x_ways,
-                    standalones_zimmerman
-            };
-                foreach (CheckBox c in cra_items)
-                {
-                    c.IsChecked = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                OutputExpander.IsExpanded = true;
-                Console_Output($"[ERROR] Unable to display CRA Default tools:\n{ex}");
-            }
-        }
-        private void WINFOR_Default(object sender, RoutedEventArgs e)
-        // Since everything is available in the default Win-FOR theme, show and check everything.
-        {
-            try
-            {
-                Expand_All();
-                foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
-                {
-                    cb.IsChecked = true;
-                    cb.IsEnabled = true;
-                }
-                List<CheckBox> non_winfor_items = new()
-                {
-
-                };
-                foreach (CheckBox c in non_winfor_items)
-                {
-                    c.IsChecked = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                OutputExpander.IsExpanded = true;
-                Console_Output($"[ERROR] Unable to display Win-FOR Default tools:\n{ex}");
-            }
-        }
         private void XWays_Checked(object sender, RoutedEventArgs e)
         // Determine if the X-Ways CheckBox is checked, and enables the user/pass boxes to enter credentials for the portal
         {
@@ -606,10 +268,25 @@ namespace WinFOR_Customizer
             {
                 return;
             }
+            List<CheckBox> list = GetLogicalChildCollection<CheckBox>(AllTools);
+            CheckBox? xw = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
             XUser.IsEnabled = true;
             XPass.IsEnabled = true;
             XUserLabel.IsEnabled = true;
             XPassLabel.IsEnabled = true;
+            if (sender.GetType() == typeof(CheckBox))
+            {
+                CheckBox? obj = sender as CheckBox;
+                string cbName = obj!.Name;
+                if (cbName == "standalones_x_ways")
+                {
+                    cbXways.IsChecked = true;
+                }
+                else if (cbName == "cbXways")
+                { 
+                    xw!.IsChecked = true;
+                }
+            }
         }
         private void XWays_Unchecked(object sender, RoutedEventArgs e)
         // Determine if the X-Ways CheckBox is unchecked, and disables the user/pass boxes
@@ -618,10 +295,25 @@ namespace WinFOR_Customizer
             {
                 return;
             }
+            List<CheckBox> list = GetLogicalChildCollection<CheckBox>(AllTools);
+            CheckBox? xw = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
             XUser.IsEnabled = false;
             XPass.IsEnabled = false;
             XUserLabel.IsEnabled = false;
             XPassLabel.IsEnabled = false;
+            if (sender.GetType() == typeof(CheckBox))
+            {
+                CheckBox? obj = sender as CheckBox;
+                string cbName = obj!.Name;
+                if (cbName == "standalones_x_ways")
+                {
+                    cbXways.IsChecked = false;
+                }
+                else
+                {
+                    xw!.IsChecked = false;
+                }
+            }
         }
         private void FileSave_Click(object sender, RoutedEventArgs e)
         {
@@ -917,16 +609,15 @@ namespace WinFOR_Customizer
                 string standalones_path;
                 string user_name;
                 bool wsl_selected;
-                if (standalones_x_ways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                if (cbXways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
                 {
                     xways_data = $"{XUser.Text}:{XPass.Text}";
                     xways_token = Convert.ToBase64String(Encoding.UTF8.GetBytes(xways_data));
                     xways_selected = true;
                     Console_Output($"X-Ways is selected and credentials have been provided");
                 }
-                else if (standalones_x_ways.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
+                else if (cbXways.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
                 {
-                    tvi_acquisition.IsExpanded = true;
                     Console_Output("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
                     MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
                                     "X-Ways Portal Credentials Not Supplied",
@@ -1102,7 +793,7 @@ namespace WinFOR_Customizer
                 {
                     Console_Output($"Directory {temp_dir} already exists");
                     DirectoryInfo di_temp = new(temp_dir);
-                    di_temp.Attributes &= ~System.IO.FileAttributes.ReadOnly;
+                    di_temp.Attributes &= FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_temp = new();
                     securityRules_temp.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_temp.SetAccessControl(securityRules_temp);
@@ -1111,7 +802,7 @@ namespace WinFOR_Customizer
                 else
                 {
                     DirectoryInfo di_temp = Directory.CreateDirectory(temp_dir);
-                    di_temp.Attributes &= ~System.IO.FileAttributes.ReadOnly;
+                    di_temp.Attributes &= FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_temp = new();
                     securityRules_temp.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_temp.SetAccessControl(securityRules_temp);
@@ -1437,14 +1128,14 @@ namespace WinFOR_Customizer
                 if (Directory.Exists(distro_dest))
                 {
                     DirectoryInfo di_dest = new(distro_dest);
-                    di_dest.Attributes &= ~System.IO.FileAttributes.ReadOnly;
+                    di_dest.Attributes &= FileAttributes.ReadOnly;
                     DirectorySecurity securityRules_dest = new();
                     securityRules_dest.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     di_dest.SetAccessControl(securityRules_dest);
                     Directory.Delete(distro_dest, true);
                 }
                 DirectoryInfo di_distro = new(distro_folder);
-                di_distro.Attributes &= ~System.IO.FileAttributes.ReadOnly;
+                di_distro.Attributes &= FileAttributes.ReadOnly;
                 DirectorySecurity securityRules_distro = new();
                 securityRules_distro.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                 di_distro.SetAccessControl(securityRules_distro);
@@ -2126,11 +1817,35 @@ namespace WinFOR_Customizer
             }
             else
             {
+                StringBuilder sb = new();
                 string release_version = File.ReadAllText(@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION").TrimEnd();
                 string status = "";
                 string log_file = $@"C:\winfor-saltstack-{release_version}.log";
                 string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
                 string wsl_log = $@"C:\winfor-wsl.log";
+                if (File.Exists(log_file))
+                {
+                    string[] contents = File.ReadAllLines(log_file);
+                    string[] splits = contents[0].Split('[', ']');
+                    string pid = splits[5];
+                    string error_string = $"[ERROR   ][{pid}]";
+                    foreach (string line in contents)
+                    {
+                        if (line.Contains($"[ERROR   ][{pid}]"))
+                        {
+                            if (line.Contains($"[ERROR   ][{pid}] Can't"))
+                            {
+                                continue;
+                            }
+                            else if (line.Contains($"[ERROR   ][{pid}] Command '$installedVersion' failed with return code: 1"))
+                            { }
+                            else
+                            {
+                                sb.Append($"{line}\n");
+                            }
+                        }
+                    }
+                }
                 List<string> logfiles = new()
                 {
                     log_file,
@@ -2150,8 +1865,21 @@ namespace WinFOR_Customizer
                 if (status == "")
                 {
                     status += $"No log files found for {release_version}";
+                    MessageBox.Show($"Most recent downloaded version - {release_version}\n\n{status}", $"Results for {release_version}", MessageBoxButton.OK);
+                    return;
                 }
-                MessageBox.Show($"Most recent downloaded version - {release_version}\n\n{status}", $"Results for {release_version}", MessageBoxButton.OK);
+                else
+                {
+                    MessageBox.Show($"Most recent downloaded version - {release_version}\n\n{status}", $"Results for {release_version}", MessageBoxButton.OK);
+                }
+                if (sb.Length != 0)
+                {
+                    ErrorWindow w = new(sb.ToString())
+                    {
+                        Owner = this
+                    };
+                    w.Show();
+                }
             }
         }
         private void Check_DistroVersion(object sender, RoutedEventArgs e)
@@ -2183,7 +1911,7 @@ namespace WinFOR_Customizer
                 $"{appname} v{appversion}\n" +
                 $"Author: Corey Forman (digitalsleuth)\n" +
                 $"Source: https://github.com/digitalsleuth/win-for\n\n" +
-                $"Would you like to visit the source repo on GitHub?",
+                $"Would you like to visit the repo on GitHub?",
                 $"{appname} v{appversion}", MessageBoxButton.YesNo, MessageBoxImage.Information);
             if (result == MessageBoxResult.Yes)
             {
@@ -2329,24 +2057,7 @@ namespace WinFOR_Customizer
             public bool AUMID { get; set; }
             public bool DALP { get; set; }
             public bool StartMenu { get; set; }
-
             public string[]? ExtraTiles { get; set; }
-        }
-        private async Task<List<TreeItems>> Get_JsonLayout()
-        {
-            List<TreeItems>? json_data = new();
-            try
-            {
-                HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
-                string uri = $@"https://raw.githubusercontent.com/digitalsleuth/WIN-FOR/main/layout.json";
-                json_data = await httpClient.GetFromJsonAsync<List<TreeItems>>(uri);
-            }
-            catch (Exception ex)
-            {
-                Console_Output($"[ERROR] Unable to get JSON Layout: {ex}\n");
-            }
-            return json_data!;
         }
         public async Task<string> Generate_Layout(string s_path)
         {
@@ -2365,9 +2076,7 @@ namespace WinFOR_Customizer
             {
                 int row = 0;
                 int column = 0;
-                //string TVI = json_query[i].TVI!;
                 string section_title = json_query[i].HeaderContent!;
-                //TreeViewItem? tvi_label = this.FindName(TVI) as TreeViewItem;
                 List<TreeViewItem> ti = GetLogicalChildCollection<TreeViewItem>(AllTools);
                 TreeViewItem tvi_label = ti[i];
                 int count_checked = 0;
@@ -2465,12 +2174,28 @@ namespace WinFOR_Customizer
             string xmlLayout = xmlOutput.ToString();
             return xmlLayout;
         }
+        private static async Task<List<TreeItems>> Get_JsonLayout()
+        {
+            List<TreeItems>? json_data = new();
+            try
+            {
+                HttpClient httpClient = new();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
+                json_data = await httpClient.GetFromJsonAsync<List<TreeItems>>(uri);
+            }
+            catch (Exception ex)
+            {
+                Console_Output($"[ERROR] Unable to get JSON Layout: {ex}\n");
+            }
+            return json_data!;
+        }
         private async Task Generate_Tree()
         {
             List<TreeItems>? json_query = await Get_JsonLayout();
             int count = json_query!.Count;
             for (int i = 0; i < count; i++)
-            {
+            {   
                 string TVI = json_query[i].TVI!;
                 string HEADER = json_query[i].HeaderContent!;
                 string HEADERNAME = json_query[i].HeaderName!;
@@ -2503,6 +2228,12 @@ namespace WinFOR_Customizer
                         VerticalAlignment = VerticalAlignment.Top,
                         IsChecked = true
                     };
+                    if (cb.Name == "standalones_x_ways")
+                    { 
+                        cb.IsChecked = false;
+                        cb.Checked += XWays_Checked;
+                        cb.Unchecked += XWays_Unchecked;
+                    }
                     newChild.Items.Add(cb);
                 }
             }
@@ -2582,29 +2313,9 @@ namespace WinFOR_Customizer
                 DownloadsPath.Text = s_path;
             }
         }
+
         private void Test_Button(object sender, RoutedEventArgs e)
         {
-            string file = @$"O:\Projects\win-salt\workdir\winfor-saltstack-v2023.12.9.log";
-            StringBuilder sb = new();
-            string[] contents = File.ReadAllLines(file);
-            string[] splits = contents[0].Split('[', ']');
-            string pid = splits[5];
-            foreach (string line in contents)
-            {
-                if (line.Contains($"[ERROR   ][{pid}]"))
-                {
-                    if (line.Contains($"[ERROR   ][{pid}] Can't"))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        sb.Append($"{line}\n");
-                    }
-                }
-            }
-            
-            MessageBox.Show(sb.ToString());
         }
         private void Clear_Console(object sender, RoutedEventArgs e)
         {
