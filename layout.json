@@ -1,0 +1,2083 @@
+[
+  {
+    "TVI": "tvi_acquisition",
+    "HeaderName": "header_acquisition",
+    "HeaderContent": "Acquisition and Analysis",
+    "Tools": {
+      "Active Disk Editor": {
+        "CbName": "packages_active_disk_editor",
+        "CbContent": "Active Disk Editor",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\LSoft Technologies\\Active@ Disk Editor\\DiskEditor.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Arsenal Image Mounter": {
+        "CbName": "standalones_arsenal_image_mounter",
+        "CbContent": "Arsenal Image Mounter",
+        "DAID": "PLACEHOLDER_PATH\\arsenal\\ArsenalImageMounter.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Autopsy": {
+        "CbName": "packages_autopsy",
+        "CbContent": "Autopsy",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Autopsy\\bin\\autopsy64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Cerbero Suite": {
+        "CbName": "packages_cerbero_suite",
+        "CbContent": "Cerbero Suite",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Cerbero Suite\\cerpro.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "FTK Imager": {
+        "CbName": "packages_ftk_imager",
+        "CbContent": "FTK Imager",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\AccessData\\FTK Imager\\FTK Imager.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Magnet Acquire": {
+        "CbName": "packages_magnet_acquire",
+        "CbContent": "Magnet Acquire",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Magnet ACQUIRE\\Acquire.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Magnet AXIOM": {
+        "CbName": "installers_magnet_axiom",
+        "CbContent": "Magnet AXIOM",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Magnet Forensics\\Magnet AXIOM\\AXIOM Examine\\AXIOMExamine.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": [
+          "{6D809377-6AF0-444B-8957-A3773F02200E}\\Magnet Forensics\\Magnet AXIOM\\AXIOM Process\\AXIOMProcess.exe"
+        ]
+      },
+      "Magnet Chromebook Acquisition": {
+        "CbName": "packages_magnet_chromebook_acquisition",
+        "CbContent": "Magnet Chromebook Acquisition",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Magnet Forensics\\MCAAv1\\MCAA.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Magnet RAM Capture (MRC)": {
+        "CbName": "standalones_magnet_ram_capture",
+        "CbContent": "Magnet RAM Capture (MRC)",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\RAMCapture\\MRCv120.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Magnet RESPONSE": {
+        "CbName": "standalones_magnet_response",
+        "CbContent": "Magnet RESPONSE",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\Response\\MagnetRESPONSE.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Pilfer": {
+        "CbName": "standalones_pilfer",
+        "CbContent": "Pilfer",
+        "DAID": "PLACEHOLDER_PATH\\pilfer.bat",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Tableau Imager": {
+        "CbName": "packages_tableau_imager",
+        "CbContent": "Tableau Imager",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Tableau\\Tableau Imager\\TableauImager.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "winpmem": {
+        "CbName": "standalones_winpmem",
+        "CbContent": "winpmem",
+        "DAID": "PLACEHOLDER_PATH\\winpmem\\winpmem_mini_x64_rc2.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_browsers",
+    "HeaderName": "header_browsers",
+    "HeaderContent": "Browsers",
+    "Tools": {
+      "Chrome": {
+        "CbName": "packages_chrome",
+        "CbContent": "Chrome",
+        "DAID": "Chrome",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Firefox": {
+        "CbName": "packages_firefox",
+        "CbContent": "Firefox",
+        "DAID": "308046B0AF4A39CB",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_databases",
+    "HeaderName": "header_databases",
+    "HeaderContent": "Databases",
+    "Tools": {
+      "DB Browser for SQLite": {
+        "CbName": "packages_db_browser_sqlite",
+        "CbContent": "DB Browser for SQLite",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\DB Browser for SQLite\\DB Browser for SQLite.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "dbeaver": {
+        "CbName": "packages_dbeaver",
+        "CbContent": "dbeaver",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\DBeaver Community\\DBeaver.lnk",
+        "AUMID": false,
+        "DALP": true,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "RazorSQL": {
+        "CbName": "packages_razorsql_x64",
+        "CbContent": "RazorSQL",
+        "DAID": "razorsql",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "SQLiteStudio": {
+        "CbName": "packages_sqlitestudio",
+        "CbContent": "SQLiteStudio",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\SQLiteStudio\\SQLiteStudio.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "SysTools SQL MDF Viewer": {
+        "CbName": "packages_mdf_viewer",
+        "CbContent": "SysTools SQL MDF Viewer",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\SysTools SQL MDF Viewer\\SQLMDFViewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_documents",
+    "HeaderName": "header_documents",
+    "HeaderContent": "Documents / Editors",
+    "Tools": {
+      "ExifTool": {
+        "CbName": "standalones_exiftool",
+        "CbContent": "ExifTool",
+        "DAID": "PLACEHOLDER_PATH\\exiftool\\exiftool.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "ExifTool GUI": {
+        "CbName": "standalones_exiftoolgui",
+        "CbContent": "ExifTool GUI",
+        "DAID": "PLACEHOLDER_PATH\\exiftoolgui\\ExifToolGUI.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "msoffcrypto-crack.py": {
+        "CbName": "python3_tools_msoffcrypto_crack",
+        "CbContent": "msoffcrypto-crack.py",
+        "DAID": "PLACEHOLDER_PATH\\msoffcrypto-crack\\msoffcrypto-crack.cmd",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "msoffcrypto-tool": {
+        "CbName": "python3_tools_msoffcrypto_tool",
+        "CbContent": "msoffcrypto-tool",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Notepad++": {
+        "CbName": "packages_npp",
+        "CbContent": "Notepad++",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Notepad++\\notepad++.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "OfficeMalScanner": {
+        "CbName": "standalones_offiicemalscanner",
+        "CbContent": "OfficeMalScanner",
+        "DAID": "PLACEHOLDER_PATH\\officemalscanner\\OfficeMalScanner.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "OffVis": {
+        "CbName": "standalones_offvis",
+        "CbContent": "OffVis",
+        "DAID": "PLACEHOLDER_PATH\\OffVis\\OffVis.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "oledump.py": {
+        "CbName": "python3_tools_oledump",
+        "CbContent": "oledump.py",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "olefile": {
+        "CbName": "python3_tools_olefile",
+        "CbContent": "olefile",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "oletools": {
+        "CbName": "python3_tools_oletools",
+        "CbContent": "oletools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "pcodedmp": {
+        "CbName": "python3_tools_pcodedmp",
+        "CbContent": "pcodedmp",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "pdfid": {
+        "CbName": "python3_tools_pdfid",
+        "CbContent": "pdfid",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "pdf-parser": {
+        "CbName": "python3_tools_pdf_parser",
+        "CbContent": "pdf-parser",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "PDFStream Dumper": {
+        "CbName": "packages_pdfstreamdumper",
+        "CbContent": "PDFStream Dumper",
+        "DAID": "C:\\PDFStreamDumper\\PDFStreamDumper.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "rtfdump.py": {
+        "CbName": "python3_tools_rtfdump",
+        "CbContent": "rtfdump.py",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Sublime Text": {
+        "CbName": "packages_sublime_text",
+        "CbContent": "Sublime Text",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Sublime Text\\sublime_text.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "VSCode (Visual Studio Code)": {
+        "CbName": "packages_vscode",
+        "CbContent": "VSCode (Visual Studio Code)",
+        "DAID": "Microsoft.VisualStudioCode",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "XLMMacroDeobfuscator": {
+        "CbName": "python3_tools_xlmmacrodeobfuscator",
+        "CbContent": "XLMMacroDeobfuscator",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_email",
+    "HeaderName": "header_email",
+    "HeaderContent": "Email",
+    "Tools": {
+      "4n6 Email Forensics": {
+        "CbName": "packages_4n6_email_forensics_wizard",
+        "CbContent": "4n6 Email Forensics",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\4n6 Software\\4n6 Email Forensics Wizard\\EmailForensicsWizard.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "BitRecover EML File Viewer": {
+        "CbName": "standalones_bitrecover_eml_viewer",
+        "CbContent": "BitRecover EML File Viewer",
+        "DAID": "PLACEHOLDER_PATH\\bitrecover-eml-viewer\\bitrecover-eml-viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Email Header Analyzer": {
+        "CbName": "standalones_email_header_analyzer",
+        "CbContent": "Email Header Analyzer",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Python310\\Scripts\\email-header-analyzer.cmd",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Forensic Email Collector (FEC)": {
+        "CbName": "installers_fec",
+        "CbContent": "Forensic Email Collector (FEC)",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Metaspike\\Forensic Email Collector\\FEC.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Kernel EDB Viewer": {
+        "CbName": "packages_kernel_edb_viewer",
+        "CbContent": "Kernel EDB Viewer",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Kernel Exchange EDB Viewer\\KernelExchangeEDBViewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Kernel OST Viewer": {
+        "CbName": "packages_kernel_ost_viewer",
+        "CbContent": "Kernel OST Viewer",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Kernel OST Viewer\\Kernel OST Viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Kernel PST Viewer": {
+        "CbName": "packages_kernel_pst_viewer",
+        "CbContent": "Kernel PST Viewer",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Kernel Outlook PST Viewer\\Kernel Outlook PST Viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PST Walker": {
+        "CbName": "packages_pst_walker",
+        "CbContent": "PST Walker",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\PST Walker\\pstwalker.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "SysTools Outlook PST Viewer": {
+        "CbName": "installers_systools_pst_viewer",
+        "CbContent": "SysTools Outlook PST Viewer",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\SysTools Outlook PST Viewer\\SysTools Outlook PST Viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_executables",
+    "HeaderName": "header_executables",
+    "HeaderContent": "Executables",
+    "Tools": {
+      "API Monitor v2 Alpha": {
+        "CbName": "packages_apimonitor",
+        "CbContent": "API Monitor v2 Alpha",
+        "DAID": "Rohitab.ApiMonitor.x64",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Bintext": {
+        "CbName": "standalones_bintext",
+        "CbContent": "Bintext",
+        "DAID": "PLACEHOLDER_PATH\\bintext\\bintext.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "capa": {
+        "CbName": "standalones_capa",
+        "CbContent": "capa",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Cutter": {
+        "CbName": "standalones_cutter",
+        "CbContent": "Cutter",
+        "DAID": "PLACEHOLDER_PATH\\cutter\\cutter.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Decompyle3": {
+        "CbName": "python3_tools_decompyle3",
+        "CbContent": "Decompyle3",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "densityscout": {
+        "CbName": "standalones_densityscout",
+        "CbContent": "densityscout",
+        "DAID": "PLACEHOLDER_PATH\\densityscout\\densityscout.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "DIE (Detect It Easy)": {
+        "CbName": "standalones_die",
+        "CbContent": "DIE (Detect It Easy)",
+        "DAID": "PLACEHOLDER_PATH\\die\\die.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "dotPeek": {
+        "CbName": "standalones_dotpeek",
+        "CbContent": "dotPeek",
+        "DAID": "PLACEHOLDER_PATH\\dotpeek\\dotPeek64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "exeinfope": {
+        "CbName": "standalones_exeinfope",
+        "CbContent": "exeinfope",
+        "DAID": "PLACEHOLDER_PATH\\ExeinfoPe\\exeinfope.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "File Insight": {
+        "CbName": "packages_fileinsight",
+        "CbContent": "File Insight",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\McAfee\\FileInsight\\FileInsight.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "FLOSS (FLARE Obfuscated String Solver)": {
+        "CbName": "standalones_floss",
+        "CbContent": "FLOSS (FLARE Obfuscated String Solver)",
+        "DAID": "PLACEHOLDER_PATH\\floss\\floss.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "hollows_hunter": {
+        "CbName": "standalones_hollows_hunter",
+        "CbContent": "hollows_hunter",
+        "DAID": "PLACEHOLDER_PATH\\hollows-hunter\\hollows-hunter.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "ilspy": {
+        "CbName": "standalones_ilspy",
+        "CbContent": "ilspy",
+        "DAID": "PLACEHOLDER_PATH\\ilspy\\ILSpy.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "KsDumper 11": {
+        "CbName": "packages_ksdumper11",
+        "CbContent": "KsDumper 11",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\KsDumper11\\KsDumper11.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Magnet Process Capture": {
+        "CbName": "standalones_magnet_process_capture",
+        "CbContent": "Magnet Process Capture",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\ProcessCapture\\MagnetProcessCapture.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "MalCat": {
+        "CbName": "standalones_malcat",
+        "CbContent": "MalCat",
+        "DAID": "PLACEHOLDER_PATH\\malcat\\bin\\malcat.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "mal_unpack": {
+        "CbName": "standalones_mal_unpack",
+        "CbContent": "mal_unpack",
+        "DAID": "PLACEHOLDER_PATH\\mal-unpack\\mal_unpack.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Noriben": {
+        "CbName": "python3_tools_noriben",
+        "CbContent": "Noriben",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "NTCore Explorer Suite": {
+        "CbName": "packages_ntcore_explorersuite",
+        "CbContent": "NTCore Explorer Suite",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\NTCore\\Explorer Suite\\PE Detective.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PE-Bear": {
+        "CbName": "standalones_pe_bear",
+        "CbContent": "PE-Bear",
+        "DAID": "PLACEHOLDER_PATH\\pe-bear\\PE-bear.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PEiD": {
+        "CbName": "standalones_peid",
+        "CbContent": "PEiD",
+        "DAID": "PLACEHOLDER_PATH\\peid\\peid.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "pe-sieve": {
+        "CbName": "standalones_pe_sieve",
+        "CbContent": "pe-sieve",
+        "DAID": "PLACEHOLDER_PATH\\pe-sieve\\pe-sieve.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "PEStudio": {
+        "CbName": "standalones_pestudio",
+        "CbContent": "PEStudio",
+        "DAID": "PLACEHOLDER_PATH\\pestudio\\pestudio.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "pev": {
+        "CbName": "standalones_pev",
+        "CbContent": "pev",
+        "DAID": "PLACEHOLDER_PATH\\pev\\run.bat",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PPEE (puppy)": {
+        "CbName": "standalones_ppee",
+        "CbContent": "PPEE (puppy)",
+        "DAID": "PLACEHOLDER_PATH\\ppee\\PPEE.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "ProcDOT": {
+        "CbName": "standalones_procdot",
+        "CbContent": "ProcDOT",
+        "DAID": "PLACEHOLDER_PATH\\procdot\\win64\\procdot.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Process Hacker": {
+        "CbName": "packages_process_hacker",
+        "CbContent": "Process Hacker",
+        "DAID": "wj32.ProcessHacker2",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PSDecode": {
+        "CbName": "standalones_psdecode",
+        "CbContent": "PSDecode",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Resource Hacker": {
+        "CbName": "standalones_resource_hacker",
+        "CbContent": "Resource Hacker",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Resource Hacker\\ResourceHacker.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "scdbg": {
+        "CbName": "standalones_scdbg",
+        "CbContent": "scdbg",
+        "DAID": "PLACEHOLDER_PATH\\scdbg\\gui_launcher.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Scylla": {
+        "CbName": "standalones_scylla",
+        "CbContent": "Scylla",
+        "DAID": "PLACEHOLDER_PATH\\scylla\\Scylla_x64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "setdllcharacteristics": {
+        "CbName": "standalones_setdllcharacteristics",
+        "CbContent": "setdllcharacteristics",
+        "DAID": "PLACEHOLDER_PATH\\setdll\\setdllcharacteristics.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "TrID": {
+        "CbName": "standalones_trid",
+        "CbContent": "TrID",
+        "DAID": "PLACEHOLDER_PATH\\trid\\trid.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "UPX": {
+        "CbName": "standalones_upx",
+        "CbContent": "UPX",
+        "DAID": "PLACEHOLDER_PATH\\upx\\upx.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "VB-Decompiler": {
+        "CbName": "installers_vbdecompiler",
+        "CbContent": "VB-Decompiler",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\VB Decompiler Lite\\VB Decompiler.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WinDbg": {
+        "CbName": "installers_windbg",
+        "CbContent": "WinDbg",
+        "DAID": "Microsoft.WinDbg_8wekyb3d8bbwe!Microsoft.WinDbg",
+        "AUMID": true,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Windows Sandbox": {
+        "CbName": "installers_windows_sandbox",
+        "CbContent": "Windows Sandbox",
+        "DAID": "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsSandbox.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "x64dbg": {
+        "CbName": "standalones_x64dbg",
+        "CbContent": "x64dbg",
+        "DAID": "PLACEHOLDER_PATH\\x64dbg\\release\\x64\\x64dbg.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": [
+          "PLACEHOLDER_PATH\\x64dbg\\release\\x32\\x32dbg.exe"
+        ]
+      }
+    }
+  },
+  {
+    "TVI": "tvi_installers",
+    "HeaderName": "header_installers",
+    "HeaderContent": "Installers",
+    "Tools": {
+      "AutoIt Extractor": {
+        "CbName": "standalones_autoit_extractor",
+        "CbContent": "AutoIt Extractor",
+        "DAID": "PLACEHOLDER_PATH\\autoit-extractor\\autoit-extractor.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "InnoExtract": {
+        "CbName": "standalones_innoextract",
+        "CbContent": "InnoExtract",
+        "DAID": "PLACEHOLDER_PATH\\innoextract\\innoextract.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Innounp": {
+        "CbName": "standalones_innounp",
+        "CbContent": "Innounp",
+        "DAID": "PLACEHOLDER_PATH\\innounp\\innounp.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "lessmsi": {
+        "CbName": "standalones_lessmsi",
+        "CbContent": "lessmsi",
+        "DAID": "PLACEHOLDER_PATH\\lessmsi\\lessmsi-gui.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Py2ExeDecompiler": {
+        "CbName": "standalones_py2exedecompiler",
+        "CbContent": "Py2ExeDecompiler",
+        "DAID": "PLACEHOLDER_PATH\\py2exedecompiler\\Py2ExeDecompiler.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Pyinstaller Extractor": {
+        "CbName": "python3_tools_pyinstxtractor",
+        "CbContent": "Pyinstaller Extractor",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "UnAutoIt": {
+        "CbName": "standalones_unautoit",
+        "CbContent": "UnAutoIt",
+        "DAID": "PLACEHOLDER_PATH\\unautoit\\unautoit.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "UniExtract2": {
+        "CbName": "standalones_uniextract2",
+        "CbContent": "UniExtract2",
+        "DAID": "PLACEHOLDER_PATH\\uniextract\\uniextract.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_logs",
+    "HeaderName": "header_logs",
+    "HeaderContent": "Logs",
+    "Tools": {
+      "Chainsaw": {
+        "CbName": "standalones_chainsaw",
+        "CbContent": "Chainsaw",
+        "DAID": "PLACEHOLDER_PATH\\chainsaw\\chainsaw.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "EventFinder": {
+        "CbName": "standalones_eventfinder",
+        "CbContent": "EventFinder",
+        "DAID": "PLACEHOLDER_PATH\\eventfinder\\EventFinder.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Event Log Explorer": {
+        "CbName": "packages_eventlog_explorer",
+        "CbContent": "Event Log Explorer",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Event Log Explorer\\elex.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "evtx_dump": {
+        "CbName": "standalones_evtx_dump",
+        "CbContent": "evtx_dump",
+        "DAID": "PLACEHOLDER_PATH\\evtx-dump\\evtx_dump.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Hayabusa": {
+        "CbName": "standalones_hayabusa",
+        "CbContent": "Hayabusa",
+        "DAID": "PLACEHOLDER_PATH\\hayabusa\\hayabusa.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "HttpLogBrowser": {
+        "CbName": "packages_httplogbrowser",
+        "CbContent": "HttpLogBrowser",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\FinalAnalytics\\HttpLogBrowser\\HttpLogBrowser.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Log Parser": {
+        "CbName": "packages_logparser",
+        "CbContent": "Log Parser",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Log Parser 2.2\\LogParser.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "LogParser Studio": {
+        "CbName": "standalones_logparser_studio",
+        "CbContent": "LogParser Studio",
+        "DAID": "PLACEHOLDER_PATH\\logparser-studio\\LPS.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "LogViewer2": {
+        "CbName": "standalones_logviewer2",
+        "CbContent": "LogViewer2",
+        "DAID": "PLACEHOLDER_PATH\\logviewer2\\LogViewer2.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_mobile",
+    "HeaderName": "header_mobile",
+    "HeaderContent": "Mobile Analysis",
+    "Tools": {
+      "ALEAPP": {
+        "CbName": "python3_tools_aleapp",
+        "CbContent": "ALEAPP",
+        "DAID": "PLACEHOLDER_PATH\\aleapp\\aleappGUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Bytecode Viewer": {
+        "CbName": "standalones_bytecode_viewer",
+        "CbContent": "Bytecode Viewer",
+        "DAID": "PLACEHOLDER_PATH\\bytecode-viewer\\Bytecode-Viewer-2.11.2.jar",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "dex2jar": {
+        "CbName": "standalones_dex2jar",
+        "CbContent": "dex2jar",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "ILEAPP": {
+        "CbName": "python3_tools_ileapp",
+        "CbContent": "ILEAPP",
+        "DAID": "PLACEHOLDER_PATH\\ileapp\\ileappGUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "iphoneanalyzer": {
+        "CbName": "standalones_iphone_analyzer",
+        "CbContent": "iphoneanalyzer",
+        "DAID": "PLACEHOLDER_PATH\\iphone-analyzer\\iphoneanalyzer.fat.gui-2.1.0.jar",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "jd-gui": {
+        "CbName": "standalones_jd_gui",
+        "CbContent": "jd-gui",
+        "DAID": "PLACEHOLDER_PATH\\jd-gui\\jd-gui.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Plist Editor": {
+        "CbName": "packages_plist_editor",
+        "CbContent": "Plist Editor",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\VOW Software\\plist Editor Pro\\plistEditor.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "VLEAPP": {
+        "CbName": "python3_tools_vleapp",
+        "CbContent": "VLEAPP",
+        "DAID": "PLACEHOLDER_PATH\\vleapp\\vleappGUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_network",
+    "HeaderName": "header_network",
+    "HeaderContent": "Network",
+    "Tools": {
+      "Brim": {
+        "CbName": "packages_brim",
+        "CbContent": "Brim",
+        "DAID": "com.electron.brim",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Burp Suite Community Edition": {
+        "CbName": "packages_burpsuite_community",
+        "CbContent": "Burp Suite Community Edition",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\BurpSuiteCommunity\\BurpSuiteCommunity.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Fakenet-NG": {
+        "CbName": "python3_tools_flare_fakenet_ng",
+        "CbContent": "Fakenet-NG",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "NAFT - Network Appliance Forensic Toolkit": {
+        "CbName": "python3_tools_naft",
+        "CbContent": "NAFT - Network Appliance Forensic Toolkit",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Network Miner": {
+        "CbName": "standalones_network_miner",
+        "CbContent": "Network Miner",
+        "DAID": "PLACEHOLDER_PATH\\network-miner\\NetworkMiner.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "PuTTY": {
+        "CbName": "packages_putty",
+        "CbContent": "PuTTY",
+        "DAID": "SimonTatham.PuTTY",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Telerik Fiddler": {
+        "CbName": "packages_fiddler",
+        "CbContent": "Telerik Fiddler",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Fiddler\\Fiddler.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Webpage Saver": {
+        "CbName": "standalones_magnet_web_page_saver_portable",
+        "CbContent": "Webpage Saver",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\WebPageSaver\\WebPageSaver.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Wireshark": {
+        "CbName": "packages_wireshark",
+        "CbContent": "Wireshark",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Wireshark\\Wireshark.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_raw",
+    "HeaderName": "header_raw",
+    "HeaderContent": "Raw Parsers / Decoders",
+    "Tools": {
+      "Bulk Extractor": {
+        "CbName": "packages_bulk_extractor",
+        "CbContent": "Bulk Extractor",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Bulk Extractor 1.5.5\\64-bit\\BEViewerLauncher.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "CyberChef": {
+        "CbName": "standalones_cyberchef",
+        "CbContent": "CyberChef",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\CyberChef.lnk",
+        "AUMID": false,
+        "DALP": true,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Data Dump": {
+        "CbName": "installers_data_dump",
+        "CbContent": "Data Dump",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Digital Detective\\DataDump v2\\DataDump.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "DCode": {
+        "CbName": "installers_dcode",
+        "CbContent": "DCode",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Digital Detective\\DCode v5\\DCode.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Elcomsoft Forensic Disk Decryptor": {
+        "CbName": "packages_elcomsoft_efdd",
+        "CbContent": "Elcomsoft Forensic Disk Decryptor",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Elcomsoft Password Recovery\\Elcomsoft Forensic Disk Decryptor\\efdd.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Hex Editor Neo": {
+        "CbName": "packages_free_hex_editor_neo",
+        "CbContent": "Hex Editor Neo",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\HHD Software\\Hex Editor Neo\\HexFrame.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "HxD": {
+        "CbName": "installers_hxd",
+        "CbContent": "HxD",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\HxD\\HxD.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "iptools": {
+        "CbName": "python3_tools_iptools",
+        "CbContent": "iptools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "MemProcFS": {
+        "CbName": "standalones_memprocfs",
+        "CbContent": "MemProcFS",
+        "DAID": "PLACEHOLDER_PATH\\memprocfs\\MemProcFS.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Passware Encryption Analyzer": {
+        "CbName": "packages_passware_encryption_analyzer",
+        "CbContent": "Passware Encryption Analyzer",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Passware\\Encryption Analyzer 2023\\PasswareEncryptionAnalyzer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "photorec / testdisk": {
+        "CbName": "standalones_photorec",
+        "CbContent": "photorec / testdisk",
+        "DAID": "PLACEHOLDER_PATH\\testdisk\\qphotorec_win.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": [
+          "PLACEHOLDER_PATH\\testdisk\\photorec_win.exe",
+          "PLACEHOLDER_PATH\\testdisk\\testdisk_win.exe"
+        ]
+      },
+      "SMI Parser": {
+        "CbName": "standalones_smi_parser",
+        "CbContent": "SMI Parser",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "time-decode": {
+        "CbName": "python3_tools_time_decode",
+        "CbContent": "time-decode",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "yara-python": {
+        "CbName": "python3_tools_yara_python",
+        "CbContent": "yara-python",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_registry",
+    "HeaderName": "header_registry",
+    "HeaderContent": "Registry",
+    "Tools": {
+      "regripper": {
+        "CbName": "standalones_regripper",
+        "CbContent": "regripper",
+        "DAID": "PLACEHOLDER_PATH\\regripper\\rr.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "regshot": {
+        "CbName": "standalones_regshot",
+        "CbContent": "regshot",
+        "DAID": "PLACEHOLDER_PATH\\regshot\\Regshot-x64-Unicode.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_requirements",
+    "HeaderName": "header_requirements",
+    "HeaderContent": "Requirements",
+    "Tools": {
+      "7-Zip": {
+        "CbName": "packages_7zip",
+        "CbContent": "7-Zip",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\7-Zip\\7zFM.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Adobe Reader": {
+        "CbName": "packages_adobereader",
+        "CbContent": "Adobe Reader",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      ".NET 6 Desktop Runtime": {
+        "CbName": "packages_dotnet6_desktop_runtime",
+        "CbContent": ".NET 6 Desktop Runtime",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      ".NET 3.5 Framework": {
+        "CbName": "packages_dotnetfx35",
+        "CbContent": ".NET 3.5 Framework",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Git": {
+        "CbName": "packages_git",
+        "CbContent": "Git",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Git\\cmd\\git-gui.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Graphviz": {
+        "CbName": "packages_graphviz",
+        "CbContent": "Graphviz",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Java Runtime Environment 8": {
+        "CbName": "installers_jre8",
+        "CbContent": "Java Runtime Environment 8",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Microsoft Visual C++ 2010 Redistributable": {
+        "CbName": "packages_ms_vcpp_2010_redist_x64",
+        "CbContent": "Microsoft Visual C++ 2010 Redistributable",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Microsoft Visual C++ 2015 Build Tools": {
+        "CbName": "packages_ms_vcpp_2015_build_tools",
+        "CbContent": "Microsoft Visual C++ 2015 Build Tools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Portals": {
+        "CbName": "packages_portals",
+        "CbContent": "Portals",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Portals\\Portals.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Python 2.7": {
+        "CbName": "packages_python2",
+        "CbContent": "Python 2.7",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Python 3.10": {
+        "CbName": "packages_python3",
+        "CbContent": "Python 3.10",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Strawberry Perl": {
+        "CbName": "packages_strawberryperl",
+        "CbContent": "Strawberry Perl",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Visual C++ Compiler for Python 2.7": {
+        "CbName": "packages_vcforpython27",
+        "CbContent": "Visual C++ Compiler for Python 2.7",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Visual Studio Community 2022": {
+        "CbName": "packages_vs_community_2022",
+        "CbContent": "Visual Studio Community 2022",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_terminals",
+    "HeaderName": "header_terminals",
+    "HeaderContent": "Terminals",
+    "Tools": {
+      "Cygwin": {
+        "CbName": "installers_cygwin",
+        "CbContent": "Cygwin",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\Cygwin\\Cygwin64 Terminal.lnk",
+        "AUMID": false,
+        "DALP": true,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "MobaXTerm": {
+        "CbName": "installers_mobaxterm",
+        "CbContent": "MobaXTerm",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Mobatek\\MobaXterm\\MobaXterm.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Windows Terminal": {
+        "CbName": "installers_windows_terminal",
+        "CbContent": "Windows Terminal",
+        "DAID": "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App",
+        "AUMID": true,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_utilities",
+    "HeaderName": "header_utilities",
+    "HeaderContent": "Utilities",
+    "Tools": {
+      "Agent Ransack": {
+        "CbName": "packages_agentransack",
+        "CbContent": "Agent Ransack",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Mythicsoft\\Agent Ransack\\AgentRansack.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Aurora Incident Response": {
+        "CbName": "standalones_aurora",
+        "CbContent": "Aurora Incident Response",
+        "DAID": "PLACEHOLDER_PATH\\aurora\\Aurora.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Bulk Rename Utility": {
+        "CbName": "packages_bulkrenameutility",
+        "CbContent": "Bulk Rename Utility",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Bulk Rename Utility\\Bulk Rename Utility.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Bulk Rename Utility (Portable)": {
+        "CbName": "standalones_bulkrenameutility_portable",
+        "CbContent": "Bulk Rename Utility (Portable)",
+        "DAID": "PLACEHOLDER_PATH\\bulk-rename-utility-portable\\64-bit\\Bulk Rename Utility.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "CAiNE ISO": {
+        "CbName": "standalones_caine",
+        "CbContent": "CAiNE ISO",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Encrypted Disk Detector (EDD)": {
+        "CbName": "standalones_magnet_edd",
+        "CbContent": "Encrypted Disk Detector (EDD)",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\EDD\\EDDv310.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "FastCopy": {
+        "CbName": "installers_fastcopy",
+        "CbContent": "FastCopy",
+        "DAID": "PLACEHOLDER_PATH\\fastcopy\\FastCopy.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Glossary Generator": {
+        "CbName": "standalones_glossary_generator",
+        "CbContent": "Glossary Generator",
+        "DAID": "PLACEHOLDER_PATH\\glossary-generator\\GG.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Google Earth Pro": {
+        "CbName": "packages_google_earth_pro",
+        "CbContent": "Google Earth Pro",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Google\\Google Earth Pro\\client\\googleearth.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "HashCheck": {
+        "CbName": "packages_hashcheck",
+        "CbContent": "HashCheck",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Hex2GUID": {
+        "CbName": "standalones_hex2guid",
+        "CbContent": "Hex2GUID",
+        "DAID": "PLACEHOLDER_PATH\\hex2guid\\hex2guid.cmd",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Irfanview x64": {
+        "CbName": "packages_irfanview",
+        "CbContent": "Irfanview x64",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\IrfanView\\i_view64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Irfanview x64 Plugins": {
+        "CbName": "installers_irfanview_plugins",
+        "CbContent": "Irfanview x64 Plugins",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "iTunes": {
+        "CbName": "packages_itunes",
+        "CbContent": "iTunes",
+        "DAID": "Apple.iTunes",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "megatools": {
+        "CbName": "standalones_megatools",
+        "CbContent": "megatools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Microsoft PowerToys": {
+        "CbName": "packages_ms_powertoys",
+        "CbContent": "Microsoft PowerToys",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Monolith Notes": {
+        "CbName": "packages_monolith_notes",
+        "CbContent": "Monolith Notes",
+        "DAID": "com.monolith-notes.app",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Nuix Evidence Mover": {
+        "CbName": "packages_nuix_evidence_mover",
+        "CbContent": "Nuix Evidence Mover",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Nuix\\Nuix Evidence Mover\\EvidenceMover.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "OpenHashTab": {
+        "CbName": "packages_openhashtab",
+        "CbContent": "OpenHashTab",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Rufus": {
+        "CbName": "standalones_rufus",
+        "CbContent": "Rufus",
+        "DAID": "PLACEHOLDER_PATH\\rufus\\rufus.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Tableau Firmware Updater": {
+        "CbName": "packages_tableau_firmware_update",
+        "CbContent": "Tableau Firmware Updater",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Tableau\\Tableau Firmware Update\\tabup.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "USB Registry Write Blocker": {
+        "CbName": "standalones_usb_write_blocker",
+        "CbContent": "USB Registry Write Blocker",
+        "DAID": "PLACEHOLDER_PATH\\USB-Write-Blocker_v1.2.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "VcXsrv Windows X Server": {
+        "CbName": "packages_vcxsrv",
+        "CbContent": "VcXsrv Windows X Server",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\VcXsrv\\xlaunch.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Veracrypt": {
+        "CbName": "packages_veracrypt",
+        "CbContent": "Veracrypt",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\VeraCrypt\\VeraCrypt.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "VirtualBox": {
+        "CbName": "packages_virtualbox",
+        "CbContent": "VirtualBox",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Oracle\\VirtualBox\\VirtualBox.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "VLC": {
+        "CbName": "packages_vlc",
+        "CbContent": "VLC",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\VideoLAN\\VLC\\vlc.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WiebeTech WriteBlocking Validation": {
+        "CbName": "packages_wiebetech_writeblocking_validation_utility",
+        "CbContent": "WiebeTech WriteBlocking Validation",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\CDSG\\WriteBlocking Validation Utility\\WbValUtil.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WindowGrid": {
+        "CbName": "standalones_windowgrid",
+        "CbContent": "WindowGrid",
+        "DAID": "PLACEHOLDER_PATH\\windowgrid\\WindowGrid.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Windows Winget": {
+        "CbName": "installers_windows_winget",
+        "CbContent": "Windows Winget",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Win-FOR Customizer": {
+        "CbName": "standalones_winfor_customizer",
+        "CbContent": "Win-FOR Customizer",
+        "DAID": "PLACEHOLDER_PATH\\winfor-customizer-v6.0.0.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WinMerge": {
+        "CbName": "packages_winmerge",
+        "CbContent": "WinMerge",
+        "DAID": "Thingamahoochie.WinMerge",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  },
+  {
+    "TVI": "tvi_windows",
+    "HeaderName": "header_windows",
+    "HeaderContent": "Windows Analysis",
+    "Tools": {
+      "amcache.py": {
+        "CbName": "python3_tools_amcache",
+        "CbContent": "amcache.py",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Autorunner": {
+        "CbName": "standalones_autorunner",
+        "CbContent": "Autorunner",
+        "DAID": "PLACEHOLDER_PATH\\autorunner\\autorunner.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "autotimeliner": {
+        "CbName": "python3_tools_autotimeliner",
+        "CbContent": "autotimeliner",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "bitsparser": {
+        "CbName": "python3_tools_bitsparser",
+        "CbContent": "bitsparser",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "bmc-tools": {
+        "CbName": "python3_tools_bmc_tools",
+        "CbContent": "bmc-tools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Hibernation Recon": {
+        "CbName": "standalones_hibernation_recon",
+        "CbContent": "Hibernation Recon",
+        "DAID": "PLACEHOLDER_PATH\\hibernation-recon\\HibernationRecon.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Hindsight": {
+        "CbName": "standalones_hindsight",
+        "CbContent": "Hindsight",
+        "DAID": "PLACEHOLDER_PATH\\hindsight\\hindsight_gui.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Kansa": {
+        "CbName": "standalones_kansa",
+        "CbContent": "Kansa",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "kape": {
+        "CbName": "standalones_kape",
+        "CbContent": "kape",
+        "DAID": "PLACEHOLDER_PATH\\kape\\gkape.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Live Response Collection (Cedarpelta)": {
+        "CbName": "standalones_lrc_cedarpelta",
+        "CbContent": "Live Response Collection (Cedarpelta)",
+        "DAID": "PLACEHOLDER_PATH\\lrc-cedarpelta\\Windows_Live_Response\\Windows Live Response Collection.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "LogFileParser": {
+        "CbName": "standalones_logfileparser",
+        "CbContent": "LogFileParser",
+        "DAID": "PLACEHOLDER_PATH\\logfileparser\\LogFileParser64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "MFT Browser": {
+        "CbName": "standalones_mftbrowser",
+        "CbContent": "MFT Browser",
+        "DAID": "PLACEHOLDER_PATH\\mftbrowser\\MFTBrowser.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "mimikatz": {
+        "CbName": "standalones_mimikatz",
+        "CbContent": "mimikatz",
+        "DAID": "PLACEHOLDER_PATH\\mimikatz\\x64\\mimikatz.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "MiTeC Tool Suite": {
+        "CbName": "standalones_mitec",
+        "CbContent": "MiTeC Tool Suite",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Nirsoft": {
+        "CbName": "standalones_nirsoft",
+        "CbContent": "Nirsoft",
+        "DAID": "PLACEHOLDER_PATH\\nirsoft\\NirLauncher.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "NTCore DriverList and NetUnpack": {
+        "CbName": "standalones_ntcore",
+        "CbContent": "NTCore DriverList and NetUnpack",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "NTFS Log Tracker": {
+        "CbName": "standalones_ntfs_log_tracker",
+        "CbContent": "NTFS Log Tracker",
+        "DAID": "PLACEHOLDER_PATH\\ntfs-log-tracker\\NTFS Log Tracker v1.71.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Shadow Explorer": {
+        "CbName": "standalones_shadowexplorer",
+        "CbContent": "Shadow Explorer",
+        "DAID": "PLACEHOLDER_PATH\\shadowexplorer\\ShadowExplorerPortable.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "SilkETW": {
+        "CbName": "standalones_silketw",
+        "CbContent": "SilkETW",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "srum-dump": {
+        "CbName": "standalones_srum_dump2",
+        "CbContent": "srum-dump",
+        "DAID": "PLACEHOLDER_PATH\\srum-dump2\\srum-dump2.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "Sysinternals": {
+        "CbName": "standalones_sysinternals",
+        "CbContent": "Sysinternals",
+        "DAID": "PLACEHOLDER_PATH\\sysinternals",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "The Sleuth Kit": {
+        "CbName": "standalones_sleuthkit",
+        "CbContent": "The Sleuth Kit",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "ThumbCache Viewer": {
+        "CbName": "standalones_thumbcacheviewer",
+        "CbContent": "ThumbCache Viewer",
+        "DAID": "PLACEHOLDER_PATH\\thumbcacheviewer\\thumbcache_viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "USB Detective": {
+        "CbName": "standalones_usbdetective",
+        "CbContent": "USB Detective",
+        "DAID": "PLACEHOLDER_PATH\\usbdetective\\USB Detective.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "usbdeviceforensics": {
+        "CbName": "python3_tools_usbdeviceforensics",
+        "CbContent": "usbdeviceforensics",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "USN Journal Parser": {
+        "CbName": "python3_tools_usn_journal_parser",
+        "CbContent": "USN Journal Parser",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Velociraptor": {
+        "CbName": "standalones_velociraptor",
+        "CbContent": "Velociraptor",
+        "DAID": "PLACEHOLDER_PATH\\velociraptor\\velociraptor.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Volatility (Python 2.7)": {
+        "CbName": "python2_tools_volatility2",
+        "CbContent": "Volatility (Python 2.7)",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Volatility 3 (Python 3)": {
+        "CbName": "python3_tools_volatility2",
+        "CbContent": "Volatility 3 (Python 3)",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "vssmount": {
+        "CbName": "standalones_vssmount",
+        "CbContent": "vssmount",
+        "DAID": "PLACEHOLDER_PATH\\vssmount.cmd",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Windows Timeline": {
+        "CbName": "standalones_windows_timeline",
+        "CbContent": "Windows Timeline",
+        "DAID": "PLACEHOLDER_PATH\\windowstimeline\\WindowsTimeline.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WLEAPP": {
+        "CbName": "python3_tools_wleapp",
+        "CbContent": "WLEAPP",
+        "DAID": "PLACEHOLDER_PATH\\wleapp\\wleappGUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
+      "WMI Parser": {
+        "CbName": "standalones_wmi_parser",
+        "CbContent": "WMI Parser",
+        "DAID": "PLACEHOLDER_PATH\\wmi-parser\\wmi-parser.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Zimmerman Tools": {
+        "CbName": "standalones_zimmerman",
+        "CbContent": "Zimmerman Tools",
+        "DAID": "PLACEHOLDER_PATH\\zimmerman",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      }
+    }
+  }
+]

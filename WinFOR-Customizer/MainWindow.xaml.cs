@@ -41,7 +41,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc10";
+            Version.Content = $"v{appversion}-rc11";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -68,6 +68,9 @@ namespace WinFOR_Customizer
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ToolList, new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LocalLayout, (sender, e) => { _ = Local_Layout(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.LocalLayout, new KeyGesture(Key.L, ModifierKeys.Control | ModifierKeys.Shift)));
+            OutputExpander.Visibility = Visibility.Visible;
+            OutputExpander.IsEnabled = true;
+            OutputExpander.IsExpanded = false;
         }
 
         public static class KeyboardShortcuts
@@ -123,7 +126,7 @@ namespace WinFOR_Customizer
             }
             public override Encoding Encoding
             {
-                get { return System.Text.Encoding.UTF8; }
+                get { return Encoding.UTF8; }
             }
         }
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
@@ -171,6 +174,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to launch process:\n{ex}");
             }
         }
@@ -190,6 +194,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to Expand All:\n{ex}");
             }
         }
@@ -209,6 +214,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to Collapse All:\n{ex}");
             }
         }
@@ -235,6 +241,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to UnCheck All:\n{ex}");
             }
         }
@@ -261,6 +268,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to Check All:\n{ex}");
             }
         }
@@ -417,6 +425,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to display CPC Default tools:\n{ex}");
             }
         }
@@ -560,6 +569,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to display CRA Default tools:\n{ex}");
             }
         }
@@ -585,6 +595,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to display Win-FOR Default tools:\n{ex}");
             }
         }
@@ -632,6 +643,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to launch the Save File dialog:\n{ex}");
             }
         }
@@ -655,6 +667,7 @@ namespace WinFOR_Customizer
                     Expand_All();
                     UnCheck_All();
                     List<string> listed_tools = new();
+                    OutputExpander.IsExpanded = true;
                     Console_Output($"Loading configuration from {file}");
                     int include_ln = Find_LineNumber(custom_state, "include:");
                     int nop_ln = Find_LineNumber(custom_state, "test.nop:");
@@ -693,6 +706,7 @@ namespace WinFOR_Customizer
                         }
                         else
                         {
+                            OutputExpander.IsExpanded = true;
                             Console_Output($"{tool} is not an available option - please check your custom state and try again.");
                         }
                     }
@@ -704,6 +718,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to display the Load File dialog:\n{ex}");
             }
         }
@@ -833,6 +848,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to generate a state file:\n{ex}");
 
             }
@@ -875,6 +891,7 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to determine checkbox status:\n{ex}");
             }
             return (checked_items, checked_items_content);
@@ -888,10 +905,41 @@ namespace WinFOR_Customizer
         {
             try
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
                 bool is_themed;
+                string current_user = Environment.UserName;
+                string xways_data;
+                string xways_token;
+                bool xways_selected;
+                string standalones_path;
+                string user_name;
+                bool wsl_selected;
+                if (standalones_x_ways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                {
+                    xways_data = $"{XUser.Text}:{XPass.Text}";
+                    xways_token = Convert.ToBase64String(Encoding.UTF8.GetBytes(xways_data));
+                    xways_selected = true;
+                    Console_Output($"X-Ways is selected and credentials have been provided");
+                }
+                else if (standalones_x_ways.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
+                {
+                    tvi_acquisition.IsExpanded = true;
+                    Console_Output("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
+                    MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
+                                    "X-Ways Portal Credentials Not Supplied",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
+                    return;
+                }
+                else
+                {
+                    xways_selected = false;
+                    xways_token = "TOKENPLACEHOLDER";
+                    Console_Output("X-Ways is not selected and will not be downloaded / installed");
+                }
                 if (themed.IsChecked == true)
                 {
                     is_themed = true;
@@ -910,34 +958,8 @@ namespace WinFOR_Customizer
                     is_themed = false;
                     Console_Output($"No theme has been selected.");
                 }
-                string current_user = Environment.UserName;
-                string xways_data;
-                string xways_token;
-                bool xways_selected;
-                string standalones_path;
-                string user_name;
-                bool wsl_selected;
-                if (standalones_x_ways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
-                {
-                    xways_data = $"{XUser.Text}:{XPass.Text}";
-                    xways_token = Convert.ToBase64String(Encoding.UTF8.GetBytes(xways_data));
-                    xways_selected = true;
-                    Console_Output($"X-Ways is selected and credentials have been provided");
-                }
-                else if (standalones_x_ways.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
-                {
-                    MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
-                                    "X-Ways Portal Credentials Not Supplied",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
-                    return;
-                }
-                else
-                {
-                    xways_selected = false;
-                    xways_token = "TOKENPLACEHOLDER";
-                    Console_Output("X-Ways is not selected and will not be downloaded / installed");
-                }
+
+
                 if (wsl.IsChecked == true)
                 {
                     wsl_selected = true;
@@ -1067,10 +1089,11 @@ namespace WinFOR_Customizer
             }
             catch (Exception ex)
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to complete the installation process:\n{ex}");
             }
         }
-        public void Create_TempDirectory(string temp_dir)
+        public static void Create_TempDirectory(string temp_dir)
         // Creates a pre-defined temp directory to store required files
         {
             try
@@ -1100,7 +1123,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public bool Check_SaltStackInstalled(string salt_version)
+        private static bool Check_SaltStackInstalled(string salt_version)
         // Checks if the pre-determined version of SaltStack is installed
         {
             bool salt_installed = false;
@@ -1126,7 +1149,7 @@ namespace WinFOR_Customizer
             }
             return salt_installed;
         }
-        private bool Check_GitInstalled(string git_version)
+        private static bool Check_GitInstalled(string git_version)
         // Checks if the pre-determined version of Git is installed, required for the implementation of most of the Salt states
         {
             bool git_installed = false;
@@ -1163,7 +1186,7 @@ namespace WinFOR_Customizer
             byte[] fileBytes = await httpClient.GetByteArrayAsync(uri);
             File.WriteAllBytes(download_location, fileBytes);
         }
-        private async Task Download_SaltStack(string temp_dir, string salt_version, string salt_hash)
+        private static async Task Download_SaltStack(string temp_dir, string salt_version, string salt_hash)
         // Downloads the pre-determined version of SaltStack
         {
             try
@@ -1202,7 +1225,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private async Task Install_Saltstack(string temp_dir, string salt_version)
+        private static async Task Install_Saltstack(string temp_dir, string salt_version)
         // Installs the pre-determined version of SaltStack, provided it can be downloaded, or is already downloaded in the temp_dir
         {
             try
@@ -1234,7 +1257,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private async Task Download_Git(string temp_dir, string git_version, string git_hash)
+        private static async Task Download_Git(string temp_dir, string git_version, string git_hash)
         // Downloads the pre-determined version of Git
         {
             string git_file = $"Git-{git_version}-64-bit.exe";
@@ -1272,7 +1295,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        private async Task Install_Git(string temp_dir, string git_version)
+        private static async Task Install_Git(string temp_dir, string git_version)
         // Installs the pre-determined version of Git, provided it can be downloaded, or is available in the temp_dir
         {
             try
@@ -1329,7 +1352,7 @@ namespace WinFOR_Customizer
             }
             return release_data;
         }
-        private async Task Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
+        private static async Task Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
         // Downloads the latest winfor-salt states
         {
             try
@@ -1352,7 +1375,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public bool Compare_Hash(string hash_value, string file)
+        private static bool Compare_Hash(string hash_value, string file)
         // Used to calculate the SHA256 hash of a file, and compare it to a given hash
         {
             bool match = false;
@@ -1387,7 +1410,7 @@ namespace WinFOR_Customizer
             }
             return match;
         }
-        private bool Extract_States(string temp_dir, string release)
+        private static bool Extract_States(string temp_dir, string release)
         // Once downloaded, or available, this will extract the winfor-salt states to the required location in the Salt Project\Salt folder
         {
             bool extracted = false;
@@ -1434,7 +1457,7 @@ namespace WinFOR_Customizer
             }
             return extracted;
         }
-        private void Insert_XWaysToken(string authtoken)
+        private static void Insert_XWaysToken(string authtoken)
         // This function will take the provided authtoken and insert it in the required spot in the x-ways.sls State file once available.
         {
             string state_file = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls";
@@ -1454,7 +1477,7 @@ namespace WinFOR_Customizer
                 return;
             }
         }
-        public bool Copy_CustomState(string state_file)
+        private static bool Copy_CustomState(string state_file)
         // A simple copy of the generated custom state_file (from the Generate_State function) to the proper location
         {
             bool copied = false;
@@ -1475,6 +1498,7 @@ namespace WinFOR_Customizer
         {
             try
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string state_list = Generate_State("download", false);
@@ -1715,7 +1739,7 @@ namespace WinFOR_Customizer
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Unable to display out exit details: {ex}","Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Unable to display exit details: {ex}","Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -1829,6 +1853,7 @@ namespace WinFOR_Customizer
         {
             try
             {
+                OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
@@ -2021,8 +2046,6 @@ namespace WinFOR_Customizer
                 if (OutputConsole.Text == "")
                 {
                     MessageBox.Show($"Output Console contains no information - not saving output.", "Output Console Empty!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
-                    OutputExpander.IsEnabled = false;
-                    OutputExpander.Visibility = Visibility.Hidden;
                     OutputExpander.IsExpanded = false;
                     return;
                 }
@@ -2037,8 +2060,6 @@ namespace WinFOR_Customizer
             {
                 if (OutputConsole.Text == "")
                 {
-                    OutputExpander.IsEnabled = false;
-                    OutputExpander.Visibility = Visibility.Hidden;
                     OutputExpander.IsExpanded = false;
                     return;
                 }
@@ -2188,7 +2209,7 @@ namespace WinFOR_Customizer
             }
             return line_numbers;
         }
-        private string Parse_Log(string logfile, string search_text)
+        private static string Parse_Log(string logfile, string search_text)
         // The function for actually parsing the log file provided and searching for the given text
         {
             StringBuilder summary = new();
@@ -2227,12 +2248,9 @@ namespace WinFOR_Customizer
             }
             return output;
         }
-        private void Console_Output(string message)
+        private static void Console_Output(string message)
         // Function to output the given content with a date/time value in front of it for tracking events
         {
-            OutputExpander.IsEnabled = true;
-            OutputExpander.Visibility = Visibility.Visible;
-            OutputExpander.IsExpanded = true;
             Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} - {message}");
         }
         private void Download_ToolList(object sender, RoutedEventArgs e)
@@ -2243,8 +2261,6 @@ namespace WinFOR_Customizer
         private void Tool_List()
         // Currently not 'implemented', but will provide the Proper Name for the tools selected
         {
-            OutputExpander.IsEnabled = true;
-            OutputExpander.Visibility = Visibility.Visible;
             OutputExpander.IsExpanded = true;
             (_, List<string> checked_content) = GetCheck_Status();
             //(List<string> checked_tools, List<string> checked_content) = GetCheck_Status();
@@ -2434,6 +2450,37 @@ namespace WinFOR_Customizer
             string xmlLayout = xmlOutput.ToString();
             return xmlLayout;
         }
+        public async Task Generate_Tree()
+        {
+            HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+            string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
+            List<TreeItems>? json_query = await httpClient.GetFromJsonAsync<List<TreeItems>?>(uri);
+            int count = json_query!.Count;
+            for (int i = 0; i < count; i++)
+            {
+                CheckBox checkBox = new();
+                string TVI = json_query[i].TVI!;
+                string HEADER = json_query[i].HeaderContent!;
+                checkBox.Content = HEADER;
+                TreeViewItem newChild = new()
+                {
+                    Name = TVI,
+                    Header = checkBox
+                };
+                AllTools.Items.Add(newChild);
+                var tools = json_query[i].Tools;
+                foreach (var tool in tools!)
+                {
+                    CheckBox cb = new()
+                    {
+                        Name = tool.Value.CbName,
+                        Content = tool.Value.CbContent
+                    };
+                    newChild.Items.Add(cb);
+                }
+            }
+        }
         private async Task Local_Layout()
         {
             MessageBoxResult dlgResult = MessageBox.Show("On the following Dialog Box, please select where your Standalone Executables are stored from your previous installation.", "Important - Please Read!", MessageBoxButton.OKCancel, MessageBoxImage.Exclamation);
@@ -2509,15 +2556,33 @@ namespace WinFOR_Customizer
                 DownloadsPath.Text = s_path;
             }
         }
-        private async void Test_Button(object sender, RoutedEventArgs e)
+        private void Test_Button(object sender, RoutedEventArgs e)
         {
-            await Local_Layout();
+            string file = @$"O:\Projects\win-salt\workdir\winfor-saltstack-v2023.12.9.log";
+            StringBuilder sb = new();
+            string[] contents = File.ReadAllLines(file);
+            string[] splits = contents[0].Split('[', ']');
+            string pid = splits[5];
+            foreach (string line in contents)
+            {
+                if (line.Contains($"[ERROR   ][{pid}]"))
+                {
+                    if (line.Contains($"[ERROR   ][{pid}] Can't"))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        sb.Append($"{line}\n");
+                    }
+                }
+            }
+            
+            MessageBox.Show(sb.ToString());
         }
         private void Clear_Console(object sender, RoutedEventArgs e)
         {
             OutputConsole.Clear();
-            OutputExpander.IsEnabled = false;
-            OutputExpander.Visibility = Visibility.Hidden;
             OutputExpander.IsExpanded = false;
         }
     }
