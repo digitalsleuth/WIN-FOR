@@ -2034,7 +2034,7 @@
         "ExtraTiles": []
       },
       "Volatility 3 (Python 3)": {
-        "CbName": "python3_tools_volatility2",
+        "CbName": "python3_tools_volatility3",
         "CbContent": "Volatility 3 (Python 3)",
         "DAID": "",
         "AUMID": false,
