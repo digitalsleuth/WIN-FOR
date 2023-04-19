@@ -1720,6 +1720,15 @@
         "StartMenu": true,
         "ExtraTiles": []
       },
+      "Voidtools Everything": {
+        "CbName": "packages_voidtools_everything",
+        "CbContent": "Voidtools Everything",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Everything\\Everything.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
       "WiebeTech WriteBlocking Validation": {
         "CbName": "packages_wiebetech_writeblocking_validation_utility",
         "CbContent": "WiebeTech WriteBlocking Validation",

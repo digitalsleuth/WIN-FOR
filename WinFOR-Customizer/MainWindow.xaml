@@ -295,6 +295,7 @@
                     <CheckBox x:Name="packages_veracrypt" Content="Veracrypt" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_virtualbox" Content="VirtualBox" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_vlc" Content="VLC" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
+                    <CheckBox x:Name="packages_voidtools_everything" Content="Voidtools Everything" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="packages_wiebetech_writeblocking_validation_utility" Content="WiebeTech WriteBlocking Validation" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="standalones_windowgrid" Content="WindowGrid" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
                     <CheckBox x:Name="installers_windows_winget" Content="Windows Winget" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="True"/>
