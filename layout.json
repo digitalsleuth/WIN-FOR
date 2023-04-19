@@ -253,7 +253,7 @@
         "ExtraTiles": []
       },
       "OfficeMalScanner": {
-        "CbName": "standalones_offiicemalscanner",
+        "CbName": "standalones_officemalscanner",
         "CbContent": "OfficeMalScanner",
         "DAID": "PLACEHOLDER_PATH\\officemalscanner\\OfficeMalScanner.exe",
         "AUMID": false,
