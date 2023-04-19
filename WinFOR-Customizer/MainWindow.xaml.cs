@@ -2332,6 +2332,22 @@ namespace WinFOR_Customizer
 
             public string[]? ExtraTiles { get; set; }
         }
+        private async Task<List<TreeItems>> Get_JsonLayout()
+        {
+            List<TreeItems>? json_data = new();
+            try
+            {
+                HttpClient httpClient = new();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                string uri = $@"https://raw.githubusercontent.com/digitalsleuth/WIN-FOR/main/layout.json";
+                json_data = await httpClient.GetFromJsonAsync<List<TreeItems>>(uri);
+            }
+            catch (Exception ex)
+            {
+                Console_Output($"[ERROR] Unable to get JSON Layout: {ex}\n");
+            }
+            return json_data!;
+        }
         public async Task<string> Generate_Layout(string s_path)
         {
             StringBuilder xmlOutput = new();
@@ -2342,19 +2358,18 @@ namespace WinFOR_Customizer
             XMLHEADER += @"      <defaultlayout:StartLayout GroupCellWidth=""6"">" + '\n';
             xmlOutput.Append(XMLHEADER);
             string GROUPNAME;
-            HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
-            string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
-            List<TreeItems>? json_query = await httpClient.GetFromJsonAsync<List<TreeItems>?>(uri);
+            List<TreeItems>? json_query = await Get_JsonLayout();
             int count = json_query!.Count;
             (List<string> checked_items, _) = GetCheck_Status();
             for (int i = 0; i < count; i++)
             {
                 int row = 0;
                 int column = 0;
-                string TVI = json_query[i].TVI!;
+                //string TVI = json_query[i].TVI!;
                 string section_title = json_query[i].HeaderContent!;
-                TreeViewItem? tvi_label = this.FindName(TVI) as TreeViewItem;
+                //TreeViewItem? tvi_label = this.FindName(TVI) as TreeViewItem;
+                List<TreeViewItem> ti = GetLogicalChildCollection<TreeViewItem>(AllTools);
+                TreeViewItem tvi_label = ti[i];
                 int count_checked = 0;
                 foreach (object item in tvi_label!.Items)
                 {
@@ -2450,23 +2465,31 @@ namespace WinFOR_Customizer
             string xmlLayout = xmlOutput.ToString();
             return xmlLayout;
         }
-        public async Task Generate_Tree()
+        private async Task Generate_Tree()
         {
-            HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
-            string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
-            List<TreeItems>? json_query = await httpClient.GetFromJsonAsync<List<TreeItems>?>(uri);
+            List<TreeItems>? json_query = await Get_JsonLayout();
             int count = json_query!.Count;
             for (int i = 0; i < count; i++)
             {
-                CheckBox checkBox = new();
                 string TVI = json_query[i].TVI!;
                 string HEADER = json_query[i].HeaderContent!;
-                checkBox.Content = HEADER;
+                string HEADERNAME = json_query[i].HeaderName!;
+                CheckBox checkBox = new()
+                {
+                    Name = HEADERNAME,
+                    Content = HEADER,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    IsChecked = true
+                };
+                checkBox.Checked += SectionCheck_All;
+                checkBox.Unchecked += SectionUncheck_All;
                 TreeViewItem newChild = new()
                 {
                     Name = TVI,
-                    Header = checkBox
+                    Header = checkBox,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Top
                 };
                 AllTools.Items.Add(newChild);
                 var tools = json_query[i].Tools;
@@ -2475,7 +2498,10 @@ namespace WinFOR_Customizer
                     CheckBox cb = new()
                     {
                         Name = tool.Value.CbName,
-                        Content = tool.Value.CbContent
+                        Content = tool.Value.CbContent,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        IsChecked = true
                     };
                     newChild.Items.Add(cb);
                 }

@@ -122,6 +122,15 @@
         "DALP": false,
         "StartMenu": false,
         "ExtraTiles": []
+      },
+      "X-Ways Forensics": {
+        "CbName": "standalones_x_ways",
+        "CbContent": "X-Ways Forensics",
+        "DAID": "C:\\xwf\\xwforensics64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
       }
     }
   },
