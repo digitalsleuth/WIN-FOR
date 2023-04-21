@@ -8,11 +8,11 @@
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MaxWidth="800"/>
+            <ColumnDefinition Width="*" MaxWidth="1400"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" MaxHeight="500"/>
+            <RowDefinition Height="*" MaxHeight="600"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="ErrorsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True"/>
+        <TextBox x:Name="ErrorsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/>
     </Grid>
 </Window>

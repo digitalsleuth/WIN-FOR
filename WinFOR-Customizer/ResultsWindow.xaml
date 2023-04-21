@@ -1,0 +1,22 @@
+﻿<Window x:Class="WinFOR_Customizer.ResultsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinFOR_Customizer"
+        mc:Ignorable="d"
+        Title="Installation Results" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MaxWidth="800"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" MaxHeight="600"/>
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <TextBox x:Name="ResultsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/>
+        <Button x:Name="ShowErrors" Content="Display Failed / Errors" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="Display_Errors"/>
+        
+    </Grid>
+</Window>

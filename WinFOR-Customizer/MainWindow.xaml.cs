@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Printing;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
@@ -41,7 +42,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc12";
+            Version.Content = $"v{appversion}-rc13";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -649,8 +650,6 @@ namespace WinFOR_Customizer
                     is_themed = false;
                     Console_Output($"No theme has been selected.");
                 }
-
-
                 if (wsl.IsChecked == true)
                 {
                     wsl_selected = true;
@@ -1807,79 +1806,85 @@ namespace WinFOR_Customizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        private void Results_Button(object sender, RoutedEventArgs e)
-        // Parses the available logs for the SaltStack and WSL installs to determine its summary
+        public (StringBuilder, StringBuilder) Process_Results()
         {
-            if (!File.Exists(@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION"))
-            {
-                MessageBox.Show(@"No recently downloaded release attempts found in C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION\", "No recent installation attempts found!", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            else
-            {
-                StringBuilder sb = new();
-                string release_version = File.ReadAllText(@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION").TrimEnd();
-                string status = "";
-                string log_file = $@"C:\winfor-saltstack-{release_version}.log";
-                string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
-                string wsl_log = $@"C:\winfor-wsl.log";
-                if (File.Exists(log_file))
-                {
-                    string[] contents = File.ReadAllLines(log_file);
-                    string[] splits = contents[0].Split('[', ']');
-                    string pid = splits[5];
-                    string error_string = $"[ERROR   ][{pid}]";
-                    foreach (string line in contents)
-                    {
-                        if (line.Contains($"[ERROR   ][{pid}]"))
-                        {
-                            if (line.Contains($"[ERROR   ][{pid}] Can't"))
-                            {
-                                continue;
-                            }
-                            else if (line.Contains($"[ERROR   ][{pid}] Command '$installedVersion' failed with return code: 1"))
-                            { }
-                            else
-                            {
-                                sb.Append($"{line}\n");
-                            }
-                        }
-                    }
-                }
-                List<string> logfiles = new()
+            StringBuilder errors = new();
+            StringBuilder results = new();
+            string version_file = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
+            string release_version = File.ReadAllText($"{version_file}").TrimEnd();
+            string log_file = $@"C:\winfor-saltstack-{release_version}.log";
+            string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
+            string wsl_log = $@"C:\winfor-wsl.log";
+            List<string> logfiles = new()
                 {
                     log_file,
                     download_log,
                     wsl_log
                 };
+            try
+            {
                 foreach (string log in logfiles)
                 {
                     if (File.Exists(log))
                     {
-                        status += $"{log}\n";
-                        status += "_________________________________________________\n\n";
-                        status += Parse_Log(log, "Summary for");
-                        status += "_________________________________________________\n\n";
+                        string[] contents = File.ReadAllLines(log);
+                        string[] splits = contents[1].Split('[', ']');
+                        string pid = splits[5];
+                        string error_string = $"[ERROR   ][{pid}]";
+                        int log_length = log.Length;
+                        results.Append(new String('\u2014', 40) + "\r");
+                        results.Append($"\n{log}\r");
+                        results.Append(new String('\u2014', 40) + "\r\n");
+                        string log_results = (Parse_Log(log, "Summary for", 7));
+                        log_results = log_results.Replace("Summary for local\r", "");
+                        log_results = log_results.Replace("------------\r", "");
+                        log_results = log_results.Replace("--Succeeded", "Succeeded");
+                        log_results = log_results.Replace("-Succeeded", "Succeeded");
+                        log_results = log_results.Replace("--Total", "Total");
+                        log_results = log_results.Replace("-Total", "Total");
+                        results.Append(log_results);
+                        errors.Append(new String('\u2014', 40) + "\r");
+                        errors.Append($"\n{log}\r");
+                        errors.Append(new String('\u2014', 40) + "\r\n");
+                        string error = Parse_Log(log, $"{error_string}", 1);
+                        error = error.Replace(@"\r\n", "\n");
+                        errors.Append(error);
                     }
                 }
-                if (status == "")
+            }
+            catch (Exception ex)
+            {
+                OutputExpander.IsExpanded = true;
+                Console_Output($"No recently downloaded release attempts found in {version_file}:\n {ex}");
+            }
+            return (results, errors);
+        }
+        private void Results_Button(object sender, RoutedEventArgs e)
+        // Parses the available logs for the SaltStack and WSL installs to determine its summary
+        {
+            string version_file = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
+            string release_version = File.ReadAllText($"{version_file}").TrimEnd();
+            try
+            {
+                (StringBuilder results, StringBuilder errors) = Process_Results();
+                if (results.Length == 0)
                 {
-                    status += $"No log files found for {release_version}";
-                    MessageBox.Show($"Most recent downloaded version - {release_version}\n\n{status}", $"Results for {release_version}", MessageBoxButton.OK);
+                    MessageBox.Show($"The most recent attempt at installation\nwas for version {release_version}.\n\nNo log files were found for this release.", $"No log file found for {release_version}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 else
                 {
-                    MessageBox.Show($"Most recent downloaded version - {release_version}\n\n{status}", $"Results for {release_version}", MessageBoxButton.OK);
-                }
-                if (sb.Length != 0)
-                {
-                    ErrorWindow w = new(sb.ToString())
+                    ResultsWindow resultsWindow = new(results, errors)
                     {
                         Owner = this
                     };
-                    w.Show();
+                    resultsWindow.Show();
                 }
+            }
+            catch (Exception ex)
+            {
+                OutputExpander.IsExpanded = true;
+                Console_Output($"Unable to display results:\n{ex}");
             }
         }
         private void Check_DistroVersion(object sender, RoutedEventArgs e)
@@ -1937,7 +1942,7 @@ namespace WinFOR_Customizer
             }
             return line_numbers;
         }
-        private static string Parse_Log(string logfile, string search_text)
+        private static string Parse_Log(string logfile, string search_text, int context)
         // The function for actually parsing the log file provided and searching for the given text
         {
             StringBuilder summary = new();
@@ -1950,9 +1955,9 @@ namespace WinFOR_Customizer
                     List<int> line_numbers = Find_AllLineNumbers(contents, search_text);
                     foreach (int number in line_numbers)
                     {
-                        for (int line = number; line < (number + 7); line++)
+                        for (int line = number; line < (number + context); line++)
                         {
-                            summary.Append($"{contents[line]}\n");
+                            summary.Append($"{contents[line]}\r");
                         }
                         summary.Append('\n');
                     }
