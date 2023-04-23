@@ -8,7 +8,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Printing;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
@@ -42,7 +41,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc13";
+            Version.Content = $"v{appversion}-rc14";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -599,7 +598,7 @@ namespace WinFOR_Customizer
             try
             {
                 OutputExpander.IsExpanded = true;
-                Console_Output($"{appname} v{appversion}");
+                Console_Output($"{appname} {Version.Content}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
                 bool is_themed;
@@ -685,16 +684,6 @@ namespace WinFOR_Customizer
                 string uri_hash = current_release_data[2];
                 Console_Output($"{temp_dir} is being created for temporary storage of required files");
                 Create_TempDirectory(temp_dir);
-                if (!Check_SaltStackInstalled(salt_version))
-                {
-                    Console_Output($"SaltStack {salt_version} is not installed");
-                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
-                    await Install_Saltstack(temp_dir, salt_version);
-                }
-                else
-                {
-                    Console_Output($"SaltStack {salt_version} is already installed");
-                }
                 if (!Check_GitInstalled(git_version))
                 {
                     Console_Output($"Git {git_version} is not installed");
@@ -704,6 +693,16 @@ namespace WinFOR_Customizer
                 else
                 {
                     Console_Output($"Git {git_version} is already installed");
+                }
+                if (!Check_SaltStackInstalled(salt_version))
+                {
+                    Console_Output($"SaltStack {salt_version} is not installed");
+                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
+                    await Install_Saltstack(temp_dir, salt_version);
+                }
+                else
+                {
+                    Console_Output($"SaltStack {salt_version} is already installed");
                 }
                 string release_file = $"{temp_dir}{release_version}.zip";
                 string provided_hash;
@@ -1010,6 +1009,7 @@ namespace WinFOR_Customizer
                 Task readError = process.StandardError.ReadToEndAsync();
                 await readOutput;
                 await readError;
+                Console_Output($"Installation of Git v{git_version} is complete");
             }
             catch (Exception ex)
             {
@@ -1208,16 +1208,7 @@ namespace WinFOR_Customizer
                 }
                 Console_Output($"{temp_dir} is being created for temporary storage of required files");
                 Create_TempDirectory(temp_dir);
-                if (!Check_SaltStackInstalled(salt_version))
-                {
-                    Console_Output($"SaltStack {salt_version} is not installed");
-                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
-                    await Install_Saltstack(temp_dir, salt_version);
-                }
-                else
-                {
-                    Console_Output($"SaltStack {salt_version} is already installed");
-                }
+
                 if (!Check_GitInstalled(git_version))
                 {
                     Console_Output($"Git {git_version} is not installed");
@@ -1228,9 +1219,20 @@ namespace WinFOR_Customizer
                 {
                     Console_Output($"Git {git_version} is already installed");
                 }
+                if (!Check_SaltStackInstalled(salt_version))
+                {
+                    Console_Output($"SaltStack {salt_version} is not installed");
+                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
+                    await Install_Saltstack(temp_dir, salt_version);
+                }
+                else
+                {
+                    Console_Output($"SaltStack {salt_version} is already installed");
+                }
                 string release_file = $"{temp_dir}{release_version}.zip";
                 string provided_hash;
                 bool hash_match;
+                Environment.GetEnvironmentVariable("PATH");
                 Console_Output($"Current release of WIN-FOR is {release_version}");
                 FileInfo fi_release_file = new(release_file);
                 FileInfo fi_release_hash = new($"{release_file}.sha256");
@@ -1298,6 +1300,8 @@ namespace WinFOR_Customizer
         private async Task Execute_SaltStack(string username, string standalones_path, string release)
         // Generate a salt.exe process with the required arguments to install the custom salt states
         {
+            string envPath = Environment.GetEnvironmentVariable("Path")!;
+            string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             ProcHandled = new TaskCompletionSource<bool>();
             string salt_exe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
             string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.custom pillar=\"{{ 'winfor_user': '{username}', 'inpath': '{standalones_path}'}}\" --out-file=\"C:\\winfor-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}.log\" --log-file-level=debug";
@@ -1313,6 +1317,7 @@ namespace WinFOR_Customizer
                     CreateNoWindow = false
                 },
             })
+                
             {
                 try
                 {
@@ -1333,6 +1338,10 @@ namespace WinFOR_Customizer
                             $"  --log-file-level=debug\n"
                             );
                         saltproc.Exited += new EventHandler(Install_Exited);
+                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
+                        {
+                            saltproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
+                        }
                         saltproc.Start();
                         Task readOutput = saltproc.StandardOutput.ReadToEndAsync();
                         await readOutput;
@@ -1358,6 +1367,8 @@ namespace WinFOR_Customizer
         // Generate a salt.exe process with the required argument to simply download the selected files
         {
             ProcHandled = new TaskCompletionSource<bool>();
+            string envPath = Environment.GetEnvironmentVariable("Path")!;
+            string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             string salt_exe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
             string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.downloads pillar=\"{{ 'downloads': '{download_path}'}}\" --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
@@ -1392,6 +1403,10 @@ namespace WinFOR_Customizer
                             $"  --log-file-level=debug"
                             );
                         saltproc.Exited += new EventHandler(Download_Exited);
+                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
+                        {
+                            saltproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
+                        }
                         saltproc.Start();
                         Task readOutput = saltproc.StandardOutput.ReadToEndAsync();
                         await readOutput;
@@ -1457,6 +1472,8 @@ namespace WinFOR_Customizer
         // A salt.exe process used for the installation of the Windows Subsystem for Linux v2 environment
         {
             wslHandled = new TaskCompletionSource<bool>();
+            string envPath = Environment.GetEnvironmentVariable("Path")!;
+            string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             string salt_exe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
             string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.wsl pillar=\"{{ 'winfor_user': '{username}', 'inpath': '{standalones_path}'}}\" --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --log-file-level=debug";
             using (wslproc = new Process()
@@ -1495,6 +1512,11 @@ namespace WinFOR_Customizer
                            $"  --log-file-level=debug\n"
                            );
                         wslproc.Exited += new EventHandler(WslProcess_Exited);
+                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
+                        {
+                            wslproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
+                        }
+                        Console_Output("Saving Console Output before beginning WSL installation");
                         Save_ConsoleOutput("wsl", null);
                         wslproc.Start();
                         Task readOutput = wslproc.StandardOutput.ReadToEndAsync();
@@ -1852,10 +1874,14 @@ namespace WinFOR_Customizer
                     }
                 }
             }
+            catch (IOException)
+            {
+                Console_Output($"One or more log files are being used by another process.");
+            }
             catch (Exception ex)
             {
                 OutputExpander.IsExpanded = true;
-                Console_Output($"No recently downloaded release attempts found in {version_file}:\n {ex}");
+                Console_Output($"Unable to access logs:\n{ex}");
             }
             return (results, errors);
         }
@@ -2321,6 +2347,7 @@ namespace WinFOR_Customizer
 
         private void Test_Button(object sender, RoutedEventArgs e)
         {
+                     
         }
         private void Clear_Console(object sender, RoutedEventArgs e)
         {
