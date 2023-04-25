@@ -41,7 +41,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc14";
+            Version.Content = $"v{appversion}-rc15";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -270,6 +270,7 @@ namespace WinFOR_Customizer
             }
             List<CheckBox> list = GetLogicalChildCollection<CheckBox>(AllTools);
             CheckBox? xw = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
+            CheckBox? xwt = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways_templates");
             XUser.IsEnabled = true;
             XPass.IsEnabled = true;
             XUserLabel.IsEnabled = true;
@@ -281,10 +282,12 @@ namespace WinFOR_Customizer
                 if (cbName == "standalones_x_ways")
                 {
                     cbXways.IsChecked = true;
+                    xwt!.IsChecked = true;
                 }
                 else if (cbName == "cbXways")
                 { 
                     xw!.IsChecked = true;
+                    xwt!.IsChecked = true;
                 }
             }
         }
@@ -297,6 +300,7 @@ namespace WinFOR_Customizer
             }
             List<CheckBox> list = GetLogicalChildCollection<CheckBox>(AllTools);
             CheckBox? xw = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
+            CheckBox? xwt = list.FirstOrDefault(cb => cb.Name == "standalones_x_ways_templates");
             XUser.IsEnabled = false;
             XPass.IsEnabled = false;
             XUserLabel.IsEnabled = false;
@@ -308,10 +312,12 @@ namespace WinFOR_Customizer
                 if (cbName == "standalones_x_ways")
                 {
                     cbXways.IsChecked = false;
+                    xwt!.IsChecked = false;
                 }
                 else
                 {
                     xw!.IsChecked = false;
+                    xwt!.IsChecked = false;
                 }
             }
         }
@@ -597,6 +603,34 @@ namespace WinFOR_Customizer
         {
             try
             {
+                (List<string> checked_items, _) = GetCheck_Status();
+                if (checked_items.Count == 0)
+                {
+                    MessageBox.Show("No items selected! Choose at least one item to install.", "No items selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if ((checked_items.Count == 1) && (checked_items.Contains("themed") || checked_items.Contains("wsl")))
+                {
+                    string item = char.ToUpper(checked_items[0][0]) + checked_items[0][1..];
+                    if (item == "Wsl")
+                    {
+                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to install.\nTo install WSL only, use the \"WSL Only\" button on the side.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to install.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return;
+                }
+                else if ((checked_items.Count == 2) && (checked_items.Contains("themed") && checked_items.Contains("wsl")))
+                {
+                    (string item0, string item1) = (checked_items[0], checked_items[1]);
+                    item0 = char.ToUpper(item0[0]) + item0[1..];
+                    item1 = char.ToUpper(item1[0]) + item1[1..];
+                    MessageBox.Show($"Only {item0} and {item1} were selected!\nChoose at least one item from the tool list to install.\nTo install WSL only, use the \"WSL Only\" button on the side.",
+                                    $"Only {item0} and {item1} checkboxes selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
                 OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} {Version.Content}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
@@ -652,6 +686,11 @@ namespace WinFOR_Customizer
                 if (wsl.IsChecked == true)
                 {
                     wsl_selected = true;
+                    MessageBoxResult result = MessageBox.Show("WSLv2 installation will require a reboot! Ensure that you save any open documents, then click OK to continue.","WSLv2 requires a reboot!",MessageBoxButton.OKCancel,MessageBoxImage.Warning);
+                    if (result == MessageBoxResult.Cancel) 
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -1188,6 +1227,34 @@ namespace WinFOR_Customizer
         {
             try
             {
+                (List<string> checked_items, _) = GetCheck_Status();
+                if (checked_items.Count == 0)
+                {
+                    MessageBox.Show("No items selected! Choose at least one item to download.", "No items selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if ((checked_items.Count == 1) && (checked_items.Contains("themed") || checked_items.Contains("wsl")))
+                {
+                    string item = char.ToUpper(checked_items[0][0]) + checked_items[0][1..];
+                    if (item == "Wsl")
+                    {
+                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to download.\nTo install WSL only, use the \"WSL Only\" button on the side.\nWSL is not currently downloadable.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to download.\nThe \"Theme\" itself is not downloadable.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    return;
+                }
+                else if ((checked_items.Count == 2) && (checked_items.Contains("themed") && checked_items.Contains("wsl")))
+                {
+                    (string item0, string item1) = (checked_items[0], checked_items[1]);
+                    item0 = char.ToUpper(item0[0]) + item0[1..];
+                    item1 = char.ToUpper(item1[0]) + item1[1..];
+                    MessageBox.Show($"Only {item0} and {item1} were selected!\nChoose at least one item from the tool list to download.\nTo install WSL only, use the \"WSL Only\" button on the side.\nWSL is not currently downloadable.\nThe \"Theme\" itself is also not downloadable.",
+                                    $"Only {item0} and {item1} checkboxes selected!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
                 OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
@@ -1565,6 +1632,11 @@ namespace WinFOR_Customizer
         {
             try
             {
+                MessageBoxResult result = MessageBox.Show("WSLv2 installation will require a reboot! Ensure that you save any open documents, then click OK to continue.", "WSLv2 requires a reboot!", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
                 OutputExpander.IsExpanded = true;
                 Console_Output($"{appname} v{appversion}");
                 string drive_letter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
@@ -1607,17 +1679,7 @@ namespace WinFOR_Customizer
                 string uri_hash = current_release_data[2];
                 Console_Output($"{temp_dir} is being created for temporary storage of required files");
                 Create_TempDirectory(temp_dir);
-                if (!Check_SaltStackInstalled(salt_version))
-                {
-                    Console_Output($"SaltStack is being downloaded");
-                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
-                    Console_Output("SaltStack is being installed...");
-                    await Install_Saltstack(temp_dir, salt_version);
-                }
-                else
-                {
-                    Console_Output($"SaltStack {salt_version} is already installed");
-                }
+
                 if (!Check_GitInstalled(git_version))
                 {
                     Console_Output($"Git is being downloaded.");
@@ -1628,6 +1690,17 @@ namespace WinFOR_Customizer
                 else
                 {
                     Console_Output($"Git {git_version} is already installed");
+                }
+                if (!Check_SaltStackInstalled(salt_version))
+                {
+                    Console_Output($"SaltStack is being downloaded");
+                    await Download_SaltStack(temp_dir, salt_version, salt_hash);
+                    Console_Output("SaltStack is being installed...");
+                    await Install_Saltstack(temp_dir, salt_version);
+                }
+                else
+                {
+                    Console_Output($"SaltStack {salt_version} is already installed");
                 }
                 string release_file = $"{temp_dir}{release_version}.zip";
                 string provided_hash;
@@ -1836,11 +1909,14 @@ namespace WinFOR_Customizer
             string release_version = File.ReadAllText($"{version_file}").TrimEnd();
             string log_file = $@"C:\winfor-saltstack-{release_version}.log";
             string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
+            string wsl_prep_log = $@"C:\winfor-saltstack-{release_version}-wsl.log";
             string wsl_log = $@"C:\winfor-wsl.log";
+
             List<string> logfiles = new()
                 {
                     log_file,
                     download_log,
+                    wsl_prep_log,
                     wsl_log
                 };
             try
@@ -1853,11 +1929,11 @@ namespace WinFOR_Customizer
                         string[] splits = contents[1].Split('[', ']');
                         string pid = splits[5];
                         string error_string = $"[ERROR   ][{pid}]";
-                        int log_length = log.Length;
+                        var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{error_string} output:" };
                         results.Append(new String('\u2014', 40) + "\r");
                         results.Append($"\n{log}\r");
                         results.Append(new String('\u2014', 40) + "\r\n");
-                        string log_results = (Parse_Log(log, "Summary for", 7));
+                        string log_results = Parse_Log(log, "Summary for", 7);
                         log_results = log_results.Replace("Summary for local\r", "");
                         log_results = log_results.Replace("------------\r", "");
                         log_results = log_results.Replace("--Succeeded", "Succeeded");
@@ -1869,8 +1945,18 @@ namespace WinFOR_Customizer
                         errors.Append($"\n{log}\r");
                         errors.Append(new String('\u2014', 40) + "\r\n");
                         string error = Parse_Log(log, $"{error_string}", 1);
-                        error = error.Replace(@"\r\n", "\n");
-                        errors.Append(error);
+                        foreach (string line in error.Split("\n"))
+                        {
+                            if (ignorable.Any(x => line.Contains(x)))
+                            { 
+                                continue;
+                            }
+                            else
+                            {
+                                string new_line = line.Replace(@"\r\n", "\n");
+                                errors.Append(new_line);
+                            }
+                        }
                     }
                 }
             }
@@ -2264,6 +2350,14 @@ namespace WinFOR_Customizer
                         cb.IsChecked = false;
                         cb.Checked += XWays_Checked;
                         cb.Unchecked += XWays_Unchecked;
+                    }
+                    if (cb.Name == "standalones_x_ways_templates")
+                    {
+                        cb.IsChecked = false;
+                    }
+                    if (cb.Name == "standalones_winfor_customizer")
+                    { 
+                        cb.IsChecked = false;
                     }
                     newChild.Items.Add(cb);
                 }

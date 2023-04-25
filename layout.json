@@ -131,6 +131,15 @@
         "DALP": false,
         "StartMenu": true,
         "ExtraTiles": []
+      },
+      "X-Ways Forensics Templates": {
+        "CbName": "standalones_x_ways_templates",
+        "CbContent": "X-Ways Forensics Templates",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
       }
     }
   },
