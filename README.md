@@ -8,9 +8,9 @@ install all of the packages.
 
 The installation methods are:
 
-- Win-FOR Customizer **COMING SOON**: graphical interface to click and choose which items you want, and to enter the settings you need
-- winfor-cli.exe: a command-line tool, requiring execution from an Administrator command prompt
-- winfor-cli.ps1: a PowerShell based tool, exactly the same as the command-line exe, but requires an Administrator PowerShell prompt and to have the `Set-ExecutionPolicy Bypass` parameter set
+- Win-FOR Customizer: graphical interface to click and choose which items you want, and to enter the settings you need
+- winfor-cli.exe: a command-line tool, requiring execution from an Administrator command prompt **SOON TO BE DEPRECATED**
+- winfor-cli.ps1: a PowerShell based tool, exactly the same as the command-line exe, but requires an Administrator PowerShell prompt and to have the `Set-ExecutionPolicy Bypass` parameter set **SOON TO BE DEPRECATED**
 
 Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
 
@@ -34,7 +34,10 @@ The customizer tool gives you the following features:
 
 **The `Install` and `WSL Only` features are only accessible if the Customizer is run as Administrator (since these need Admin privileges to execute)**
 
-![screenshot-v6 0 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v6.0.0.0.png)
+![screenshot-v6 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v6.0.0.png)
+
+![screenshot-options-v6 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v6.0.0.png)
+
 
 ## PowerShell or CLI
 

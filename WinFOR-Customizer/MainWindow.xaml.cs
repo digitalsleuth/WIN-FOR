@@ -41,7 +41,7 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appversion}-rc15";
+            Version.Content = $"v{appversion}";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { File_Load(); }, (sender, e) => { e.CanExecute = true; }));
@@ -807,6 +807,7 @@ namespace WinFOR_Customizer
                     else
                     {
                         await Execute_SaltStack(user_name, standalones_path, release_version);
+                        File.WriteAllText(@"C:\winfor-version", release_version);
                     }
                 }
                 if (wsl_selected)
@@ -2029,7 +2030,7 @@ namespace WinFOR_Customizer
                 $"Author: Corey Forman (digitalsleuth)\n" +
                 $"Source: https://github.com/digitalsleuth/win-for\n\n" +
                 $"Would you like to visit the repo on GitHub?",
-                $"{appname} v{appversion}", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                $"{appname} v{appversion}", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
             if (result == MessageBoxResult.Yes)
             {
                 Process.Start(new ProcessStartInfo($"https://github.com/digitalsleuth/win-for") { UseShellExecute = true });
