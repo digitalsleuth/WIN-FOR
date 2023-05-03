@@ -1975,10 +1975,23 @@ namespace WinFOR_Customizer
         private void Results_Button(object sender, RoutedEventArgs e)
         // Parses the available logs for the SaltStack and WSL installs to determine its summary
         {
-            string version_file = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
-            string release_version = File.ReadAllText($"{version_file}").TrimEnd();
+            string version_file_salt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
+            string version_file_local = @"C:\winfor-version";
             try
             {
+                string release_version = "";
+                if (File.Exists(version_file_salt))
+                {
+                    release_version = File.ReadAllText($"{version_file_salt}").TrimEnd();
+                }
+                else if (File.Exists(version_file_local))
+                {
+                    release_version = File.ReadAllText($"{version_file_local}").TrimEnd();
+                }
+                else
+                {
+                    throw new FileNotFoundException("VERSION files not found");
+                }
                 (StringBuilder results, StringBuilder errors) = Process_Results();
                 if (results.Length == 0)
                 {
@@ -1993,6 +2006,11 @@ namespace WinFOR_Customizer
                     };
                     resultsWindow.Show();
                 }
+            }
+            catch (FileNotFoundException)
+            {
+                OutputExpander.IsExpanded = true;
+                Console_Output($"Unable to determine recent installation attempt:\n{version_file_salt} and {version_file_local} are not present.");
             }
             catch (Exception ex)
             {
