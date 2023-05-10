@@ -1278,6 +1278,15 @@
         "StartMenu": false,
         "ExtraTiles": []
       },
+      "Synchrony": {
+        "CbName": "packages_synchrony",
+        "CbContent": "Synchrony",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
       "time-decode": {
         "CbName": "python3_tools_time_decode",
         "CbContent": "time-decode",
@@ -1407,6 +1416,15 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "ExtraTiles": []
+      },
+      "Node.js": {
+        "CbName": "packages_nodejs",
+        "CbContent": "Node.js",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\nodejs\\node.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "ExtraTiles": []
       },
       "Portals": {
