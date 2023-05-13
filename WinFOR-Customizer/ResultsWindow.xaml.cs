@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using System.Windows;
 
 namespace WinFOR_Customizer
@@ -18,23 +19,47 @@ namespace WinFOR_Customizer
         {
             ResultsTextBox.Text = results.ToString();
             int errors_lines = errors.ToString().Split('\n').Length;
-            if (errors_lines > 3)
+            if (errors_lines >= 3)
             {
                 ShowErrors.Visibility = Visibility.Visible;
             }
         }
         public void Display_Errors(object sender, RoutedEventArgs e)
         {
-            (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.Process_Results();
-            int errors_lines = errors.ToString().Split('\n').Length;
-            if (errors_lines > 3)
+            string version_file_salt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
+            string version_file_local = @"C:\winfor-version";
+            try
             {
-                ErrorWindow errorWindow = new(errors)
+                string release_version = "";
+                if (File.Exists(version_file_salt))
                 {
-                    Owner = this
-                };
-                errorWindow.Show();
+                    release_version = File.ReadAllText($"{version_file_salt}").TrimEnd();
+                }
+                else if (File.Exists(version_file_local))
+                {
+                    release_version = File.ReadAllText($"{version_file_local}").TrimEnd();
+                }
+                else
+                {
+                    throw new FileNotFoundException("VERSION files not found");
+                }
+                (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.Process_Results(release_version);
+                int errors_lines = errors.ToString().Split('\n').Length;
+                if (errors_lines >= 3)
+                {
+                    ErrorWindow errorWindow = new(errors)
+                    {
+                        Owner = this
+                    };
+                    errorWindow.Show();
+                }
             }
+            catch (FileNotFoundException)
+            {
+
+            }
+
+        
         }
     }
 }

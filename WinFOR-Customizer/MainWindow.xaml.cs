@@ -1902,12 +1902,10 @@ namespace WinFOR_Customizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        public (StringBuilder, StringBuilder) Process_Results()
+        public (StringBuilder, StringBuilder) Process_Results(string release_version)
         {
             StringBuilder errors = new();
             StringBuilder results = new();
-            string version_file = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
-            string release_version = File.ReadAllText($"{version_file}").TrimEnd();
             string log_file = $@"C:\winfor-saltstack-{release_version}.log";
             string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
             string wsl_prep_log = $@"C:\winfor-saltstack-{release_version}-wsl.log";
@@ -1992,7 +1990,7 @@ namespace WinFOR_Customizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder results, StringBuilder errors) = Process_Results();
+                (StringBuilder results, StringBuilder errors) = Process_Results(release_version);
                 if (results.Length == 0)
                 {
                     MessageBox.Show($"The most recent attempt at installation\nwas for version {release_version}.\n\nNo log files were found for this release.", $"No log file found for {release_version}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
