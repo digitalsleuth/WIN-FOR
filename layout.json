@@ -1970,6 +1970,15 @@
         "StartMenu": true,
         "ExtraTiles": []
       },
+      "OneDriveExplorer": {
+        "CbName": "python3_tools_onedriveexplorer",
+        "CbContent": "OneDriveExplorer",
+        "DAID": "PLACEHOLDER_PATH\\onedriveexplorer\\OneDriveExplorer\\OneDriveExplorer_GUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "ExtraTiles": []
+      },
       "Shadow Explorer": {
         "CbName": "standalones_shadowexplorer",
         "CbContent": "Shadow Explorer",
