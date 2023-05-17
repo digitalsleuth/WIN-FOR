@@ -1269,6 +1269,15 @@
           "PLACEHOLDER_PATH\\testdisk\\testdisk_win.exe"
         ]
       },
+      "pyson4": {
+        "CbName": "python3_tools_pyson4",
+        "CbContent": "pyson4",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "ExtraTiles": []
+      },
       "SMI Parser": {
         "CbName": "standalones_smi_parser",
         "CbContent": "SMI Parser",
