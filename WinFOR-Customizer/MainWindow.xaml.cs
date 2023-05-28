@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿//using ABI.System;
+using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,6 +18,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -55,9 +58,13 @@ namespace WinFOR_Customizer
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowLatest, (sender, e) => { Show_LatestRelease(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowLatest, new KeyGesture(Key.G, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckDistroVersion, (sender, e) => { Check_DistroVersion(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.F, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.CheckDistroVersion, new KeyGesture(Key.V, ModifierKeys.Control | ModifierKeys.Shift)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.FindButton, (sender, e) => { Find_Function(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.FindButton, new KeyGesture(Key.F, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ShowAbout, (sender, e) => { Show_About(sender, e); }, (sender, e) => { e.CanExecute = true; }));
-            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowAbout, new KeyGesture(Key.A, ModifierKeys.Control)));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ShowAbout, new KeyGesture(Key.A, ModifierKeys.Control | ModifierKeys.Shift)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ClearConsole, (sender, e) => { Clear_Console(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ClearConsole, new KeyGesture(Key.X, ModifierKeys.Control | ModifierKeys.Shift)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ToolList, (sender, e) => { Tool_List(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ToolList, new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LocalLayout, (sender, e) => { _ = Local_Layout(); }, (sender, e) => { e.CanExecute = true; }));
@@ -79,7 +86,9 @@ namespace WinFOR_Customizer
                 CheckForUpdates = new RoutedCommand("CheckForUpdates", typeof(MainWindow));
                 ShowLatest = new RoutedCommand("ShowLatest", typeof(MainWindow));
                 CheckDistroVersion = new RoutedCommand("CheckDistroVersion", typeof(MainWindow));
+                FindButton = new RoutedCommand("FindButton", typeof(MainWindow));
                 ShowAbout = new RoutedCommand("ShowAbout", typeof(MainWindow));
+                ClearConsole = new RoutedCommand("ClearConsole", typeof(MainWindow));
                 ToolList = new RoutedCommand("ToolList", typeof(MainWindow));
                 LocalLayout = new RoutedCommand("LocalLayout", typeof(MainWindow));
             }
@@ -89,7 +98,9 @@ namespace WinFOR_Customizer
             public static RoutedCommand CheckForUpdates { get; private set; }
             public static RoutedCommand ShowLatest { get; private set; }
             public static RoutedCommand CheckDistroVersion { get; private set; }
+            public static RoutedCommand FindButton { get; private set; }
             public static RoutedCommand ShowAbout { get; private set; }
+            public static RoutedCommand ClearConsole { get; private set; }
             public static RoutedCommand ToolList { get; private set; }
             public static RoutedCommand LocalLayout { get; private set; }
         }
@@ -153,6 +164,15 @@ namespace WinFOR_Customizer
                 }
             }
         }
+        public class CheckNetworkConnection
+        {
+            [DllImport("wininet.dll")]
+            private extern static bool InternetGetConnectedState(out int description, int reservedValue);
+            public static bool IsConnected()
+            {
+                return InternetGetConnectedState(out _, 0);
+            }
+        }
         private void Visit_Github(object sender, RequestNavigateEventArgs e)
         // Visits the digitalsleuth/win-for GitHub Repo
         {
@@ -171,7 +191,7 @@ namespace WinFOR_Customizer
         {
             Expand_All();
         }
-        private void Expand_All()
+        public void Expand_All()
         // Expands all TreeViewItems in the display
         {
             try
@@ -603,6 +623,13 @@ namespace WinFOR_Customizer
         {
             try
             {
+                bool Connected = CheckNetworkConnection.IsConnected();
+                if (!Connected)
+                {
+                    OutputExpander.IsExpanded = true;
+                    Console_Output("[ERROR] No network connection detected - Please check your network connection and try the Install process again.");
+                    return;
+                }
                 (List<string> checked_items, _) = GetCheck_Status();
                 if (checked_items.Count == 0)
                 {
@@ -769,7 +796,12 @@ namespace WinFOR_Customizer
                 else
                 {
                     Console_Output("Downloading release file and SHA256 to compare");
-                    await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    bool status = await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    if (!status)
+                    {
+                        Console_Output("[ERROR] Unable to download required Salt states! Check your internet connection and try again.");
+                        return;
+                    }
                     Console_Output("Downloads complete...");
                     Console_Output("Comparing hashes...");
                     provided_hash = File.ReadAllText($"{temp_dir}{release_version}.zip.sha256").ToLower().Split(" ")[0];
@@ -821,6 +853,7 @@ namespace WinFOR_Customizer
                 OutputExpander.IsExpanded = true;
                 Console_Output($"[ERROR] Unable to complete the installation process:\n{ex}");
             }
+            //catch (Http)
         }
         public static void Create_TempDirectory(string temp_dir)
         // Creates a pre-defined temp directory to store required files
@@ -905,15 +938,29 @@ namespace WinFOR_Customizer
             }
             return git_installed;
         }
-        public static async Task File_Download(string uri, string download_location)
+        public static async Task<bool> File_Download(string uri, string download_location)
         // Used for standard download of the provided file (from the uri) to the provided download location
         {
-            HttpClient httpClient = new();
+            try
             {
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                HttpClient httpClient = new();
+                {
+                    httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                }
+                byte[] fileBytes = await httpClient.GetByteArrayAsync(uri);
+                File.WriteAllBytes(download_location, fileBytes);
+                return true;
             }
-            byte[] fileBytes = await httpClient.GetByteArrayAsync(uri);
-            File.WriteAllBytes(download_location, fileBytes);
+            catch (HttpRequestException)
+            {
+                //Console_Output("[ERROR] There was a network connection interruption! Please check your internet connection and try again.");
+                return false;
+            }
+            catch (IOException)
+            {
+                //Console_Output("[ERROR] There was a network connection interruption! Please check your internet connection and try again.");
+                return false;
+            }
         }
         private static async Task Download_SaltStack(string temp_dir, string salt_version, string salt_hash)
         // Downloads the pre-determined version of SaltStack
@@ -945,7 +992,12 @@ namespace WinFOR_Customizer
                     }
                 }
                 Console_Output($"Downloading SaltStack v{salt_version}");
-                await File_Download(uri, $"{temp_dir}{salt_file}");
+                bool status = await File_Download(uri, $"{temp_dir}{salt_file}");
+                if (!status)
+                {
+                    Console_Output("[ERROR] Unable to download SaltStack - an issue occurred with internet connectivity. Check your connection and try again.");
+                    return;
+                }
                 Console_Output($"{salt_file} downloaded");
             }
             catch (Exception ex)
@@ -1015,7 +1067,12 @@ namespace WinFOR_Customizer
                     }
                 }
                 Console_Output($"Downloading Git v{git_version}");
-                await File_Download(uri, $"{temp_dir}{git_file}");
+                bool status = await File_Download(uri, $"{temp_dir}{git_file}");
+                if (!status)
+                {
+                    Console_Output("[ERROR] Unable to download Git - an issue occurred with internet connectivity. Check your connection and try again.");
+                    return;
+                }
                 Console_Output($"{git_file} downloaded");
             }
             catch (Exception ex)
@@ -1082,7 +1139,7 @@ namespace WinFOR_Customizer
             }
             return release_data;
         }
-        private static async Task Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
+        private static async Task<bool> Download_States(string temp_dir, string current_release, string uri_zip, string uri_hash)
         // Downloads the latest winfor-salt states
         {
             try
@@ -1093,16 +1150,37 @@ namespace WinFOR_Customizer
                     Create_TempDirectory(temp_dir);
                 }
                 Console_Output($"Downloading {uri_zip}");
-                await File_Download(uri_zip, @$"{temp_dir}\{current_release}.zip");
+                bool zip_status = await File_Download(uri_zip, @$"{temp_dir}\{current_release}.zip");
+                if (!zip_status)
+                {
+                    Console_Output("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
+                    return false;
+                }
                 Console_Output($"{uri_zip} downloaded.");
                 Console_Output($"Downloading {uri_hash}");
-                await File_Download(uri_hash, @$"{temp_dir}\{current_release}.zip.sha256");
+                bool hash_status = await File_Download(uri_hash, @$"{temp_dir}\{current_release}.zip.sha256");
+                if (!hash_status)
+                {
+                    Console_Output("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
+                    return false;
+                }
                 Console_Output($"{uri_hash} downloaded.");
+                return true;
+            }
+            catch (HttpRequestException)
+            {
+                Console_Output("[ERROR] A network connectivity error occurred during download. Please check your connection and try again.");
+                return false;
+            }
+            catch (IOException)
+            {
+                Console_Output("[ERROR] A network connectivity error occurred during download. Please check your connection and try again.");
+                return false;
             }
             catch (Exception ex)
             {
                 Console_Output($"[ERROR] Unable to download state files:\n{ex}");
-                return;
+                return false;
             }
         }
         private static bool Compare_Hash(string hash_value, string file)
@@ -1228,6 +1306,13 @@ namespace WinFOR_Customizer
         {
             try
             {
+                bool Connected = CheckNetworkConnection.IsConnected();
+                if (!Connected)
+                {
+                    OutputExpander.IsExpanded = true;
+                    Console_Output("[ERROR] No network connection detected - Please check your network connection and try the Download function again.");
+                    return;
+                }
                 (List<string> checked_items, _) = GetCheck_Status();
                 if (checked_items.Count == 0)
                 {
@@ -1323,7 +1408,12 @@ namespace WinFOR_Customizer
                 else
                 {
                     Console_Output("Downloading release file and SHA256 to compare");
-                    await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    bool status = await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    if (!status)
+                    {
+                        Console_Output("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
+                        return;
+                    }
                     Console_Output("Downloads complete...");
                     Console_Output("Comparing hashes...");
                     provided_hash = File.ReadAllText($"{temp_dir}{release_version}.zip.sha256").ToLower().Split(" ")[0];
@@ -1633,6 +1723,13 @@ namespace WinFOR_Customizer
         {
             try
             {
+                bool Connected = CheckNetworkConnection.IsConnected();
+                if (!Connected)
+                {
+                    OutputExpander.IsExpanded = true;
+                    Console_Output("[ERROR] No network connection detected - Please check your network connection and try the WSL Only option again.");
+                    return;
+                }
                 MessageBoxResult result = MessageBox.Show("WSLv2 installation will require a reboot! Ensure that you save any open documents, then click OK to continue.", "WSLv2 requires a reboot!", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Cancel)
                 {
@@ -1726,7 +1823,12 @@ namespace WinFOR_Customizer
                 else
                 {
                     Console_Output("Downloading release file and SHA256 to compare");
-                    await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    bool status = await Download_States(temp_dir, release_version, uri_zip, uri_hash);
+                    if (!status)
+                    {
+                        Console_Output("[ERROR] Unable to download required Salt states! Check your internet connection and try again.");
+                        return;
+                    }
                     Console_Output("Downloads complete...");
                     Console_Output("Comparing hashes...");
                     provided_hash = File.ReadAllText($"{temp_dir}{release_version}.zip.sha256").ToLower().Split(" ")[0];
@@ -1910,7 +2012,6 @@ namespace WinFOR_Customizer
             string download_log = $@"C:\winfor-saltstack-downloads-{release_version}.log";
             string wsl_prep_log = $@"C:\winfor-saltstack-{release_version}-wsl.log";
             string wsl_log = $@"C:\winfor-wsl.log";
-
             List<string> logfiles = new()
                 {
                     log_file,
@@ -1929,9 +2030,15 @@ namespace WinFOR_Customizer
                         string pid = splits[5];
                         string error_string = $"[ERROR   ][{pid}]";
                         var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{error_string} output:" };
-                        results.Append(new String('\u2014', 40) + "\r");
-                        results.Append($"\n{log}\r");
-                        results.Append(new String('\u2014', 40) + "\r\n");
+                        results.Append(new String('-', 100) + "\r");
+                        if (log == @"C:\winfor-wsl.log")
+                        {
+                            results.Append($"\n{log} ({release_version})\r");
+                        }
+                        else
+                        {
+                            results.Append($"\n{log}\r");
+                        }
                         string log_results = Parse_Log(log, "Summary for", 7);
                         log_results = log_results.Replace("Summary for local\r", "");
                         log_results = log_results.Replace("------------\r", "");
@@ -1940,9 +2047,10 @@ namespace WinFOR_Customizer
                         log_results = log_results.Replace("--Total", "Total");
                         log_results = log_results.Replace("-Total", "Total");
                         results.Append(log_results);
-                        errors.Append(new String('\u2014', 40) + "\r");
+                        results.Append(new String('-', 100) + "\r");
+                        errors.Append(new String('-', 100) + "\r");
                         errors.Append($"\n{log}\r");
-                        errors.Append(new String('\u2014', 40) + "\r\n");
+                        errors.Append(new String('-', 100) + "\r\n");
                         string error = Parse_Log(log, $"{error_string}", 1);
                         foreach (string line in error.Split("\n"))
                         {
@@ -1991,7 +2099,8 @@ namespace WinFOR_Customizer
                     throw new FileNotFoundException("VERSION files not found");
                 }
                 (StringBuilder results, StringBuilder errors) = Process_Results(release_version);
-                if (results.Length == 0)
+                int results_lines = results.ToString().Split('\r').Length;
+                if (results_lines < 4)
                 {
                     MessageBox.Show($"The most recent attempt at installation\nwas for version {release_version}.\n\nNo log files were found for this release.", $"No log file found for {release_version}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
@@ -2016,6 +2125,32 @@ namespace WinFOR_Customizer
                 Console_Output($"Unable to display results:\n{ex}");
             }
         }
+        public void Find_Function(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Focus();
+        }
+        /*public void Find_Button(object sender, RoutedEventArgs e)
+        {
+            SearchWindow searchWindow = new()
+            {
+                Owner = this
+            
+            };
+            searchWindow.AllTools = AllTools;
+            searchWindow.Closed += SearchWindow_Closed!;
+            searchWindow.Show();
+        }*/
+        /*private void SearchWindow_Closed(object sender, EventArgs e)
+        {
+            foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
+            {
+                checkBox.Foreground = Brushes.Black;
+                checkBox.Visibility = Visibility.Visible;
+                checkBox.IsEnabled = true;
+                SearchWindow searchWindow = (SearchWindow)sender;
+                searchWindow.Closed -= SearchWindow_Closed!;
+            }
+        }*/
         private void Check_DistroVersion(object sender, RoutedEventArgs e)
         // Checks the current environment to see if Win-FOR is installed and provide its version
         {
@@ -2191,6 +2326,8 @@ namespace WinFOR_Customizer
             public bool AUMID { get; set; }
             public bool DALP { get; set; }
             public bool StartMenu { get; set; }
+            public bool Checked { get; set; }
+            public bool Enabled { get; set; }
             public string[]? ExtraTiles { get; set; }
         }
         public async Task<string> Generate_Layout(string s_path)
@@ -2308,7 +2445,7 @@ namespace WinFOR_Customizer
             string xmlLayout = xmlOutput.ToString();
             return xmlLayout;
         }
-        private static async Task<List<TreeItems>> Get_JsonLayout()
+        private async Task<List<TreeItems>> Get_JsonLayout()
         {
             List<TreeItems>? json_data = new();
             try
@@ -2318,14 +2455,22 @@ namespace WinFOR_Customizer
                 string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
                 json_data = await httpClient.GetFromJsonAsync<List<TreeItems>>(uri);
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                Console_Output($"[ERROR] Unable to get JSON Layout: {ex}\n");
+                OutputExpander.IsExpanded = true;
+                Console_Output($"[ERROR] Unable to get JSON Layout - check your network connectivity and try again");
             }
             return json_data!;
         }
         private async Task Generate_Tree()
         {
+            bool Connected = CheckNetworkConnection.IsConnected();
+            if (!Connected)
+            {
+                OutputExpander.IsExpanded= true;
+                Console_Output("[ERROR] No network connection detected - Please check your network connection and try launching the application again.");
+                return;
+            }
             List<TreeItems>? json_query = await Get_JsonLayout();
             int count = json_query!.Count;
             for (int i = 0; i < count; i++)
@@ -2360,7 +2505,8 @@ namespace WinFOR_Customizer
                         Content = tool.Value.CbContent,
                         VerticalContentAlignment = VerticalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Top,
-                        IsChecked = true
+                        IsChecked = tool.Value.Checked,
+                        IsEnabled = tool.Value.Enabled
                     };
                     if (cb.Name == "standalones_x_ways")
                     { 
@@ -2372,11 +2518,14 @@ namespace WinFOR_Customizer
                     {
                         cb.IsChecked = false;
                     }
-                    if (cb.Name == "standalones_winfor_customizer")
-                    { 
-                        cb.IsChecked = false;
+                    if (cb.IsEnabled == false)
+                    {
+                        continue;
                     }
-                    newChild.Items.Add(cb);
+                    else
+                    {
+                        newChild.Items.Add(cb);
+                    }
                 }
             }
         }
@@ -2455,7 +2604,176 @@ namespace WinFOR_Customizer
                 DownloadsPath.Text = s_path;
             }
         }
+        private List<CheckBox> SearchResults = new();
+        private int SearchIndex;
+        public void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            SearchResults.Clear();
+            string searchText = SearchBox.Text.ToLower();
+            Expand_All();
+            bool first_result = true;
+            
+            foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
+            {
+                string content = checkBox.Content.ToString()!.ToLower();
+                if (content.Contains(searchText) && searchText != string.Empty)
+                {
+                    if (checkBox.Name.StartsWith("header"))
+                    {
+                        checkBox.IsEnabled = false;
+                        continue;
+                    }
+                    else
+                    {
+                        checkBox.Foreground = Brushes.Red;
+                        SearchResults.Add(checkBox);
+                        SearchIndex++;
+                        if (first_result)
+                        {
+                            checkBox.BringIntoView();
+                            first_result = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (checkBox.Name.StartsWith("header"))
+                    {
+                        checkBox.IsEnabled = false;
+                        continue;
+                    }
+                    else
+                    {                      
+                        checkBox.Foreground = Brushes.Black;
+                        checkBox.Visibility = Visibility.Hidden;
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    var topItem = (TreeViewItem)AllTools.Items[0];
+                    topItem.BringIntoView();
+                    ImageBrush searchbgImageBrush = new()
+                    {
+                        ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/search.gif", UriKind.Absolute)),
+                        AlignmentX = AlignmentX.Left,
+                        Stretch = Stretch.None
+                    };
+                    SearchBox.Background = searchbgImageBrush;
+                    foreach (CheckBox cb in GetLogicalChildCollection<CheckBox>(AllTools))
+                    {
+                        cb.IsEnabled = true;
+                        cb.Foreground = Brushes.Black;
+                        cb.Visibility = Visibility.Visible;
+                        cb.FontWeight = FontWeights.Normal;
+                    }
+                    SearchIndex = 0;
+                    SearchResults.Clear();
+                }
+                else
+                {
+                    ClearSearch.Visibility = Visibility.Visible;
+                    NextResult.Visibility = Visibility.Visible;
+                    PreviousResult.Visibility = Visibility.Visible;
+                    SearchBox.Background = null;
+                }
+            }
+        }
+        public void Next_Result(object sender, RoutedEventArgs e)
+        {
+            if (SearchResults.Count == 0)
+            {
+                return;
+            }
+            foreach (CheckBox checkBox in SearchResults)
+            {
+                checkBox.FontWeight = FontWeights.Normal;
+            }
+            int TotalIndices = SearchResults.Count - 1;
+            if (SearchIndex > TotalIndices)
+            {
+                SearchIndex = TotalIndices;
+            }
+            int CurrentIndex = SearchIndex;
+            if (CurrentIndex < 0)
+            {
+                CurrentIndex = 0;
+                SearchIndex = 0;
+            }
+            if (CurrentIndex < TotalIndices)
+            {
+                CheckBox cb = SearchResults[CurrentIndex + 1];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex++;
+            }
+            else if (CurrentIndex == TotalIndices)
+            {
+                CheckBox cb = SearchResults[0];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex = 0;
+            }
+            else
+            {
+                CheckBox cb = SearchResults[CurrentIndex];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex++;
+            }
 
+        }
+        public void Previous_Result(object sender, RoutedEventArgs e)
+        {
+            if (SearchResults.Count == 0)
+            {
+                return;
+            }
+            foreach (CheckBox checkBox in SearchResults)
+            {
+                checkBox.FontWeight = FontWeights.Normal;
+            }
+            int TotalIndices = SearchResults.Count - 1;
+            if (SearchIndex > TotalIndices)
+            {
+                SearchIndex = TotalIndices;
+            }
+            int CurrentIndex = SearchIndex;
+            if (CurrentIndex < 0)
+            {
+                CurrentIndex = TotalIndices;
+                SearchIndex = TotalIndices;
+            }
+            if (CurrentIndex < TotalIndices && CurrentIndex > 0)
+            {
+                CheckBox cb = SearchResults[CurrentIndex - 1];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex--;
+            }
+            else if (CurrentIndex == TotalIndices && CurrentIndex != 0)
+            {
+                CheckBox cb = SearchResults[CurrentIndex - 1];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex--;
+            }
+            else if (CurrentIndex == 0)
+            {
+                CheckBox cb = SearchResults[TotalIndices];
+                cb.BringIntoView();
+                cb.FontWeight = FontWeights.Bold;
+                SearchIndex = TotalIndices;
+            }
+        }
+        private void Clear_Search(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Text = string.Empty;
+            ClearSearch.Visibility = Visibility.Hidden;
+            NextResult.Visibility = Visibility.Hidden;
+            PreviousResult.Visibility = Visibility.Hidden;
+            SearchIndex = 0;
+            SearchResults.Clear();
+        }
         private void Test_Button(object sender, RoutedEventArgs e)
         {
                      

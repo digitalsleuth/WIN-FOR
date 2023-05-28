@@ -1,0 +1,28 @@
+﻿<Window x:Class="WinFOR_Customizer.SearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinFOR_Customizer"
+        mc:Ignorable="d"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Title="Find..." Height="100" Width="240">
+    <Grid>
+        <TextBox x:Name="search_box" Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="NoWrap" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="1" ToolTip="Search for a tool." TextChanged="SearchBox_TextChanged"/>
+        <!--<Button x:Name="search_button" Grid.Column="1" HorizontalAlignment="Left" Margin="190,20,0,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="30" FontSize="14" Click="Search_Button" ToolTip="Search" Height="30" IsTabStop="True" TabIndex="2" Visibility="Visible">
+            <Button.Background>
+                <ImageBrush ImageSource="pack://application:,,,/Images/find.png" Stretch="Uniform" />
+            </Button.Background>
+            <Button.Foreground>
+                <ImageBrush ImageSource="pack://application:,,,/Images/find.png" Stretch="Uniform" />
+            </Button.Foreground>
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="4"/>
+                    <Setter Property="IsEnabled" Value="False" />
+                </Style>
+            </Button.Resources>
+        </Button>-->
+    </Grid>
+</Window>

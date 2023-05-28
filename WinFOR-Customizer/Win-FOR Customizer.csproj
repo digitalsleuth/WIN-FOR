@@ -12,9 +12,9 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>Images\fp.ico</ApplicationIcon>
-    <Version>6.2.0</Version>
-    <AssemblyVersion>6.2.0</AssemblyVersion>
-    <FileVersion>6.2.0</FileVersion>
+    <Version>7.0.0</Version>
+    <AssemblyVersion>7.0.0</AssemblyVersion>
+    <FileVersion>7.0.0</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
     <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
     <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>
@@ -40,14 +40,30 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="SearchWindow.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Images\downloadsbg.gif" />
+    <None Remove="Images\find.png" />
+    <None Remove="Images\search.gif" />
     <None Remove="Images\standalonesbg.gif" />
     <None Remove="Images\Thumbs.db" />
     <None Remove="Thumbs.db" />
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="SearchWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\find.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\fp.ico" />
+    <Content Include="Images\search.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

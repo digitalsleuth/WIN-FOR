@@ -19,7 +19,7 @@ namespace WinFOR_Customizer
         {
             ResultsTextBox.Text = results.ToString();
             int errors_lines = errors.ToString().Split('\n').Length;
-            if (errors_lines >= 3)
+            if (errors_lines > 3)
             {
                 ShowErrors.Visibility = Visibility.Visible;
             }
@@ -45,7 +45,7 @@ namespace WinFOR_Customizer
                 }
                 (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.Process_Results(release_version);
                 int errors_lines = errors.ToString().Split('\n').Length;
-                if (errors_lines >= 3)
+                if (errors_lines > 3)
                 {
                     ErrorWindow errorWindow = new(errors)
                     {
