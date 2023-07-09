@@ -2191,12 +2191,12 @@
       "Win-FOR Customizer": {
         "CbName": "standalones_winfor_customizer",
         "CbContent": "Win-FOR Customizer",
-        "DAID": "PLACEHOLDER_PATH\\winfor-customizer-v6.0.0.exe",
+        "DAID": "PLACEHOLDER_PATH\\winfor-customizer-v8.0.0.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
         "Checked": false,
-        "Enabled": true,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "WinMerge": {

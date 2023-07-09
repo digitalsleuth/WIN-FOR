@@ -2,7 +2,7 @@
 using System.Text;
 using System.Windows;
 
-namespace WinFOR_Customizer
+namespace WinFORCustomizer
 {
     /// <summary>
     /// Interaction logic for ResultsWindow.xaml
@@ -13,39 +13,39 @@ namespace WinFOR_Customizer
         {
             InitializeComponent();
             ShowErrors.Visibility = Visibility.Hidden;
-            Display_Results(results, errors);
+            DisplayResults(results, errors);
         }
-        public void Display_Results(StringBuilder results, StringBuilder errors)
+        public void DisplayResults(StringBuilder results, StringBuilder errors)
         {
             ResultsTextBox.Text = results.ToString();
-            int errors_lines = errors.ToString().Split('\n').Length;
-            if (errors_lines > 3)
+            int errorsLines = errors.ToString().Split('\n').Length;
+            if (errorsLines > 3)
             {
                 ShowErrors.Visibility = Visibility.Visible;
             }
         }
-        public void Display_Errors(object sender, RoutedEventArgs e)
+        public void DisplayErrors(object sender, RoutedEventArgs e)
         {
-            string version_file_salt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
-            string version_file_local = @"C:\winfor-version";
+            string versionFileSalt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
+            string versionFileLocal = @"C:\winfor-version";
             try
             {
-                string release_version = "";
-                if (File.Exists(version_file_salt))
+                string releaseVersion = "";
+                if (File.Exists(versionFileSalt))
                 {
-                    release_version = File.ReadAllText($"{version_file_salt}").TrimEnd();
+                    releaseVersion = File.ReadAllText($"{versionFileSalt}").TrimEnd();
                 }
-                else if (File.Exists(version_file_local))
+                else if (File.Exists(versionFileLocal))
                 {
-                    release_version = File.ReadAllText($"{version_file_local}").TrimEnd();
+                    releaseVersion = File.ReadAllText($"{versionFileLocal}").TrimEnd();
                 }
                 else
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.Process_Results(release_version);
-                int errors_lines = errors.ToString().Split('\n').Length;
-                if (errors_lines > 3)
+                (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.ProcessResults(releaseVersion);
+                int errorsLines = errors.ToString().Split('\n').Length;
+                if (errorsLines > 3)
                 {
                     ErrorWindow errorWindow = new(errors)
                     {

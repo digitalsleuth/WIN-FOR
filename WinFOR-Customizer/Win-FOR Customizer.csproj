@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
-    <RootNamespace>WinFOR_Customizer</RootNamespace>
+    <RootNamespace>WinFORCustomizer</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
@@ -12,9 +12,9 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>Images\fp.ico</ApplicationIcon>
-    <Version>7.0.0</Version>
-    <AssemblyVersion>7.0.0</AssemblyVersion>
-    <FileVersion>7.0.0</FileVersion>
+    <Version>8.0.0</Version>
+    <AssemblyVersion>8.0.0</AssemblyVersion>
+    <FileVersion>8.0.0</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
     <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
     <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>

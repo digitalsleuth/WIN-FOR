@@ -1,4 +1,4 @@
-﻿<Window x:Class="WinFOR_Customizer.MainWindow"
+﻿<Window x:Class="WinFORCustomizer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,62 +10,62 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="White">
             <MenuItem Header="_File" x:Name="FileMenu">
-                <MenuItem Header="_Load custom state..." x:Name="LoadCustom" Click="FileLoad_Click" InputGestureText="Ctrl+L">
+                <MenuItem Header="_Load custom state..." x:Name="LoadCustom" Click="FileLoadClick" InputGestureText="Ctrl+L">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8E5;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Save custom state..." x:Name="SaveCustom" Click="FileSave_Click" InputGestureText="Ctrl+S">
+                <MenuItem Header="_Save custom state..." x:Name="SaveCustom" Click="FileSaveClick" InputGestureText="Ctrl+S">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Exit" x:Name="Exit" Click="FileExit_Click" InputGestureText="Alt+F4"/>
+                <MenuItem Header="_Exit" x:Name="Exit" Click="FileExitClick" InputGestureText="Alt+F4"/>
             </MenuItem>
             <MenuItem Header="_View" x:Name="ViewMenu">
-                <MenuItem Header="Clear Console" x:Name="ClearConsole" Click="Clear_Console" InputGestureText="Ctrl+Shift+X">
+                <MenuItem Header="Clear Console" x:Name="ClearConsoleOption" Click="ClearConsole" InputGestureText="Ctrl+Shift+X">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED60;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Tools" x:Name="ToolsMenu">
-                <MenuItem Header="_Download Tool List" x:Name="ToolList" Click="Download_ToolList" ToolTip="This will download the PDF tool list from the Win-FOR GitHub Repo" InputGestureText="Ctrl+T">
+                <MenuItem Header="_Download Tool List" x:Name="ToolListOption" Click="DownloadToolList" ToolTip="This will download the PDF tool list from the Win-FOR GitHub Repo" InputGestureText="Ctrl+T">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE896;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Generate Start Menu _Layout" x:Name="LocalLayout" Click="LocalLayout_Click" ToolTip="This will generate a Start Menu Layout based on the selected items" InputGestureText="Ctrl+Shift+L">
+                <MenuItem Header="Generate Start Menu _Layout" x:Name="LocalLayoutOption" Click="LocalLayoutClick" ToolTip="This will generate a Start Menu Layout based on the selected items" InputGestureText="Ctrl+Shift+L">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8FC;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="_Find a Tool" x:Name="FindTool" Click="Find_Function" ToolTip="Search for a tool" InputGestureText="Ctrl+F">
+                <MenuItem Header="_Find a Tool" x:Name="FindTool" Click="FindFunction" ToolTip="Search for a tool" InputGestureText="Ctrl+F">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE773;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Help" x:Name="HelpMenu">
-                <MenuItem Header="Check for Win-FOR Customizer _Updates" x:Name="CheckForUpdates" Click="Check_Updates" InputGestureText="Ctrl+U">
+                <MenuItem Header="Check for Win-FOR Customizer _Updates" x:Name="CheckForUpdates" Click="CheckUpdates" InputGestureText="Ctrl+U">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE895;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Check GitHub for latest Win-FOR version" x:Name="CheckLatestWinFOR" Click="Show_LatestRelease" InputGestureText="Ctrl+G">
+                <MenuItem Header="Check GitHub for latest Win-FOR version" x:Name="CheckLatestWinFOR" Click="ShowLatestRelease" InputGestureText="Ctrl+G">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDE4;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Show installed Win-FOR _version" x:Name="CheckWinFORVersion" Click="Check_DistroVersion" InputGestureText="Ctrl+Shift+V">
+                <MenuItem Header="Show installed Win-FOR _version" x:Name="CheckWinFORVersion" Click="CheckDistroVersion" InputGestureText="Ctrl+Shift+V">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEE57;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="About" x:Name="ShowAboutBox" Click="Show_About" InputGestureText="Ctrl+Shift+A">
+                <MenuItem Header="About" x:Name="ShowAboutBox" Click="ShowAbout" InputGestureText="Ctrl+Shift+A">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE897;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
@@ -80,31 +80,31 @@
             <TreeView x:Name="AllTools" Height="330" Width="390" VerticalAlignment="Top" VerticalContentAlignment="Center" HorizontalAlignment="Left" Grid.ColumnSpan="2" FontSize="16"  BorderBrush="{x:Null}">
 
             </TreeView>
-            <Button x:Name="expand_all" Grid.Column="1" Content="_Expand All" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnExpand_All" ToolTip="Expand all sections" Height="25" IsTabStop="True" TabIndex="16" />
-            <Button x:Name="collapse_all" Grid.Column="1" Content="_Collapse All" HorizontalAlignment="Right" Margin="0,35,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnCollapse_All" ToolTip="Collapse all sections" Height="25" IsTabStop="True" TabIndex="17"/>
-            <Button x:Name="check_all" Grid.Column="1" Content="Check _All" HorizontalAlignment="Right" Margin="0,70,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnCheck_All" ToolTip="Select all available tools, dependent on chosen distro" Height="25" IsTabStop="True" TabIndex="18"/>
-            <Button x:Name="uncheck_all" Grid.Column="1" Content="_Uncheck All" HorizontalAlignment="Right" Margin="0,105,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="BtnUncheck_All" ToolTip="Deselect all available tools, dependent on chosen distro" Height="25" IsTabStop="True" TabIndex="19"/>
-            <Button x:Name="download_button" Grid.Column="1" Content="_Download" HorizontalAlignment="Right" Margin="0,140,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="Download_Only" ToolTip="Download the current files only, no installation.&#x0a;DOES NOT INCLUDE Python 2/3 Tools, WinDbg,&#x0a;or Windows Sandbox" Height="25" IsTabStop="True" TabIndex="20"/>
-            <Button x:Name="install_button" Grid.Column="1" Content="_Install" HorizontalAlignment="Right" Margin="0,175,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" IsEnabled="True" FontSize="14" Click="Install_Click" ToolTip="Will install the chosen tools / environment" Height="25" IsTabStop="True" TabIndex="21"/>
-            <Button x:Name="install_wsl_button" Grid.Column="1" Content="_WSL Only" HorizontalAlignment="Right" Margin="0,210,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" IsEnabled="True" FontSize="14" Click="Install_WslOnly" ToolTip="Will only install the WSLv2 Environment with SIFT and REMnux" Height="25" IsTabStop="True" TabIndex="22"/>
-            <Button x:Name="saveoutput_button" Grid.Column="1" Content="_Save Output" HorizontalAlignment="Right" Margin="0,245,20,0" VerticalAlignment="Top" Click="Save_ConsoleOutput" Width="90" Height="25" FontSize="14" IsTabStop="True" TabIndex="23" />
-            <Button x:Name="results_button" Grid.Column="1" Content="_Results" HorizontalAlignment="Right" Margin="0,280,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="Results_Button" ToolTip="Check for Win-FOR installation status results." Height="25" IsTabStop="True" TabIndex="24" />
-            <TextBox x:Name="SearchBox" Grid.Column="1" HorizontalAlignment="Right" Margin="0,315,20,0" TextWrapping="NoWrap" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="90" Height="25" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="25" ToolTip="Search for a tool." TextChanged="SearchBox_TextChanged">
+            <Button x:Name="expand_all" Grid.Column="1" Content="_Expand All" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="ExpandAllBtn" ToolTip="Expand all sections" Height="25" IsTabStop="True" TabIndex="16" />
+            <Button x:Name="collapse_all" Grid.Column="1" Content="_Collapse All" HorizontalAlignment="Right" Margin="0,35,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="CollapseAllBtn" ToolTip="Collapse all sections" Height="25" IsTabStop="True" TabIndex="17"/>
+            <Button x:Name="check_all" Grid.Column="1" Content="Check _All" HorizontalAlignment="Right" Margin="0,70,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="CheckAllBtn" ToolTip="Select all available tools, dependent on chosen distro" Height="25" IsTabStop="True" TabIndex="18"/>
+            <Button x:Name="uncheck_all" Grid.Column="1" Content="_Uncheck All" HorizontalAlignment="Right" Margin="0,105,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="UncheckAllBtn" ToolTip="Deselect all available tools, dependent on chosen distro" Height="25" IsTabStop="True" TabIndex="19"/>
+            <Button x:Name="download_button" Grid.Column="1" Content="_Download" HorizontalAlignment="Right" Margin="0,140,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="DownloadOnly" ToolTip="Download the current files only, no installation.&#x0a;DOES NOT INCLUDE Python 2/3 Tools, WinDbg,&#x0a;or Windows Sandbox" Height="25" IsTabStop="True" TabIndex="20"/>
+            <Button x:Name="install_button" Grid.Column="1" Content="_Install" HorizontalAlignment="Right" Margin="0,175,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" IsEnabled="True" FontSize="14" Click="InstallClick" ToolTip="Will install the chosen tools / environment" Height="25" IsTabStop="True" TabIndex="21"/>
+            <Button x:Name="install_wsl_button" Grid.Column="1" Content="_WSL Only" HorizontalAlignment="Right" Margin="0,210,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" IsEnabled="True" FontSize="14" Click="InstallWslOnly" ToolTip="Will only install the WSLv2 Environment with SIFT and REMnux" Height="25" IsTabStop="True" TabIndex="22"/>
+            <Button x:Name="saveoutput_button" Grid.Column="1" Content="_Save Output" HorizontalAlignment="Right" Margin="0,245,20,0" VerticalAlignment="Top" Click="SaveConsoleOutput" Width="90" Height="25" FontSize="14" IsTabStop="True" TabIndex="23" />
+            <Button x:Name="results_button" Grid.Column="1" Content="_Results" HorizontalAlignment="Right" Margin="0,280,20,0" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" FontSize="14" Click="ResultsButton" ToolTip="Check for Win-FOR installation status results." Height="25" IsTabStop="True" TabIndex="24" />
+            <TextBox x:Name="SearchBox" Grid.Column="1" HorizontalAlignment="Right" Margin="0,315,20,0" TextWrapping="NoWrap" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="90" Height="25" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="25" ToolTip="Search for a tool." TextChanged="SearchBoxTextChanged">
                 <TextBox.Background>
                     <ImageBrush ImageSource="Images\search.gif" AlignmentX="Left" Stretch="None" />
                 </TextBox.Background>
             </TextBox>
-            <Button x:Name="ClearSearch" Grid.Column="1" Content="&#xE74D;" HorizontalAlignment="Right" Margin="0,350,20,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="Clear_Search" FontFamily="Segoe MDL2 Assets" FontSize="18" FontWeight="Normal" Foreground="#FFE5424B" Background="White" Visibility="Hidden"/>
-            <Button x:Name="NextResult" Grid.Column="1" Content="&#xF0AE;" HorizontalAlignment="Right" Margin="0,350,85,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="Next_Result" FontFamily="Segoe MDL2 Assets" FontSize="16" FontWeight="Bold" Foreground="#FF1644B9" Background="White" Visibility="Hidden"/>
-            <Button x:Name="PreviousResult" Grid.Column="1" Content="&#xF0AD;" HorizontalAlignment="Right" Margin="0,350,52.5,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="Previous_Result" FontFamily="Segoe MDL2 Assets" FontSize="16" FontWeight="UltraBold" Foreground="#FF1644B9" Background="White" Visibility="Hidden"/>
-            <CheckBox x:Name="themed" Content="Themed" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="Enable_Theme" Unchecked="Disable_Theme" FontSize="16" Margin="10,341,0,0" ToolTip="This adds theme customization, Start Menu layout, and distro-specific Wallpaper" Height="20" Width="92" IsTabStop="True" TabIndex="26"/>
+            <Button x:Name="ClearSearchBtn" Grid.Column="1" Content="&#xE74D;" HorizontalAlignment="Right" Margin="0,350,20,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="ClearSearch" FontFamily="Segoe MDL2 Assets" FontSize="18" FontWeight="Normal" Foreground="#FFE5424B" Background="White" Visibility="Hidden"/>
+            <Button x:Name="NextResultBtn" Grid.Column="1" Content="&#xF0AE;" HorizontalAlignment="Right" Margin="0,350,85,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="NextResult" FontFamily="Segoe MDL2 Assets" FontSize="16" FontWeight="Bold" Foreground="#FF1644B9" Background="White" Visibility="Hidden"/>
+            <Button x:Name="PreviousResultBtn" Grid.Column="1" Content="&#xF0AD;" HorizontalAlignment="Right" Margin="0,350,52.5,0" Width="25" Height="25" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="PreviousResult" FontFamily="Segoe MDL2 Assets" FontSize="16" FontWeight="UltraBold" Foreground="#FF1644B9" Background="White" Visibility="Hidden"/>
+            <CheckBox x:Name="themed" Content="Themed" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="EnableTheme" Unchecked="DisableTheme" FontSize="16" Margin="10,341,0,0" ToolTip="This adds theme customization, Start Menu layout, and distro-specific Wallpaper" Height="20" Width="92" IsTabStop="True" TabIndex="26"/>
             <CheckBox x:Name="wsl" Content="WSL v2" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" FontSize="16" Margin="10,370,0,0" ToolTip="Select this option if you wish to install the Windows Subsystem for Linux v2 with SIFT and REMnux" Height="20" Width="72" IsTabStop="True" TabIndex="27"/>
             <Image x:Name="DS_FingerPrint" Grid.Column="1" HorizontalAlignment="Left" Height="80" Margin="64,432,0,0" VerticalAlignment="Top" Width="80" Source="/Images/fpw120.png"/>
             <Label x:Name="Version" Grid.Column="1" Content="" HorizontalContentAlignment="Right" HorizontalAlignment="Right" Margin="0,522,4,0" VerticalAlignment="Top" FontSize="10" Height="21" Width="117"/>
             <TextBlock x:Name="GitHub" TextAlignment="Center" HorizontalAlignment="Center" Margin="0,510,0,0" VerticalAlignment="Top" FontSize="11" Grid.Column="1" Height="15" Width="158">
-            <Hyperlink NavigateUri="https://github.com/digitalsleuth/win-for" RequestNavigate="Visit_Github">github.com/digitalsleuth/win-for</Hyperlink>
+            <Hyperlink NavigateUri="https://github.com/digitalsleuth/win-for" RequestNavigate="VisitGithub">github.com/digitalsleuth/win-for</Hyperlink>
             </TextBlock>
-            <ComboBox x:Name="Theme" HorizontalAlignment="Left" Margin="181,339,0,0" VerticalAlignment="Top" Width="80" MaxDropDownHeight="479" Height="22" IsTabStop="True" TabIndex="27" IsEnabled="False" Loaded="BtnCheck_All">
+            <ComboBox x:Name="Theme" HorizontalAlignment="Left" Margin="181,339,0,0" VerticalAlignment="Top" Width="80" MaxDropDownHeight="479" Height="22" IsTabStop="True" TabIndex="27" IsEnabled="False" Loaded="CheckAllBtn">
                 <ComboBoxItem Content="CPC-WIN" x:Name="cpcwin" />
                 <ComboBoxItem Content="CRA-WIN" x:Name="crawin" />
                 <ComboBoxItem Content="WIN-FOR" x:Name="winfor" />
@@ -124,14 +124,14 @@
                     <ImageBrush ImageSource="Images\downloadsbg.gif" AlignmentX="Left" Stretch="None" />
                 </TextBox.Background>
             </TextBox>
-            <Button x:Name="StandalonesPicker" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,399,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="Standalones_Picker">
+            <Button x:Name="StandalonesPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,399,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="StandalonesPicker">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="5"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button x:Name="DownloadsPicker" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,429,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="Downloads_Picker">
+            <Button x:Name="DownloadsPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,429,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="DownloadsPicker">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="5"/>
@@ -145,7 +145,7 @@
             <Expander x:Name="OutputExpander" HorizontalAlignment="Left" Width="520" Height="Auto" Header="Output" Margin="6,524,0,0" Grid.ColumnSpan="2" VerticalAlignment="Top" IsExpanded="False" Visibility="Visible" IsEnabled="True">
                 <TextBox x:Name="OutputConsole" HorizontalAlignment="Left" Width="502" Height="250" Margin="0,4,0,18" Grid.ColumnSpan="2" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
             </Expander>
-            <CheckBox x:Name="cbXways" Content="X-Ways" Margin="313,462,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="XWays_Checked" Unchecked="XWays_Unchecked" Grid.ColumnSpan="2" Width="77" FontSize="15"/>
+            <CheckBox x:Name="cbXways" Content="X-Ways" Margin="313,462,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="XwaysChecked" Unchecked="XwaysUnchecked" Grid.ColumnSpan="2" Width="77" FontSize="15"/>
 
         </Grid>
     </DockPanel>

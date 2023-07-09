@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Text;
 
-namespace WinFOR_Customizer
+namespace WinFORCustomizer
 {
     /// <summary>
     /// Interaction logic for ErrorWindow.xaml
