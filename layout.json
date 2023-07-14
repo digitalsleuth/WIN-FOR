@@ -2089,6 +2089,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "TeraCopy": {
+        "CbName": "packages_teracopy",
+        "CbContent": "TeraCopy",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\TeraCopy\\TeraCopy.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "USB Registry Write Blocker": {
         "CbName": "standalones_usb_write_blocker",
         "CbContent": "USB Registry Write Blocker",
