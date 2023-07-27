@@ -116,6 +116,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "OSFMount": {
+        "CbName": "packages_osfmount",
+        "CbContent": "OSFMount",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\OSFMount\\OSFMount.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Pilfer": {
         "CbName": "standalones_pilfer",
         "CbContent": "Pilfer",
@@ -1062,6 +1073,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "MSI Viewer": {
+        "CbName": "installers_msiviewer",
+        "CbContent": "MSI Viewer",
+        "DAID": "40885WilliamKent2015.MSIViewer_vv14yhe95nw30!App",
+        "AUMID": true,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Py2ExeDecompiler": {
         "CbName": "standalones_py2exedecompiler",
         "CbContent": "Py2ExeDecompiler",
@@ -1395,6 +1417,17 @@
         "CbName": "standalones_magnet_web_page_saver_portable",
         "CbContent": "Webpage Saver",
         "DAID": "PLACEHOLDER_PATH\\magnet\\WebPageSaver\\WebPageSaver.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "WinSCP": {
+        "CbName": "packages_winscp",
+        "CbContent": "WinSCP",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\WinSCP\\WinSCP.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
