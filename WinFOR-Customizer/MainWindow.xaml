@@ -69,7 +69,7 @@
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE897;" FontSize="16" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
-                </MenuItem>                    
+                </MenuItem>
             </MenuItem>
         </Menu>
         <Grid Margin="5,5,0,0" ShowGridLines="False" Height="Auto">
@@ -112,6 +112,8 @@
             <Label x:Name="ThemeLabel" Content="Theme:" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" HorizontalAlignment="Left" Margin="116,335,0,0" VerticalAlignment="Top" Width="63" FontSize="16" ToolTip="Choose your distro - If no distro is chosen, Win-FOR is chosen by default" Height="31"/>
             <Label x:Name="UserNameLabel" Target="{Binding ElementName=UserName}" Content="User:" HorizontalAlignment="Left" Margin="131,365,0,0" VerticalAlignment="Top" FontSize="16" ToolTip="Enter the username for whom to install and customize the environment.&#x0a;If the user does not exist, it will be created" Height="31" Width="45"/>
             <TextBox x:Name="UserName" HorizontalAlignment="Left" Margin="181,369,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsTabStop="True" TabIndex="28"/>
+            <Label x:Name="HostNameLabel" Target="{Binding ElementName=HostName}" Content="Hostname:" HorizontalAlignment="Left" Margin="308,365,0,0" VerticalAlignment="Top" FontSize="16" ToolTip="Enter the hostname you would like for your installation.&#x0a;If nothing is selected, the default of WIN-FOR will be used." Height="31" Width="90" Grid.ColumnSpan="2" Visibility="Hidden"/>
+            <TextBox x:Name="HostName" HorizontalAlignment="Left" Margin="47,369,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="101" Height="22" FontSize="14" IsTabStop="True" TabIndex="28" Grid.Column="1" Visibility="Hidden"/>
             <Label x:Name="StandalonesLabel" Target="{Binding ElementName=StandalonesPath}" Content="Standalones Path:" HorizontalAlignment="Left" Margin="3,394,0,0" VerticalAlignment="Top" FontSize="15" ToolTip="Choose where the standalone tools will be installed on your system.&#x0a;If left blank, the default is C:\standalone" Height="30" Width="127"/>
             <TextBox x:Name="StandalonesPath" HorizontalAlignment="Left" Margin="181,399,0,0" TextWrapping="NoWrap" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" Width="120" Height="22" FontSize="14" IsEnabled="True" IsTabStop="True" TabIndex="29" ToolTip="Choose where the standalone tools will be installed on your system.&#x0a;If left blank, the default is C:\standalone" TextChanged="OnStandalonesChanged">
                 <TextBox.Background>
@@ -124,14 +126,14 @@
                     <ImageBrush ImageSource="Images\downloadsbg.gif" AlignmentX="Left" Stretch="None" />
                 </TextBox.Background>
             </TextBox>
-            <Button x:Name="StandalonesPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,399,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="StandalonesPicker">
+            <Button x:Name="StandalonesPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="151,399,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="StandalonesPicker">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="5"/>
                     </Style>
                 </Button.Resources>
             </Button>
-            <Button x:Name="DownloadsPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="310,429,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="DownloadsPicker">
+            <Button x:Name="DownloadsPickerBtn" Content="..." HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="151,429,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold" Height="22" Width="22" Click="DownloadsPicker">
                 <Button.Resources>
                     <Style TargetType="Border">
                         <Setter Property="CornerRadius" Value="5"/>

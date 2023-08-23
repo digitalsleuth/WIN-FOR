@@ -443,11 +443,17 @@ namespace WinFORCustomizer
         private void EnableTheme(object sender, RoutedEventArgs e)
         {
             Theme.IsEnabled = true;
+            HostName.Visibility = Visibility.Visible;
+            HostNameLabel.Visibility = Visibility.Visible;
+            HostName.Text = "";
         }
         private void DisableTheme(object sender, RoutedEventArgs e)
         {
             Theme.IsEnabled = false;
             Theme.Text = "";
+            HostName.Visibility = Visibility.Hidden;
+            HostNameLabel.Visibility = Visibility.Hidden;
+            HostName.Text = "";
         }
         public string GenerateState(string stateType, bool themedInstall)
         // Used to generate the data for the custom SaltStack state file
@@ -670,6 +676,7 @@ namespace WinFORCustomizer
                 string standalonesPath;
                 string userName;
                 bool wslSelected;
+                string hostName;
                 if (cbXways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
                 {
                     xwaysData = $"{XUser.Text}:{XPass.Text}";
@@ -830,6 +837,11 @@ namespace WinFORCustomizer
                     {
                         string layout = await GenerateLayout(standalonesPath);
                         File.WriteAllText(@$"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\layout\WIN-FOR-StartLayout.xml", layout);
+                    }
+                    if ((themed.IsChecked == true) && (HostName.Text != ""))
+                    {
+                        hostName = HostName.Text;
+                        InsertHostName(hostName);
                     }
                     bool copied = CopyCustomState(stateFile);
                     if (!copied)
@@ -1286,6 +1298,26 @@ namespace WinFORCustomizer
             catch (Exception ex)
             {
                 ConsoleOutput($"[ERROR] Unable to add X-Ways Token to {stateFile}:\n{ex}");
+                return;
+            }
+        }
+
+        private static void InsertHostName(string hostName)
+        {
+            string hostnameState = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\computer-name.sls";
+            try
+            {
+                if (File.Exists(hostnameState))
+                {
+                    string allText = File.ReadAllText(hostnameState);
+                    allText = allText.Replace("WIN-FOR", hostName);
+                    File.WriteAllText(hostnameState, allText);
+                    ConsoleOutput($"Chosen hostname {hostName} written to computer-name.sls");
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleOutput($"[ERROR] Unable to write the selected hostname to computer-name.sls:\n{ex}");
                 return;
             }
         }
