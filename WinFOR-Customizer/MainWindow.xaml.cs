@@ -38,8 +38,8 @@ namespace WinFORCustomizer
 #pragma warning restore CS8602 // Deference of a possibly null reference.
         readonly string gitVersion = "2.42.0.2";
         readonly string gitHash = "bd9b41641a258fd16d99beecec66132160331d685dfb4c714cea2bcc78d63bdb";
-        readonly string saltVersion = "3005.2-1";
-        readonly string saltHash = "a9c4b9c159a08239a989ef870c1f5201aba275ce1d2dfa51a245bdca5f85a74b";
+        readonly string saltVersion = "3005.1-4";
+        readonly string saltHash = "81d54ea775bcc7877a31aac853d4413f0404bafad3213564d95074a3f6ad1565";
         public MainWindow()
         {
             InitializeComponent();
@@ -1001,7 +1001,7 @@ namespace WinFORCustomizer
             try
             {
                 string saltFile = $"salt-{saltVersion}-windows-amd64.exe";
-                string uri = $"https://repo.saltproject.io/salt/py3/windows/3005/{saltFile}";
+                string uri = $"https://repo.saltproject.io/salt/py3/windows/{saltVersion}/{saltFile}";
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"{tempDir} does not exist. Creating...");

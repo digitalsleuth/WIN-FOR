@@ -12,9 +12,9 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>Images\fp.ico</ApplicationIcon>
-    <Version>8.2.0</Version>
-    <AssemblyVersion>8.2.0</AssemblyVersion>
-    <FileVersion>8.2.0</FileVersion>
+    <Version>8.3.0</Version>
+    <AssemblyVersion>8.3.0</AssemblyVersion>
+    <FileVersion>8.3.0</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
     <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
     <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>
