@@ -910,6 +910,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Rehex": {
+        "CbName": "standalones_rehex",
+        "CbContent": "Rehex",
+        "DAID": "PLACEHOLDER_PATH\\rehex\\rehex.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Resource Hacker": {
         "CbName": "standalones_resource_hacker",
         "CbContent": "Resource Hacker",
@@ -2587,6 +2598,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Volatility Workbench": {
+        "CbName": "standalones_volatility_workbench",
+        "CbContent": "Volatility Workbench",
+        "DAID": "PLACEHOLDER_PATH\\volatility-workbench\\VolatilityWorkbench.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []

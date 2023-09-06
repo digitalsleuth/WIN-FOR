@@ -36,10 +36,10 @@ namespace WinFORCustomizer
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
 #pragma warning restore CS8602 // Deference of a possibly null reference.
-        readonly string gitVersion = "2.40.0";
-        readonly string gitHash = "ff8954afb29814821e9e3759a761bdac49186085e916fa354bf8706e3c7fe7a2";
-        readonly string saltVersion = "3005.1-2";
-        readonly string saltHash = "fac148e51a7f0a8e836a6419102b9da93c7f16ab659f709e49e2e05713cf7cbc";
+        readonly string gitVersion = "2.42.0.2";
+        readonly string gitHash = "bd9b41641a258fd16d99beecec66132160331d685dfb4c714cea2bcc78d63bdb";
+        readonly string saltVersion = "3005.2-1";
+        readonly string saltHash = "a9c4b9c159a08239a989ef870c1f5201aba275ce1d2dfa51a245bdca5f85a74b";
         public MainWindow()
         {
             InitializeComponent();
@@ -282,7 +282,7 @@ namespace WinFORCustomizer
             }
         }
         private void XwaysChecked(object sender, RoutedEventArgs e)
-        // Determine if the X-Ways CheckBox is checked, and enables the user/pass boxes to enter credentials for the portal
+        // Determine if the X-Ways CheckBox is checked, and enable the user/pass boxes to enter credentials for the portal
         {
             if (XUser == null || XPass == null)
             {
@@ -312,7 +312,7 @@ namespace WinFORCustomizer
             }
         }
         private void XwaysUnchecked(object sender, RoutedEventArgs e)
-        // Determine if the X-Ways CheckBox is unchecked, and disables the user/pass boxes
+        // Determine if the X-Ways CheckBox is unchecked, and disable the user/pass boxes
         {
             if (XUser == null || XPass == null)
             {
@@ -385,6 +385,7 @@ namespace WinFORCustomizer
                     ExpandAll();
                     UncheckAll();
                     List<string> listedTools = new();
+                    
                     OutputExpander.IsExpanded = true;
                     ConsoleOutput($"Loading configuration from {file}");
                     int includeLineNumber = FindLineNumber(customState, "include:");
@@ -416,16 +417,26 @@ namespace WinFORCustomizer
                             listedTools.Add(line);
                         }
                     }
+                    List<CheckBox> allCheckBoxes = GetLogicalChildCollection<CheckBox>(AllTools);
+                    List<string> checkBoxNames = new();
+                    foreach (CheckBox checkBox in allCheckBoxes)
+                    {
+                        checkBoxNames.Add(checkBox.Name);
+                    }
                     foreach (string tool in listedTools)
                     {
-                        if (FindName(tool) is CheckBox checkBox)
+                        foreach (CheckBox checkBox in allCheckBoxes)
                         {
-                            checkBox.IsChecked = true;
+
+                            if (checkBox.Name == tool)
+                            {
+                                checkBox.IsChecked = true;
+                            }
                         }
-                        else
+                        if (!checkBoxNames.Contains(tool))
                         {
                             OutputExpander.IsExpanded = true;
-                            ConsoleOutput($"{tool} is not an available option - please check your custom state and try again.");
+                            ConsoleOutput($"{tool} is not, or is no longer, an available option - please check your custom state and try again. To continue using your custom state without this tool, simply remove the two lines containing that tool - one under the \"include\" heading, and one under the \"winfor-custom-states\" heading.");
                         }
                     }
                 }
@@ -469,10 +480,6 @@ namespace WinFORCustomizer
                 if (Theme.Text == "CPC-WIN")
                 {
                     repo = "cpcwin";
-                }
-                else if (Theme.Text == "CRA-WIN")
-                {
-                    repo = "crawin";
                 }
                 else if (Theme.Text == "WIN-FOR")
                 {
@@ -636,6 +643,11 @@ namespace WinFORCustomizer
                     ConsoleOutput("[ERROR] No network connection detected - Please check your network connection and try the Install process again.");
                     return;
                 }
+                else 
+                {
+                    OutputExpander.IsExpanded = true;
+                    ConsoleOutput("Network connection detected, continuing...");
+                }
                 (List<string> checkedItems, _) = GetCheckStatus();
                 if (checkedItems.Count == 0)
                 {
@@ -750,7 +762,7 @@ namespace WinFORCustomizer
                     standalonesPath = @"C:\standalone";
                     ConsoleOutput($"Standalones path box was empty - default will be used - {standalonesPath}");
                 }
-                string tempDir = $"{driveLetter}winfor-temp\\";
+                string tempDir = @$"{driveLetter}winfor-temp\";
                 List<string>? currentReleaseData = await IdentifyRelease();
                 string releaseVersion = currentReleaseData![0];
                 string uriZip = currentReleaseData[1];
@@ -806,7 +818,7 @@ namespace WinFORCustomizer
                     bool status = await DownloadStates(tempDir, releaseVersion, uriZip, uriHash);
                     if (!status)
                     {
-                        ConsoleOutput("[ERROR] Unable to download required Salt states! Check your internet connection and try again.");
+                        ConsoleOutput("[ERROR] Unable to download required Salt states.");
                         return;
                     }
                     ConsoleOutput("Downloads complete...");
@@ -959,20 +971,27 @@ namespace WinFORCustomizer
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
                 {
-                    httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                    httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0");
                 }
-                byte[] fileBytes = await httpClient.GetByteArrayAsync(uri, cancellationToken.Token);
+                HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken.Token);
+                response.EnsureSuccessStatusCode();
+                HttpContent content = response.Content;
+                var fileBytes = await content.ReadAsByteArrayAsync();
                 File.WriteAllBytes(downloadLocation, fileBytes);
                 return true;
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException requestException)
             {
-                //ConsoleOutput("[ERROR] There was a network connection interruption! Please check your internet connection and try again.");
+                ConsoleOutput($"[ERROR] Unable to access {uri}: Received response - {requestException.StatusCode}: {requestException.Message}");
                 return false;
             }
             catch (IOException)
             {
-                //ConsoleOutput("[ERROR] There was a network connection interruption! Please check your internet connection and try again.");
+                return false;
+            }
+            catch (TaskCanceledException)
+            {
+                ConsoleOutput($"[ERROR] There was no response from the server: Check your connection and try again.");
                 return false;
             }
         }
@@ -982,7 +1001,7 @@ namespace WinFORCustomizer
             try
             {
                 string saltFile = $"salt-{saltVersion}-windows-amd64.exe";
-                string uri = $"https://repo.saltproject.io/salt/py3/windows/{saltVersion}/{saltFile}";
+                string uri = $"https://repo.saltproject.io/salt/py3/windows/3005/{saltFile}";
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"{tempDir} does not exist. Creating...");
@@ -993,8 +1012,8 @@ namespace WinFORCustomizer
                 if (File.Exists($"{tempDir}{saltFile}"))
                 {
                     ConsoleOutput("Found previous download of SaltStack - comparing hash");
-                    bool match = CompareHash(saltHash, $"{tempDir}{saltFile}");
-                    if (match)
+                    bool matchExisting = CompareHash(saltHash, $"{tempDir}{saltFile}");
+                    if (matchExisting)
                     {
                         ConsoleOutput($"Hash value for {tempDir}{saltFile} is correct, continuing...");
                         return;
@@ -1013,6 +1032,12 @@ namespace WinFORCustomizer
                     return;
                 }
                 ConsoleOutput($"{saltFile} downloaded");
+                bool matchDownloaded = CompareHash(saltHash, $"{tempDir}{saltFile}");
+                if (matchDownloaded)
+                {
+                    ConsoleOutput($"Hash value for {tempDir}{saltFile} is correct, continuing...");
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -1056,7 +1081,8 @@ namespace WinFORCustomizer
         // Downloads the pre-determined version of Git
         {
             string gitFile = $"Git-{gitVersion}-64-bit.exe";
-            string uri = $"https://github.com/git-for-windows/git/releases/download/v{gitVersion}.windows.1/{gitFile}";
+            gitVersion = gitVersion.Split(".")[0] + "." + gitVersion.Split(".")[1] + "." + gitVersion.Split(".")[2];
+            string uri = $"https://github.com/git-for-windows/git/releases/download/v{gitVersion}.windows.2/{gitFile}";
             try
             {
                 if (!Directory.Exists(tempDir))
@@ -1068,8 +1094,8 @@ namespace WinFORCustomizer
                 if (File.Exists($"{tempDir}{gitFile}"))
                 {
                     ConsoleOutput("Found previous download of Git - comparing hash");
-                    bool match = CompareHash(gitHash, $"{tempDir}{gitFile}");
-                    if (match)
+                    bool matchExisting = CompareHash(gitHash, $"{tempDir}{gitFile}");
+                    if (matchExisting)
                     {
                         ConsoleOutput($"Hash value for {tempDir}{gitFile} is correct, continuing...");
                         return;
@@ -1088,6 +1114,12 @@ namespace WinFORCustomizer
                     return;
                 }
                 ConsoleOutput($"{gitFile} downloaded");
+                bool matchDownload = CompareHash(gitHash, $"{tempDir}{gitFile}");
+                if (matchDownload)
+                {
+                    ConsoleOutput($"Hash value for {tempDir}{gitFile} is correct, continuing...");
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -1168,7 +1200,7 @@ namespace WinFORCustomizer
                 bool zipStatus = await FileDownload(uriZip, @$"{tempDir}\{currentRelease}.zip");
                 if (!zipStatus)
                 {
-                    ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
+                    //ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
                     return false;
                 }
                 ConsoleOutput($"{uriZip} downloaded.");
@@ -1176,7 +1208,7 @@ namespace WinFORCustomizer
                 bool hashStatus = await FileDownload(uriHash, @$"{tempDir}\{currentRelease}.zip.sha256");
                 if (!hashStatus)
                 {
-                    ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
+                    //ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
                     return false;
                 }
                 ConsoleOutput($"{uriHash} downloaded.");
@@ -1381,7 +1413,7 @@ namespace WinFORCustomizer
                 ConsoleOutput($"{appName} v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string stateList = GenerateState("download", false);
-                string tempDir = $"{driveLetter}winfor-temp\\";
+                string tempDir = $@"{driveLetter}winfor-temp\";
                 List<string>? currentReleaseData = await IdentifyRelease();
                 string releaseVersion = currentReleaseData![0];
                 string uriZip = currentReleaseData[1];
@@ -1806,7 +1838,7 @@ namespace WinFORCustomizer
                     ConsoleOutput($"Standalones path box was empty - default will be used - {standalonesPath}");
                 }
                 string distroFile = distro.ToLower().Replace("-", "");
-                string tempDir = $"{driveLetter}winfor-temp\\";
+                string tempDir = @$"{driveLetter}winfor-temp\";
                 List<string>? currentReleaseData = await IdentifyRelease();
                 string releaseVersion = currentReleaseData![0];
                 string uriZip = currentReleaseData[1];
@@ -1862,7 +1894,7 @@ namespace WinFORCustomizer
                     bool status = await DownloadStates(tempDir, releaseVersion, uriZip, uriHash);
                     if (!status)
                     {
-                        ConsoleOutput("[ERROR] Unable to download required Salt states! Check your internet connection and try again.");
+                        ConsoleOutput("[ERROR] Unable to download required Salt states.");
                         return;
                     }
                     ConsoleOutput("Downloads complete...");

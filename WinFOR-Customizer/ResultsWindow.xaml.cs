@@ -18,7 +18,7 @@ namespace WinFORCustomizer
         public void DisplayResults(StringBuilder results, StringBuilder errors)
         {
             ResultsTextBox.Text = results.ToString();
-            int errorsLines = errors.ToString().Split('\n').Length;
+            int errorsLines = errors.ToString().Split('\r').Length;
             if (errorsLines > 3)
             {
                 ShowErrors.Visibility = Visibility.Visible;
@@ -44,7 +44,7 @@ namespace WinFORCustomizer
                     throw new FileNotFoundException("VERSION files not found");
                 }
                 (StringBuilder _, StringBuilder errors) = (Application.Current.MainWindow as MainWindow)!.ProcessResults(releaseVersion);
-                int errorsLines = errors.ToString().Split('\n').Length;
+                int errorsLines = errors.ToString().Split('\r').Length;
                 if (errorsLines > 3)
                 {
                     ErrorWindow errorWindow = new(errors)
