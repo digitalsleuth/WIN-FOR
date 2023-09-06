@@ -28,9 +28,9 @@ The customizer tool gives you the following features:
 - Check for updates to the Customizer
 - Graphically enter any settings you need!
 
-![screenshot-v6 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v6.0.0.png)
+![screenshot-v8 2 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v8.2.0.png)
 
-![screenshot-options-v6 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v6.0.0.png)
+![screenshot-options-v8 2 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v8.2.0.png)
 
 
 ## PowerShell or CLI
