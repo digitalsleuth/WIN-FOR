@@ -37,10 +37,10 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Cerbero Suite": {
-        "CbName": "packages_cerbero_suite",
-        "CbContent": "Cerbero Suite",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Cerbero Suite\\cerpro.exe",
+      "FIT": {
+        "CbName": "standalones_fit",
+        "CbContent": "FIT",
+        "DAID": "PLACEHOLDER_PATH\\fit\\fit.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -90,6 +90,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Magnet DumpIt": {
+        "CbName": "standalones_magnet_dumpit",
+        "CbContent": "Magnet Dump It",
+        "DAID": "PLACEHOLDER_PATH\\magnet\\dumpit\\x64\\DumpIt.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -426,7 +437,7 @@
       "PDFStream Dumper": {
         "CbName": "packages_pdfstreamdumper",
         "CbContent": "PDFStream Dumper",
-        "DAID": "C:\\PDFStreamDumper\\PDFStreamDumper.exe",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\PDFStreamDumper\\PDFStreamDumper.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -735,11 +746,11 @@
         "ExtraTiles": []
       },
       "ilspy": {
-        "CbName": "standalones_ilspy",
+        "CbName": "packages_ilspy",
         "CbContent": "ilspy",
-        "DAID": "PLACEHOLDER_PATH\\ilspy\\ILSpy.exe",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\ILSpy.lnk",
         "AUMID": false,
-        "DALP": false,
+        "DALP": true,
         "StartMenu": true,
         "Checked": true,
         "Enabled": true,
@@ -1329,6 +1340,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "scrcpy": {
+        "CbName": "standalones_scrcpy",
+        "CbContent": "scrcpy",
+        "DAID": "PLACEHOLDER_PATH\\scrcpy\\scrcpy-console.bat",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "VLEAPP": {
         "CbName": "python3_tools_vleapp",
         "CbContent": "VLEAPP",
@@ -1347,17 +1369,6 @@
     "HeaderName": "header_network",
     "HeaderContent": "Network",
     "Tools": {
-      "Brim": {
-        "CbName": "packages_brim",
-        "CbContent": "Brim",
-        "DAID": "com.electron.brim",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "Burp Suite Community Edition": {
         "CbName": "packages_burpsuite_community",
         "CbContent": "Burp Suite Community Edition",
@@ -1450,6 +1461,17 @@
         "CbName": "packages_wireshark",
         "CbContent": "Wireshark",
         "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Wireshark\\Wireshark.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Zui": {
+        "CbName": "packages_zui",
+        "CbContent": "Zui",
+        "DAID": "io.brimdata.zui",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

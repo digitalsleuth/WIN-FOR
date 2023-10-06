@@ -36,15 +36,12 @@ namespace WinFORCustomizer
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
 #pragma warning restore CS8602 // Deference of a possibly null reference.
-        readonly string gitVersion = "2.42.0.2";
-        readonly string gitHash = "bd9b41641a258fd16d99beecec66132160331d685dfb4c714cea2bcc78d63bdb";
-        readonly string saltVersion = "3005.1-4";
-        readonly string saltHash = "81d54ea775bcc7877a31aac853d4413f0404bafad3213564d95074a3f6ad1565";
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
-            Version.Content = $"v{appVersion}";
+            mainWindow.Title = $"Win-FOR Customizer v{appVersion}";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { FileLoad(); }, (sender, e) => { e.CanExecute = true; }));
@@ -677,7 +674,7 @@ namespace WinFORCustomizer
                     return;
                 }
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"{appName} {Version.Content}");
+                ConsoleOutput($"{appName} {appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
                 bool isThemed;
@@ -689,6 +686,11 @@ namespace WinFORCustomizer
                 string userName;
                 bool wslSelected;
                 string hostName;
+                List<ConfigItems> softwareConfig = await GetJsonConfig();
+                string? gitVersion = softwareConfig[0].Software!["git"].version!;
+                string? gitHash = softwareConfig[0].Software!["git"].hash!;
+                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
+                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
                 if (cbXways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
                 {
                     xwaysData = $"{XUser.Text}:{XPass.Text}";
@@ -1419,6 +1421,11 @@ namespace WinFORCustomizer
                 string uriZip = currentReleaseData[1];
                 string uriHash = currentReleaseData[2];
                 string downloadPath;
+                List<ConfigItems> softwareConfig = await GetJsonConfig();
+                string? gitVersion = softwareConfig[0].Software!["git"].version!;
+                string? gitHash = softwareConfig[0].Software!["git"].hash!;
+                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
+                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
                 if (DownloadsPath.Text == "")
                 {
                     downloadPath = @"C:\winfor-downloads\";
@@ -1843,6 +1850,11 @@ namespace WinFORCustomizer
                 string releaseVersion = currentReleaseData![0];
                 string uriZip = currentReleaseData[1];
                 string uriHash = currentReleaseData[2];
+                List<ConfigItems> softwareConfig = await GetJsonConfig();
+                string? gitVersion = softwareConfig[0].Software!["git"].version!;
+                string? gitHash = softwareConfig[0].Software!["git"].hash!;
+                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
+                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
                 CreateTempDirectory(tempDir);
 
@@ -2496,6 +2508,33 @@ namespace WinFORCustomizer
             string xmlLayout = xmlOutput.ToString();
             return xmlLayout;
         }
+        public class ConfigItems
+        {
+            public Dictionary<string, SoftwareList>? Software { get; set; }
+        }
+        public class SoftwareList
+        {
+            public string? hash { get; set; }
+            public string? version { get; set; }
+        }
+        private async Task<List<ConfigItems>> GetJsonConfig()
+        {
+            List<ConfigItems>? jsonConfig = new();
+            try
+            {
+                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
+                HttpClient httpClient = new();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/.config";
+                jsonConfig = await httpClient.GetFromJsonAsync<List<ConfigItems>>(uri, cancellationToken.Token);
+            }
+            catch (HttpRequestException)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] Unable to get JSON Layout - check your network connectivity and try again");
+            }
+            return jsonConfig!;
+        }
         private async Task<List<TreeItems>> GetJsonLayout()
         {
             List<TreeItems>? jsonData = new();
@@ -2828,7 +2867,7 @@ namespace WinFORCustomizer
         }
         private void TestButton(object sender, RoutedEventArgs e)
         {
-                     
+
         }
         private void ClearConsole(object sender, RoutedEventArgs e)
         {
