@@ -149,6 +149,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "plaso (log2timeline)": {
+        "CbName": "python3_tools_plaso",
+        "CbContent": "Plaso (log2timeline)",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Tableau Imager": {
         "CbName": "packages_tableau_imager",
         "CbContent": "Tableau Imager",
@@ -642,6 +653,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Codetrack": {
+        "CbName": "standalones_codetrack",
+        "CbContent": "Codetrack",
+        "DAID": "PLACEHOLDER_PATH\\codetrack\\Codetrack.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1270,6 +1292,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "apktool": {
+        "CbName": "standalones_apktool",
+        "CbContent": "apktool",
+        "DAID": "PLACEHOLDER_PATH\\apktool\\apktool.bat",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
