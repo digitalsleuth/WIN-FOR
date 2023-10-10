@@ -37,6 +37,28 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "FEX Imager": {
+        "CbName": "packages_fex_imager",
+        "CbContent": "FEX Imager",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\GetData\\FEX Imager\\FEXImager.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "FEX Memory Imager": {
+        "CbName": "standalones_fex_memory_imager",
+        "CbContent": "FEX Memory Imager",
+        "DAID": "PLACEHOLDER_PATH\\fex-memory-imager\\FEX_Memory.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "FIT": {
         "CbName": "standalones_fit",
         "CbContent": "FIT",
@@ -511,6 +533,17 @@
         "CbName": "packages_4n6_email_forensics_wizard",
         "CbContent": "4n6 Email Forensics",
         "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\4n6 Software\\4n6 Email Forensics Wizard\\EmailForensicsWizard.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Aid4Mail 5": {
+        "CbName": "installers_aid4mail",
+        "CbContent": "Aid4Mail 5",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Aid4Mail5\\Aid4Mail5.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

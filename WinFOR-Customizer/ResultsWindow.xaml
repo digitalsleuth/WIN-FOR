@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Installation Results" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
-    <Grid>
+        <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MaxWidth="800"/>
         </Grid.ColumnDefinitions>
@@ -17,6 +17,5 @@
         </Grid.RowDefinitions>
         <TextBox x:Name="ResultsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/>
         <Button x:Name="ShowErrors" Content="Display Failed / Errors" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="DisplayErrors"/>
-        
-    </Grid>
+        </Grid>
 </Window>
