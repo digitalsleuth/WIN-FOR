@@ -2,6 +2,8 @@
 
 Windows Forensics (Win-FOR) Customizer
 
+![GitHub release (with filter)](https://img.shields.io/github/v/release/digitalsleuth/win-for?style=flat&label=Latest%20Win-FOR%20Release)
+
 The design behind this is to use a barebones Windows 10 VM or a Windows machine (preferably 1909 and higher to support WSLv2).
 Once configured, and activated (to support customization features), then you can use one of the installers to
 install all of the packages.  
