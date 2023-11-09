@@ -1,10 +1,12 @@
 # Win-FOR
 
-Windows Forensics (Win-FOR) Customizer
+## About WIN-FOR
+
+![Latest Win-FOR Release](https://img.shields.io/github/v/release/digitalsleuth/win-for?style=flat&label=Latest%20Win-FOR%20Release)
 
 The design behind this is to use a barebones Windows 10 VM or a Windows machine (preferably 1909 and higher to support WSLv2).
 Once configured, and activated (to support customization features), then you can use one of the installers to
-install all of the packages.  
+install all of the packages.
 
 The installer is a graphical interface to click and choose which items you want, and to enter the settings you need
 
@@ -28,15 +30,17 @@ The customizer tool gives you the following features:
 - Check for updates to the Customizer
 - Graphically enter any settings you need!
 
-![screenshot-v8 2 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v8.2.0.png)
+![screenshot-v8 4 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v8.4.0.png)
+
+![screenshot-options-v8 4 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v8.4.0.png)
+
 
 ## PowerShell or CLI
 
-The PowerShell script and standalone CLI executable have been deprecated in favour of the Win-FOR Customizer.  
+The PowerShell script and standalone CLI executable have been deprecated in favour of the Win-FOR Customizer.
 However, if there is need for a command-line version of the Customizer, it can be done. Until such time, the Customizer is your best choice!
-
-
 
 ## Issues
 
 All issues should be raised [here](https://github.com/digitalsleuth/WIN-FOR/Issues)
+

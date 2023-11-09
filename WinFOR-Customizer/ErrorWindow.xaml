@@ -3,16 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WinFORCustomizer"
         mc:Ignorable="d"
         Title="Errors" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MaxWidth="1400"/>
+            <ColumnDefinition Width="*" MaxWidth="1600"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" MaxHeight="600"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="ErrorsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/>
+        <!-- <TextBox x:Name="ErrorsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/> -->
+        <Button x:Name="ShowLogFile" Content="Open Log File" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="OpenLogFile" />
     </Grid>
 </Window>

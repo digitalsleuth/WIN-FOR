@@ -5,17 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinFORCustomizer"
         mc:Ignorable="d"
-        Title="Installation Results" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
+        Title="Results" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
-        <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MaxWidth="800"/>
+            <ColumnDefinition Width="*" MaxWidth="1600"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" MaxHeight="600"/>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="ResultsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/>
         <Button x:Name="ShowErrors" Content="Display Failed / Errors" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="DisplayErrors"/>
-        </Grid>
+    </Grid>
 </Window>

@@ -11,10 +11,10 @@
     <PackageIcon>fp128.png</PackageIcon>
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <ApplicationIcon>Images\fp.ico</ApplicationIcon>
-    <Version>8.4.0</Version>
-    <AssemblyVersion>8.4.0</AssemblyVersion>
-    <FileVersion>8.4.0</FileVersion>
+    <ApplicationIcon>img\fp.ico</ApplicationIcon>
+    <Version>9.0.0</Version>
+    <AssemblyVersion>9.0.0</AssemblyVersion>
+    <FileVersion>9.0.0</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
     <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
     <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>
@@ -40,40 +40,31 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="SearchWindow.xaml.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Images\downloadsbg.gif" />
-    <None Remove="Images\find.png" />
-    <None Remove="Images\search.gif" />
-    <None Remove="Images\standalonesbg.gif" />
-    <None Remove="Images\Thumbs.db" />
+    <None Remove="img\downloadsbg.gif" />
+    <None Remove="img\find.png" />
+    <None Remove="img\search.gif" />
+    <None Remove="img\standalonesbg.gif" />
+    <None Remove="img\Thumbs.db" />
     <None Remove="Thumbs.db" />
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="SearchWindow.xaml" />
+    <Content Include="img\fp.ico">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="img\search.gif">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\find.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\fp.ico" />
-    <Content Include="Images\search.gif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Images\downloadsbg.gif">
+    <Resource Include="img\downloadsbg.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\fpw120.png">
+    <Resource Include="img\fpw120.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Images\standalonesbg.gif">
+    <Resource Include="img\standalonesbg.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
@@ -87,7 +78,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="Images\fp128.png">
+    <None Update="img\fp128.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

@@ -23,6 +23,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using Windows.Media.Streaming.Adaptive;
 
 namespace WinFORCustomizer
 {
@@ -104,7 +105,7 @@ namespace WinFORCustomizer
         public class TextBoxOutputter : TextWriter
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
         {
-            TextBox textBox;
+            readonly TextBox textBox;
             public TextBoxOutputter(TextBox output)
             {
                 textBox = output;
@@ -161,6 +162,7 @@ namespace WinFORCustomizer
                 }
             }
         }
+
         public class CheckNetworkConnection
         {
             [DllImport("wininet.dll")]
@@ -451,17 +453,97 @@ namespace WinFORCustomizer
         private void EnableTheme(object sender, RoutedEventArgs e)
         {
             Theme.IsEnabled = true;
+            Theme.Text = "WIN-FOR";
             HostName.Visibility = Visibility.Visible;
             HostNameLabel.Visibility = Visibility.Visible;
-            HostName.Text = "";
+            HostName.Text = null;
         }
         private void DisableTheme(object sender, RoutedEventArgs e)
         {
             Theme.IsEnabled = false;
-            Theme.Text = "";
+            Theme.Text = null;
             HostName.Visibility = Visibility.Hidden;
             HostNameLabel.Visibility = Visibility.Hidden;
-            HostName.Text = "";
+            HostName.Text = null;
+        }
+        public static class ThemeChoices
+        {
+            public static string? SelectedTheme;
+            public static string? ThemeZip;
+        }
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (Theme.IsEnabled)
+            {
+                ThemeChoices.SelectedTheme = (Theme.SelectedItem as ComboBoxItem)?.Content.ToString();
+                Theme.ToolTip = ThemeChoices.SelectedTheme;
+                if (ThemeChoices.SelectedTheme == "Custom")
+                {
+                    ThemeChoices.ThemeZip = SelectThemeZip();
+                    Theme.ToolTip = ThemeChoices.ThemeZip;
+                }
+            }
+        }
+        private string SelectThemeZip()
+        // Load a custom SaltStack state file (probably saved using the FileSave option) for easy install on multiple systems.
+        {
+            string file = "";
+            try
+            {
+                OpenFileDialog openFile = new()
+                {
+                    Filter = "Win-FOR Theme Zip | *.zip"
+                };
+                if (openFile.ShowDialog() == true)
+                {
+                    file = openFile.FileName;
+                }
+                else
+                {
+                    Theme.SelectedIndex = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleOutput($"[ERROR] Unable to select the file: {ex}");
+            }
+            return file;
+        }
+        private static bool ExtractCustomTheme()
+        {
+            bool extractStatus = false;
+            string themePath = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\custom";
+            try
+            {
+                string? zipFile = ThemeChoices.ThemeZip;
+                var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+                if (!Directory.Exists($"{themePath}"))
+                {
+                    Directory.CreateDirectory($"{themePath}");
+                    DirectoryInfo destDirInfo = new(themePath);
+                    destDirInfo.Attributes &= FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    destDirInfo.SetAccessControl(destSecurityRules);
+                }
+                else
+                {
+                    DirectoryInfo destDirInfo = new(themePath);
+                    destDirInfo.Attributes &= FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    destDirInfo.SetAccessControl(destSecurityRules);
+                    Directory.Delete(themePath, true);
+                }
+                ConsoleOutput($"Extracting {zipFile} to {themePath}");
+                ZipFile.ExtractToDirectory(zipFile!, themePath, true);
+                extractStatus = true;
+            }
+            catch (Exception ex)
+            {
+                ConsoleOutput($"[ERROR] Unable to extract custom zip file to {themePath}:\n{ex}");
+            }
+            return extractStatus;
         }
         public string GenerateState(string stateType, bool themedInstall)
         // Used to generate the data for the custom SaltStack state file
@@ -474,13 +556,17 @@ namespace WinFORCustomizer
                 {
                     treeItem.IsExpanded = true;
                 }
-                if (Theme.Text == "CPC-WIN")
+                if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "CPC-WIN")
                 {
                     repo = "cpcwin";
                 }
-                else if (Theme.Text == "WIN-FOR")
+                else if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "WIN-FOR")
                 {
                     repo = "winfor";
+                }
+                else if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "Custom")
+                {
+                    repo = "custom";
                 }
                 (List<string> allChecked, _) = GetCheckStatus();
                 allChecked.Sort();
@@ -491,17 +577,18 @@ namespace WinFORCustomizer
                 {
                     includeTool.Append("include:\n");
                     includeTool.Append($"  - winfor.repos\n");
-                    if (wsl.IsChecked == true || themed.IsChecked == true)
-                    {
-                        includeTool.Append($"  - winfor.config\n");
-                    }
+                    includeTool.Append($"  - winfor.config\n");
                     requireTool.Append($"{repo}-custom-states:\n");
                     requireTool.Append("  test.nop:\n");
                     requireTool.Append("    - require:\n");
                     requireTool.Append($"      - sls: winfor.repos\n");
+                    requireTool.Append($"      - sls: winfor.config\n");
                     if (wsl.IsChecked == true || themed.IsChecked == true)
                     {
-                        requireTool.Append($"      - sls: winfor.config\n");
+                        includeTool.Append($"  - winfor.theme.computer-name\n");
+                        includeTool.Append($"  - winfor.config.debloat-windows\n");
+                        requireTool.Append($"      - sls: winfor.theme.computer-name\n");
+                        requireTool.Append($"      - sls: winfor.config.debloat-windows\n");
                     }
                 }
                 else if (stateType == "download")
@@ -686,11 +773,12 @@ namespace WinFORCustomizer
                 string userName;
                 bool wslSelected;
                 string hostName;
+                List<string>? debloatOptions = DebloatWindow.DebloatSettings.Selections;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["git"].version!;
-                string? gitHash = softwareConfig[0].Software!["git"].hash!;
-                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
-                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
+                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
+                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
+                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
                 if (cbXways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
                 {
                     xwaysData = $"{XUser.Text}:{XPass.Text}";
@@ -716,14 +804,7 @@ namespace WinFORCustomizer
                 if (themed.IsChecked == true)
                 {
                     isThemed = true;
-                    if (Theme.Text == "")
-                    {
-                        distro = "WIN-FOR";
-                    }
-                    else
-                    {
-                        distro = Theme.Text;
-                    }
+                    distro = ThemeChoices.SelectedTheme!;
                     ConsoleOutput($"Selected theme is {distro}");
                 }
                 else
@@ -838,10 +919,15 @@ namespace WinFORCustomizer
                         return;
                     }
                 }
+
                 string stateFile = GenerateState("install", isThemed);
                 bool extracted = ExtractStates(tempDir, releaseVersion);
                 if (extracted)
                 {
+                    if (debloatOptions is not null)
+                    {
+                        File.WriteAllText(@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\debloat.preset", string.Join("\n", debloatOptions));
+                    }
                     if (xwaysSelected)
                     {
                         ConsoleOutput("Adding authentication token to X-Ways state");
@@ -851,6 +937,10 @@ namespace WinFORCustomizer
                     {
                         string layout = await GenerateLayout(standalonesPath);
                         File.WriteAllText(@$"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\layout\WIN-FOR-StartLayout.xml", layout);
+                        if (ThemeChoices.SelectedTheme == "Custom") 
+                        {
+                            ExtractCustomTheme();
+                        }
                     }
                     if ((themed.IsChecked == true) && (HostName.Text != ""))
                     {
@@ -970,12 +1060,12 @@ namespace WinFORCustomizer
         {
             try
             {
-                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
                 {
                     httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0");
                 }
-                HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken.Token);
+                HttpResponseMessage response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                ConsoleOutput($"Response code {(int)response.StatusCode} - {response.StatusCode}");
                 response.EnsureSuccessStatusCode();
                 HttpContent content = response.Content;
                 var fileBytes = await content.ReadAsByteArrayAsync();
@@ -993,7 +1083,7 @@ namespace WinFORCustomizer
             }
             catch (TaskCanceledException)
             {
-                ConsoleOutput($"[ERROR] There was no response from the server: Check your connection and try again.");
+                ConsoleOutput($"[ERROR] There was no response from the server or the download was canceled: Check your connection and try again.");
                 return false;
             }
         }
@@ -1338,7 +1428,7 @@ namespace WinFORCustomizer
 
         private static void InsertHostName(string hostName)
         {
-            string hostnameState = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\computer-name.sls";
+            string hostnameState = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\computer-name.sls";
             try
             {
                 if (File.Exists(hostnameState))
@@ -1422,10 +1512,10 @@ namespace WinFORCustomizer
                 string uriHash = currentReleaseData[2];
                 string downloadPath;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["git"].version!;
-                string? gitHash = softwareConfig[0].Software!["git"].hash!;
-                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
-                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
+                string? gitVersion = softwareConfig[0].Software!["git"].SoftwareVersion!;
+                string? gitHash = softwareConfig[0].Software!["git"].SoftwareHash!;
+                string? saltVersion = softwareConfig[0].Software!["saltstack"].SoftwareVersion!;
+                string? saltHash = softwareConfig[0].Software!["saltstack"].SoftwareHash!;
                 if (DownloadsPath.Text == "")
                 {
                     downloadPath = @"C:\winfor-downloads\";
@@ -1537,7 +1627,7 @@ namespace WinFORCustomizer
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             ProcHandled = new TaskCompletionSource<bool>();
             string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.custom pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}.log\" --log-file-level=debug";
+            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.custom pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1559,7 +1649,7 @@ namespace WinFORCustomizer
                         ConsoleOutput(
                             $"Installing the selected states.\n" +
                             $"Executing: salt call with the following variables\n" +
-                            $"  --local\n" +
+                            $"  -l info --local\n" +
                             $"  --retcode-passthrough\n" +
                             $"  --state-output=mixed\n" +
                             $"  state.sls\n" +
@@ -1603,7 +1693,7 @@ namespace WinFORCustomizer
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --log-file-level=debug";
+            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1624,7 +1714,7 @@ namespace WinFORCustomizer
                         ConsoleOutput(
                             $"Installing the selected states.\n" +
                             $"Executing: salt call with the following variables\n" +
-                            $"  --local\n" +
+                            $"  -l info --local\n" +
                             $"  --retcode-passthrough\n" +
                             $"  --state-output=mixed\n" +
                             $"  state.sls\n" +
@@ -1708,7 +1798,7 @@ namespace WinFORCustomizer
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l debug --local --retcode-passthrough --state-output=mixed state.sls winfor.wsl pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --log-file-level=debug";
+            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.wsl pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --log-file-level=debug";
             using (wslproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1733,7 +1823,7 @@ namespace WinFORCustomizer
                         ConsoleOutput(
                            $"Installing WSLv2.\n" +
                            $"Executing: salt call with the following variables\n" +
-                           $"  --local\n" +
+                           $"  -l info --local\n" +
                            $"  --retcode-passthrough\n" +
                            $"  --state-output=mixed\n" +
                            $"  state.sls\n" +
@@ -1851,10 +1941,10 @@ namespace WinFORCustomizer
                 string uriZip = currentReleaseData[1];
                 string uriHash = currentReleaseData[2];
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["git"].version!;
-                string? gitHash = softwareConfig[0].Software!["git"].hash!;
-                string? saltVersion = softwareConfig[0].Software!["saltstack"].version!;
-                string? saltHash = softwareConfig[0].Software!["saltstack"].hash!;
+                string? gitVersion = softwareConfig[0].Software!["git"].SoftwareVersion!;
+                string? gitHash = softwareConfig[0].Software!["git"].SoftwareHash!;
+                string? saltVersion = softwareConfig[0].Software!["saltstack"].SoftwareVersion!;
+                string? saltHash = softwareConfig[0].Software!["saltstack"].SoftwareHash!;
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
                 CreateTempDirectory(tempDir);
 
@@ -2088,7 +2178,7 @@ namespace WinFORCustomizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        public (StringBuilder, StringBuilder) ProcessResults(string releaseVersion)
+        public (StringBuilder, StringBuilder, string, string, string, string) ProcessResults(string releaseVersion)
         {
             StringBuilder errors = new();
             StringBuilder results = new();
@@ -2114,14 +2204,9 @@ namespace WinFORCustomizer
                         string pid = splits[5];
                         string errorString = $"[ERROR   ][{pid}]";
                         var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{errorString} output:" };
-                        results.Append(new String('-', 100) + "\r");
                         if (log == @"C:\winfor-wsl.log")
                         {
                             results.Append($"\n{log} ({releaseVersion})\r");
-                        }
-                        else
-                        {
-                            results.Append($"\n{log}\r");
                         }
                         string logResults = ParseLog(log, "Summary for", 7);
                         logResults = logResults.Replace("Summary for local\r", "");
@@ -2131,10 +2216,6 @@ namespace WinFORCustomizer
                         logResults = logResults.Replace("--Total", "Total");
                         logResults = logResults.Replace("-Total", "Total");
                         results.Append(logResults);
-                        results.Append(new String('-', 100) + "\r");
-                        errors.Append(new String('-', 100) + "\r");
-                        errors.Append($"\n{log}\r");
-                        errors.Append(new String('-', 100) + "\r\n");
                         string error = ParseLog(log, $"{errorString}", 1);
                         foreach (string line in error.Split("\n"))
                         {
@@ -2160,7 +2241,7 @@ namespace WinFORCustomizer
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"Unable to access logs:\n{ex}");
             }
-            return (results, errors);
+            return (results, errors, logFile, downloadLog, wslPrepLog, wslLog);
         }
         private void ResultsButton(object sender, RoutedEventArgs e)
         // Parses the available logs for the SaltStack and WSL installs to determine its summary
@@ -2182,7 +2263,7 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder results, StringBuilder errors) = ProcessResults(releaseVersion);
+                (StringBuilder results, StringBuilder errors, string logFile, string downloadLog, string wslPrepLog, string wslLog) = ProcessResults(releaseVersion);
                 int linesInResults = results.ToString().Split('\r').Length;
                 if (linesInResults < 4)
                 {
@@ -2191,7 +2272,7 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    ResultsWindow resultsWindow = new(results, errors)
+                    ResultsWindow resultsWindow = new(results, errors, logFile, downloadLog, wslPrepLog, wslLog)
                     {
                         Owner = this
                     };
@@ -2346,7 +2427,7 @@ namespace WinFORCustomizer
             {
                 ImageBrush sbgImageBrush = new()
                 {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/standalonesbg.gif", UriKind.Absolute)),
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/standalonesbg.gif", UriKind.Absolute)),
                     AlignmentX = AlignmentX.Left,
                     Stretch = Stretch.None
                 };
@@ -2363,7 +2444,7 @@ namespace WinFORCustomizer
             {
                 ImageBrush dlbgImageBrush = new()
                 {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/downloadsbg.gif", UriKind.Absolute)),
+                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/downloadsbg.gif", UriKind.Absolute)),
                     AlignmentX = AlignmentX.Left,
                     Stretch = Stretch.None
                 };
@@ -2487,10 +2568,9 @@ namespace WinFORCustomizer
                                     {
                                         tile = $@"          <start:DesktopApplicationTile Size=""1x1"" Column=""{column}"" Row=""{row}"" DesktopApplicationID=""{newTile}"" />" + '\n';
                                     }
+                                    xmlOutput.Append(tile);
                                     column++;
-
                                 }
-                                xmlOutput.Append(tile);
                             }
                         }
                     }
@@ -2514,8 +2594,8 @@ namespace WinFORCustomizer
         }
         public class SoftwareList
         {
-            public string? hash { get; set; }
-            public string? version { get; set; }
+            public string? SoftwareHash { get; set; }
+            public string? SoftwareVersion { get; set; }
         }
         private async Task<List<ConfigItems>> GetJsonConfig()
         {
@@ -2695,7 +2775,16 @@ namespace WinFORCustomizer
                 DownloadsPath.Text = selectedPath;
             }
         }
-        private List<CheckBox> searchResults = new();
+        private void ShowDebloatOptions(object sender, RoutedEventArgs e)
+        {
+            DebloatWindow debloatWindow = new()
+            {
+                Owner = this
+            };
+            debloatWindow.Show();
+        }
+
+        private readonly List<CheckBox> searchResults = new();
         private int searchIndex;
         public void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -2745,7 +2834,7 @@ namespace WinFORCustomizer
                     topItem.BringIntoView();
                     ImageBrush searchbgImageBrush = new()
                     {
-                        ImageSource = new BitmapImage(new Uri("pack://application:,,,/Images/search.gif", UriKind.Absolute)),
+                        ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/search.gif", UriKind.Absolute)),
                         AlignmentX = AlignmentX.Left,
                         Stretch = Stretch.None
                     };
@@ -2759,6 +2848,7 @@ namespace WinFORCustomizer
                     }
                     searchIndex = 0;
                     searchResults.Clear();
+                    ClearSearch(this, new RoutedEventArgs());
                 }
                 else
                 {
@@ -2864,15 +2954,21 @@ namespace WinFORCustomizer
             PreviousResultBtn.Visibility = Visibility.Hidden;
             searchIndex = 0;
             searchResults.Clear();
+            CollapseAll();
         }
-        private void TestButton(object sender, RoutedEventArgs e)
-        {
 
-        }
         private void ClearConsole(object sender, RoutedEventArgs e)
         {
             OutputConsole.Clear();
             OutputExpander.IsExpanded = false;
+        }
+        private void TestButton(object sender, RoutedEventArgs e)
+        {
+                DebloatWindow debloatWindow = new()
+                {
+                    Owner = this
+                };
+                debloatWindow.Show();
         }
     }
 }
