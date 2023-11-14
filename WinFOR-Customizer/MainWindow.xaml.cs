@@ -2178,19 +2178,17 @@ namespace WinFORCustomizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        public (StringBuilder, StringBuilder, string, string, string, string) ProcessResults(string releaseVersion)
+        public (StringBuilder, StringBuilder,List<string>) ProcessResults(string releaseVersion)
         {
             StringBuilder errors = new();
             StringBuilder results = new();
             string logFile = $@"C:\winfor-saltstack-{releaseVersion}.log";
             string downloadLog = $@"C:\winfor-saltstack-downloads-{releaseVersion}.log";
-            string wslPrepLog = $@"C:\winfor-saltstack-{releaseVersion}-wsl.log";
-            string wslLog = $@"C:\winfor-wsl.log";
+            string wslLog = $@"C:\winfor-saltstack-{releaseVersion}-wsl.log";
             List<string> logfiles = new()
                 {
                     logFile,
                     downloadLog,
-                    wslPrepLog,
                     wslLog
                 };
             try
@@ -2204,10 +2202,7 @@ namespace WinFORCustomizer
                         string pid = splits[5];
                         string errorString = $"[ERROR   ][{pid}]";
                         var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{errorString} output:" };
-                        if (log == @"C:\winfor-wsl.log")
-                        {
-                            results.Append($"\n{log} ({releaseVersion})\r");
-                        }
+                        results.Append($"{log}\n");
                         string logResults = ParseLog(log, "Summary for", 7);
                         logResults = logResults.Replace("Summary for local\r", "");
                         logResults = logResults.Replace("------------\r", "");
@@ -2216,6 +2211,8 @@ namespace WinFORCustomizer
                         logResults = logResults.Replace("--Total", "Total");
                         logResults = logResults.Replace("-Total", "Total");
                         results.Append(logResults);
+                        results.Append(new string('-', 50) + "\n");
+                        errors.Append($"{log}\n");
                         string error = ParseLog(log, $"{errorString}", 1);
                         foreach (string line in error.Split("\n"))
                         {
@@ -2229,6 +2226,7 @@ namespace WinFORCustomizer
                                 errors.Append(newLine);
                             }
                         }
+                        errors.Append(new string('-', 50) + "\n");
                     }
                 }
             }
@@ -2241,7 +2239,7 @@ namespace WinFORCustomizer
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"Unable to access logs:\n{ex}");
             }
-            return (results, errors, logFile, downloadLog, wslPrepLog, wslLog);
+            return (results, errors, logfiles);
         }
         private void ResultsButton(object sender, RoutedEventArgs e)
         // Parses the available logs for the SaltStack and WSL installs to determine its summary
@@ -2263,16 +2261,16 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder results, StringBuilder errors, string logFile, string downloadLog, string wslPrepLog, string wslLog) = ProcessResults(releaseVersion);
+                (StringBuilder results, StringBuilder errors, List<string> logfiles) = ProcessResults(releaseVersion);
                 int linesInResults = results.ToString().Split('\r').Length;
                 if (linesInResults < 4)
                 {
-                    MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo log files were found for this release.", $"No log file found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 else
                 {
-                    ResultsWindow resultsWindow = new(results, errors, logFile, downloadLog, wslPrepLog, wslLog)
+                    ResultsWindow resultsWindow = new(results, errors, logfiles, releaseVersion)
                     {
                         Owner = this
                     };

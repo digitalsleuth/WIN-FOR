@@ -15,7 +15,6 @@
             <RowDefinition Height="*" MaxHeight="600"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <!-- <TextBox x:Name="ErrorsTextBox" HorizontalAlignment="Center" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" Width="Auto" Height="Auto" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" AcceptsReturn="True" BorderBrush="{x:Null}" BorderThickness="0" FontSize="14"/> -->
-        <Button x:Name="ShowLogFile" Content="Open Log File" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="OpenLogFile" />
+        <Button x:Name="ShowLogFile" Content="Open Log Files" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="OpenLogFiles" />
     </Grid>
 </Window>

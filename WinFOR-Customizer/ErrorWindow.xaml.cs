@@ -4,6 +4,8 @@ using System.IO;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Collections.Generic;
+using Microsoft.VisualBasic.Logging;
 
 namespace WinFORCustomizer
 {
@@ -12,19 +14,19 @@ namespace WinFORCustomizer
     /// </summary>
     public partial class ErrorWindow : Window
     {
-        private readonly string logFile;
-        public ErrorWindow(StringBuilder errors, string logFile)
+        private readonly List<string> logfiles;
+        public ErrorWindow(StringBuilder errors, List<string> logfiles, string releaseVersion)
         {
             string themeColour = "#FF1644B9";
             Color colour = (Color)ColorConverter.ConvertFromString(themeColour);
             SolidColorBrush brush = new(colour); 
             InitializeComponent();
-            this.logFile = logFile;
-            MainGrid.Children.Add(new TextBox { Name = "LogNameTextBox", Text = logFile, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 0), TextWrapping = TextWrapping.NoWrap, VerticalAlignment = VerticalAlignment.Top, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, IsReadOnly = true, AcceptsReturn = true, BorderThickness = new Thickness(0), FontSize = 14, });
+            this.logfiles = logfiles;
+            MainGrid.Children.Add(new TextBox { Name = "LogNameTextBox", Text = releaseVersion, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 10, 0, 0), TextWrapping = TextWrapping.NoWrap, VerticalAlignment = VerticalAlignment.Top, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, IsReadOnly = true, AcceptsReturn = true, BorderThickness = new Thickness(0), FontSize = 14, });
             MainGrid.Children.Add(new Label { Height = 2, Width = 220, Background = brush, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 34, 0, 0) });
             MainGrid.Children.Add(new TextBox { Name = "ErrorsTextBox", Text = errors.ToString(), HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 41, 0, 0), TextWrapping = TextWrapping.NoWrap, VerticalAlignment = VerticalAlignment.Top, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, IsReadOnly = true, AcceptsReturn = true, BorderThickness = new Thickness(0), FontSize = 14, });
         }
-        public void OpenLogFile(object sender, RoutedEventArgs e)
+        public void OpenLogFiles(object sender, RoutedEventArgs e)
         {
             string versionFileSalt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
             string versionFileLocal = @"C:\winfor-version";
@@ -44,17 +46,23 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                ProcessStartInfo startInfo = new()
+                foreach (string logFile in logfiles)
                 {
-                    FileName = @$"{logFile}",
-                    UseShellExecute = true,
-                    CreateNoWindow = true
-                };
-                Process process = new()
-                {
-                    StartInfo = startInfo
-                };
-                process.Start();
+                    if (File.Exists(logFile))
+                    {
+                        ProcessStartInfo startInfo = new()
+                        {
+                            FileName = @$"{logFile}",
+                            UseShellExecute = true,
+                            CreateNoWindow = true
+                        };
+                        Process process = new()
+                        {
+                            StartInfo = startInfo
+                        };
+                        process.Start();
+                    }
+                }
             }
             catch (FileNotFoundException)
             {
