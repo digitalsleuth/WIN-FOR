@@ -163,7 +163,7 @@
       "Pilfer": {
         "CbName": "standalones_pilfer",
         "CbContent": "Pilfer",
-        "DAID": "PLACEHOLDER_PATH\\pilfer.bat",
+        "DAID": "PLACEHOLDER_PATH\\pilfer\\pilfer.bat",
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
@@ -478,6 +478,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "peepdf-3": {
+        "CbName": "python3_tools_peepdf_3",
+        "CbContent": "peepdf-3",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "rtfdump.py": {
         "CbName": "python3_tools_rtfdump",
         "CbContent": "rtfdump.py",
@@ -620,7 +631,7 @@
       "MSG Viewer": {
         "CbName": "packages_msg_viewer",
         "CbContent": "MSG Viewer",
-        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\MSG Viewer\\msgviewer.exe",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\PSTWalker Software\\MSG Viewer\\msgviewer.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -631,7 +642,7 @@
       "PST Walker": {
         "CbName": "packages_pst_walker",
         "CbContent": "PST Walker",
-        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\PST Walker\\pstwalker.exe",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\PSTWalker Software\\OST PST Viewer\\pstwalker.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -800,6 +811,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "IDA Free": {
+        "CbName": "packages_ida_free",
+        "CbContent": "IDA Free",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\IDA Freeware 8.3\\ida64.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "ilspy": {
         "CbName": "packages_ilspy",
         "CbContent": "ilspy",
@@ -932,6 +954,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Portex Analyzer": {
+        "CbName": "standalones_portex_analyzer",
+        "CbContent": "Portex Analyzer",
+        "DAID": "PLACEHOLDER_PATH\\portexanalyzer\\PortexAnalyzerGUI-0.12.12-jar-with-dependencies.jar",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "PPEE (puppy)": {
         "CbName": "standalones_ppee",
         "CbContent": "PPEE (puppy)",
@@ -988,7 +1021,7 @@
         "ExtraTiles": []
       },
       "Resource Hacker": {
-        "CbName": "standalones_resource_hacker",
+        "CbName": "packages_resource_hacker",
         "CbContent": "Resource Hacker",
         "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Resource Hacker\\ResourceHacker.exe",
         "AUMID": false,
@@ -1027,6 +1060,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Total PE 2": {
+        "CbName": "standalones_total_pe_2",
+        "CbContent": "Total PE 2",
+        "DAID": "PLACEHOLDER_PATH\\total-pe-2\\TotalPE.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1310,6 +1354,17 @@
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
+      },
+      "Zirolite": {
+        "CbName": "standalones_zircolite",
+        "CbContent": "Zircolite",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
       }
     }
   },
@@ -1322,6 +1377,17 @@
         "CbName": "python3_tools_aleapp",
         "CbContent": "ALEAPP",
         "DAID": "PLACEHOLDER_PATH\\aleapp\\aleappGUI.py",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Android Studio": {
+        "CbName": "packages_android_studio",
+        "CbContent": "Android Studio",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Android\\Android Studio\\bin\\studio64.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1449,6 +1515,17 @@
       "Fakenet-NG": {
         "CbName": "python3_tools_flare_fakenet_ng",
         "CbContent": "Fakenet-NG",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "IPInfo": {
+        "CbName": "standalones_ipinfo",
+        "CbContent": "IPInfo",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -1651,6 +1728,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "MemProcFS-Analyzer": {
+        "CbName": "standalones_memprocfs_analyzer",
+        "CbContent": "MemProcFS Analyzer",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Passware Encryption Analyzer": {
         "CbName": "packages_passware_encryption_analyzer",
         "CbContent": "Passware Encryption Analyzer",
@@ -1716,6 +1804,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Time Decode GUI": {
+        "CbName": "standalones_time_decode_gui",
+        "CbContent": "Time Decode GUI",
+        "DAID": "PLACEHOLDER_PATH\\time-decode\\Time Decode GUI.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1811,6 +1910,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Elasticsearch": {
+        "CbName": "standalones_elasticsearch",
+        "CbContent": "Elasticsearch",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Git": {
         "CbName": "packages_git",
         "CbContent": "Git",
@@ -1833,9 +1943,20 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Java Runtime Environment 8": {
-        "CbName": "installers_jre8",
-        "CbContent": "Java Runtime Environment 8",
+      "Java Development Kit 17": {
+        "CbName": "packages_jdk17",
+        "CbContent": "Java Development Kit 17",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Kibana": {
+        "CbName": "standalones_kibana",
+        "CbContent": "Kibana",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -1873,6 +1994,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "nuget": {
+        "CbName": "packages_nuget",
+        "CbContent": "nuget",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1935,9 +2067,9 @@
       "Visual Studio Community 2022": {
         "CbName": "packages_vs_community_2022",
         "CbContent": "Visual Studio Community 2022",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\Visual Studio 2022.lnk",
         "AUMID": false,
-        "DALP": false,
+        "DALP": true,
         "StartMenu": true,
         "Checked": true,
         "Enabled": true,
@@ -2045,10 +2177,43 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "ClamAV": {
+        "CbName": "packages_clamav",
+        "CbContent": "ClamAV",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Dokany": {
+        "CbName": "packages_dokany",
+        "CbContent": "Dokany",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Encrypted Disk Detector (EDD)": {
         "CbName": "standalones_magnet_edd",
         "CbContent": "Encrypted Disk Detector (EDD)",
         "DAID": "PLACEHOLDER_PATH\\magnet\\EDD\\EDDv310.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "entropy": {
+        "CbName": "standalones_entropy",
+        "CbContent": "entropy",
+        "DAID": "",
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
@@ -2111,6 +2276,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "ImportExcel": {
+        "CbName": "packages_importexcel",
+        "CbContent": "ImportExcel",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Irfanview x64": {
         "CbName": "packages_irfanview",
         "CbContent": "Irfanview x64",
@@ -2137,6 +2313,17 @@
         "CbName": "packages_itunes",
         "CbContent": "iTunes",
         "DAID": "Apple.iTunes",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "jq": {
+        "CbName": "standalones_jq",
+        "CbContent": "jq",
+        "DAID": "",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2232,10 +2419,10 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "USB Registry Write Blocker": {
+      "USB Write Blocker": {
         "CbName": "standalones_usb_write_blocker",
-        "CbContent": "USB Registry Write Blocker",
-        "DAID": "PLACEHOLDER_PATH\\USB-Write-Blocker_v1.2.exe",
+        "CbContent": "USB Write Blocker",
+        "DAID": "PLACEHOLDER_PATH\\usb-write-blocker\\USB-Write-Blocker-v2.0-x64.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2346,6 +2533,28 @@
         "CbName": "packages_winmerge",
         "CbContent": "WinMerge",
         "DAID": "Thingamahoochie.WinMerge",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "xsv": {
+        "CbName": "standalones_xsv",
+        "CbContent": "xsv",
+        "DAID": "xsv",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Yara": {
+        "CbName": "standalones_yara",
+        "CbContent": "Yara",
+        "DAID": "",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2463,6 +2672,17 @@
         "CbName": "standalones_lrc_cedarpelta",
         "CbContent": "Live Response Collection (Cedarpelta)",
         "DAID": "PLACEHOLDER_PATH\\lrc-cedarpelta\\Windows_Live_Response\\Windows Live Response Collection.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "lnk_parser": {
+        "CbName": "standalones_lnk_parser",
+        "CbContent": "lnk_parser",
+        "DAID": "",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

@@ -23,7 +23,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using Windows.Media.Streaming.Adaptive;
+using System.Windows.Threading;
+
 
 namespace WinFORCustomizer
 {
@@ -33,11 +34,12 @@ namespace WinFORCustomizer
     public partial class MainWindow : Window
     {
         private readonly TextBoxOutputter outputter;
-        private static readonly string? appName = Assembly.GetExecutingAssembly().GetName().Name;
+        private static DispatcherTimer? elapsedTimer;
+        private static readonly Stopwatch? stopWatch = new();
+        private static string customThemeZip = "";
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
 #pragma warning restore CS8602 // Deference of a possibly null reference.
-
         public MainWindow()
         {
             InitializeComponent();
@@ -45,6 +47,9 @@ namespace WinFORCustomizer
             mainWindow.Title = $"Win-FOR Customizer v{appVersion}";
             outputter = new TextBoxOutputter(OutputConsole);
             Console.SetOut(outputter);
+            elapsedTimer = new DispatcherTimer();
+            elapsedTimer.Tick += new EventHandler(ElapsedTime!);
+            elapsedTimer.Interval = TimeSpan.FromSeconds(1);
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { FileLoad(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.LoadFile, new KeyGesture(Key.L, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.SaveFile, (sender, e) => { FileSave(); }, (sender, e) => { e.CanExecute = true; }));
@@ -171,6 +176,14 @@ namespace WinFORCustomizer
             {
                 return InternetGetConnectedState(out _, 0);
             }
+        }
+        private void ElapsedTime(object source, EventArgs e)
+        {
+
+            TimeSpan timeSpan = stopWatch!.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+            TimerLabel.Content = elapsedTime;
+
         }
         private void VisitGithub(object sender, RequestNavigateEventArgs e)
         // Visits the digitalsleuth/win-for GitHub Repo
@@ -481,11 +494,11 @@ namespace WinFORCustomizer
                 {
                     ThemeChoices.ThemeZip = SelectThemeZip();
                     Theme.ToolTip = ThemeChoices.ThemeZip;
+                    customThemeZip = ThemeChoices.ThemeZip;
                 }
             }
         }
         private string SelectThemeZip()
-        // Load a custom SaltStack state file (probably saved using the FileSave option) for easy install on multiple systems.
         {
             string file = "";
             try
@@ -501,6 +514,7 @@ namespace WinFORCustomizer
                 else
                 {
                     Theme.SelectedIndex = 1;
+                    customThemeZip = "";
                 }
             }
             catch (Exception ex)
@@ -509,18 +523,19 @@ namespace WinFORCustomizer
             }
             return file;
         }
-        private static bool ExtractCustomTheme()
+        private static bool ExtractCustomTheme(string zipFile)
         {
             bool extractStatus = false;
-            string themePath = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\custom";
+            string themePath = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\";
+            string themeName = "custom-theme";
+            string themeFolder = Path.Join(themePath, themeName);
             try
             {
-                string? zipFile = ThemeChoices.ThemeZip;
                 var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
-                if (!Directory.Exists($"{themePath}"))
+                if (!Directory.Exists($"{themeFolder}"))
                 {
-                    Directory.CreateDirectory($"{themePath}");
-                    DirectoryInfo destDirInfo = new(themePath);
+                    Directory.CreateDirectory($"{themeFolder}");
+                    DirectoryInfo destDirInfo = new(themeFolder);
                     destDirInfo.Attributes &= FileAttributes.ReadOnly;
                     DirectorySecurity destSecurityRules = new();
                     destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
@@ -528,20 +543,21 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    DirectoryInfo destDirInfo = new(themePath);
+                    Directory.Delete(themeFolder, true);
+                    Directory.CreateDirectory($"{themeFolder}");
+                    DirectoryInfo destDirInfo = new(themeFolder);
                     destDirInfo.Attributes &= FileAttributes.ReadOnly;
                     DirectorySecurity destSecurityRules = new();
                     destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
                     destDirInfo.SetAccessControl(destSecurityRules);
-                    Directory.Delete(themePath, true);
                 }
-                ConsoleOutput($"Extracting {zipFile} to {themePath}");
-                ZipFile.ExtractToDirectory(zipFile!, themePath, true);
+                ConsoleOutput($"Extracting {zipFile} to {themeFolder}");
+                ZipFile.ExtractToDirectory(zipFile!, themeFolder, true);
                 extractStatus = true;
             }
             catch (Exception ex)
             {
-                ConsoleOutput($"[ERROR] Unable to extract custom zip file to {themePath}:\n{ex}");
+                ConsoleOutput($"[ERROR] Unable to extract custom zip file to {themeFolder}:\n{ex}");
             }
             return extractStatus;
         }
@@ -566,7 +582,7 @@ namespace WinFORCustomizer
                 }
                 else if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "Custom")
                 {
-                    repo = "custom";
+                    repo = "custom-theme";
                 }
                 (List<string> allChecked, _) = GetCheckStatus();
                 allChecked.Sort();
@@ -720,6 +736,9 @@ namespace WinFORCustomizer
         {
             try
             {
+                stopWatch?.Reset();
+                stopWatch?.Start();
+                elapsedTimer?.Start();
                 bool Connected = CheckNetworkConnection.IsConnected();
                 if (!Connected)
                 {
@@ -761,9 +780,9 @@ namespace WinFORCustomizer
                     return;
                 }
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"{appName} {appVersion}");
+                ConsoleOutput($"Win-FOR Customizer v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
-                string distro;
+                string distro = "WIN-FOR";
                 bool isThemed;
                 string currentUser = Environment.UserName;
                 string xwaysData;
@@ -773,6 +792,7 @@ namespace WinFORCustomizer
                 string userName;
                 bool wslSelected;
                 string hostName;
+                bool statesExtracted;
                 List<string>? debloatOptions = DebloatWindow.DebloatSettings.Selections;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
@@ -921,8 +941,8 @@ namespace WinFORCustomizer
                 }
 
                 string stateFile = GenerateState("install", isThemed);
-                bool extracted = ExtractStates(tempDir, releaseVersion);
-                if (extracted)
+                statesExtracted = ExtractStates(tempDir, releaseVersion);
+                if (statesExtracted)
                 {
                     if (debloatOptions is not null)
                     {
@@ -937,9 +957,9 @@ namespace WinFORCustomizer
                     {
                         string layout = await GenerateLayout(standalonesPath);
                         File.WriteAllText(@$"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\layout\WIN-FOR-StartLayout.xml", layout);
-                        if (ThemeChoices.SelectedTheme == "Custom") 
+                        if (ThemeChoices.SelectedTheme == "Custom" && customThemeZip != "") 
                         {
-                            ExtractCustomTheme();
+                            ExtractCustomTheme(customThemeZip);
                         }
                     }
                     if ((themed.IsChecked == true) && (HostName.Text != ""))
@@ -963,6 +983,8 @@ namespace WinFORCustomizer
                     ConsoleOutput("WSL is selected, and will be installed last as a system reboot is required.");
                     await ExecuteWsl(userName, releaseVersion, standalonesPath, true);
                 }
+                stopWatch?.Stop();
+                elapsedTimer?.Stop();
             }
             catch (Exception ex)
             {
@@ -1292,7 +1314,6 @@ namespace WinFORCustomizer
                 bool zipStatus = await FileDownload(uriZip, @$"{tempDir}\{currentRelease}.zip");
                 if (!zipStatus)
                 {
-                    //ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
                     return false;
                 }
                 ConsoleOutput($"{uriZip} downloaded.");
@@ -1300,7 +1321,6 @@ namespace WinFORCustomizer
                 bool hashStatus = await FileDownload(uriHash, @$"{tempDir}\{currentRelease}.zip.sha256");
                 if (!hashStatus)
                 {
-                    //ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
                     return false;
                 }
                 ConsoleOutput($"{uriHash} downloaded.");
@@ -1466,6 +1486,9 @@ namespace WinFORCustomizer
         {
             try
             {
+                stopWatch?.Reset();
+                stopWatch?.Start();
+                elapsedTimer?.Start();
                 bool Connected = CheckNetworkConnection.IsConnected();
                 if (!Connected)
                 {
@@ -1502,7 +1525,7 @@ namespace WinFORCustomizer
                     return;
                 }
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"{appName} v{appVersion}");
+                ConsoleOutput($"Win-FOR Customizer v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string stateList = GenerateState("download", false);
                 string tempDir = $@"{driveLetter}winfor-temp\";
@@ -1609,6 +1632,8 @@ namespace WinFORCustomizer
                     ConsoleOutput($@"winfor\downloads\init.sls not found, aborting!");
                     return;
                 }
+                stopWatch?.Stop();
+                elapsedTimer?.Stop();
             }
             catch (Exception ex)
             {
@@ -1818,7 +1843,9 @@ namespace WinFORCustomizer
                     {
                         if (waitForSalt)
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        { await Task.WhenAny(ProcHandled.Task); }
+                        { 
+                            await Task.WhenAny(ProcHandled.Task);
+                        }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
                         ConsoleOutput(
                            $"Installing WSLv2.\n" +
@@ -1888,6 +1915,9 @@ namespace WinFORCustomizer
         {
             try
             {
+                stopWatch?.Reset();
+                stopWatch?.Start();
+                elapsedTimer?.Start();
                 bool Connected = CheckNetworkConnection.IsConnected();
                 if (!Connected)
                 {
@@ -1901,7 +1931,7 @@ namespace WinFORCustomizer
                     return;
                 }
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"{appName} v{appVersion}");
+                ConsoleOutput($"Win-FOR Customizer v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro;
                 string userName;
@@ -2020,6 +2050,8 @@ namespace WinFORCustomizer
                     await ExecuteWsl(userName, releaseVersion, standalonesPath, false);
                 }
                 ConsoleOutput("SaltStack WSL installation completed.");
+                stopWatch?.Stop();
+                elapsedTimer?.Stop();
             }
             catch (Exception ex)
             {
@@ -2064,7 +2096,10 @@ namespace WinFORCustomizer
                         checkBox.IsChecked = false;
                     }
                 }
-                else { continue; }
+                else
+                {
+                    continue;
+                }
             }
         }
         private void SectionCheckAll(object sender, RoutedEventArgs e)
@@ -2178,10 +2213,11 @@ namespace WinFORCustomizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        public (StringBuilder, StringBuilder,List<string>) ProcessResults(string releaseVersion)
+        public (StringBuilder, StringBuilder, StringBuilder, List<string>) ProcessResults(string releaseVersion)
         {
             StringBuilder errors = new();
             StringBuilder results = new();
+            StringBuilder errorIds = new();
             string logFile = $@"C:\winfor-saltstack-{releaseVersion}.log";
             string downloadLog = $@"C:\winfor-saltstack-downloads-{releaseVersion}.log";
             string wslLog = $@"C:\winfor-saltstack-{releaseVersion}-wsl.log";
@@ -2201,9 +2237,9 @@ namespace WinFORCustomizer
                         string[] splits = contents[1].Split('[', ']');
                         string pid = splits[5];
                         string errorString = $"[ERROR   ][{pid}]";
-                        var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{errorString} output:" };
+                        var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{errorString} output:", "return code: 128", "fatal: not a git", "retcode: 128" };
                         results.Append($"{log}\n");
-                        string logResults = ParseLog(log, "Summary for", 7);
+                        string logResults = ParseLog(contents, "Summary for", 7);
                         logResults = logResults.Replace("Summary for local\r", "");
                         logResults = logResults.Replace("------------\r", "");
                         logResults = logResults.Replace("--Succeeded", "Succeeded");
@@ -2213,11 +2249,11 @@ namespace WinFORCustomizer
                         results.Append(logResults);
                         results.Append(new string('-', 50) + "\n");
                         errors.Append($"{log}\n");
-                        string error = ParseLog(log, $"{errorString}", 1);
+                        string error = ParseLog(contents, $"{errorString}", 1);
                         foreach (string line in error.Split("\n"))
                         {
                             if (ignorable.Any(x => line.Contains(x)))
-                            { 
+                            {
                                 continue;
                             }
                             else
@@ -2227,6 +2263,8 @@ namespace WinFORCustomizer
                             }
                         }
                         errors.Append(new string('-', 50) + "\n");
+                        string idResults = ParseLog(contents, "ID: ", 8);
+                        errorIds.Append(idResults);
                     }
                 }
             }
@@ -2239,7 +2277,7 @@ namespace WinFORCustomizer
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"Unable to access logs:\n{ex}");
             }
-            return (results, errors, logfiles);
+            return (results, errors, errorIds, logfiles);
         }
         private void ResultsButton(object sender, RoutedEventArgs e)
         // Parses the available logs for the SaltStack and WSL installs to determine its summary
@@ -2261,16 +2299,16 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder results, StringBuilder errors, List<string> logfiles) = ProcessResults(releaseVersion);
+                (StringBuilder results, StringBuilder errors, StringBuilder errorIds, List<string> logfiles) = ProcessResults(releaseVersion);
                 int linesInResults = results.ToString().Split('\r').Length;
                 if (linesInResults < 4)
                 {
-                    MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files,\n or no log file was found for {releaseVersion}.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 else
                 {
-                    ResultsWindow resultsWindow = new(results, errors, logfiles, releaseVersion)
+                    ResultsWindow resultsWindow = new(results, errors, errorIds, logfiles, releaseVersion)
                     {
                         Owner = this
                     };
@@ -2319,11 +2357,11 @@ namespace WinFORCustomizer
         // Shows the About box
         {
             MessageBoxResult result = MessageBox.Show(
-                $"{appName} v{appVersion}\n" +
+                $"Win-FOR Customizer v{appVersion}\n" +
                 $"Author: Corey Forman (digitalsleuth)\n" +
                 $"Source: https://github.com/digitalsleuth/win-for\n\n" +
                 $"Would you like to visit the repo on GitHub?",
-                $"{appName} v{appVersion}", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
+                $"Win-FOR Customizer v{appVersion}", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
             if (result == MessageBoxResult.Yes)
             {
                 Process.Start(new ProcessStartInfo($"https://github.com/digitalsleuth/win-for") { UseShellExecute = true });
@@ -2348,42 +2386,35 @@ namespace WinFORCustomizer
             }
             return lineNumbers;
         }
-        private static string ParseLog(string logFile, string searchText, int context)
+        private static string ParseLog(string[] contents, string searchText, int context)
         // The function for actually parsing the log file provided and searching for the given text
         {
             StringBuilder summary = new();
             string output;
             try
             {
-                if (File.Exists(logFile))
+                List<int> lineNumbers = Find_AllLineNumbers(contents, searchText);
+                foreach (int number in lineNumbers)
                 {
-                    string[] contents = File.ReadAllLines(logFile);
-                    List<int> lineNumbers = Find_AllLineNumbers(contents, searchText);
-                    foreach (int number in lineNumbers)
+                    for (int line = number; line < (number + context); line++)
                     {
-                        for (int line = number; line < (number + context); line++)
-                        {
-                            summary.Append($"{contents[line]}\r");
-                        }
+                        summary.Append($"{contents[line].TrimStart().TrimEnd()}\r");
+                    }
+                    if (searchText == "ID: ")
+                    {
+                        summary.Append("----------\n");
+                    }
+                    else
+                    {
                         summary.Append('\n');
                     }
-                    output = summary.ToString();
                 }
-                else
-                {
-                    ConsoleOutput($"The file {logFile} does not exist!\n");
-                    output = $"The file {logFile} does not exist!\n";
-                }
-            }
-            catch (IOException)
-            {
-                ConsoleOutput($"{logFile} is being used by another process.");
-                output = $"{logFile} is being used by another process.\n";
+                output = summary.ToString();
             }
             catch (Exception ex)
             {
-                ConsoleOutput($"Unable to parse the log file {logFile}:\n{ex}");
-                output = $"Unable to parse the log file {logFile}\n";
+                ConsoleOutput($"Unable to parse the log file contents:\n{ex}");
+                output = $"Unable to parse the log file contents\n";
             }
             return output;
         }
@@ -2402,9 +2433,7 @@ namespace WinFORCustomizer
         {
             OutputExpander.IsExpanded = true;
             (_, List<string> checkedContent) = GetCheckStatus();
-            //(List<string> checked_tools, List<string> checkedContent) = GetCheckStatus();
             checkedContent.Sort();
-            //var result = checked_tools.Zip(checkedContent, (a, b) => new { tool_name = a, tool_content = b });
             Console.WriteLine($"{string.Join("\n", checkedContent)}");
         }
         private async void ShowLatestRelease(object sender, RoutedEventArgs e)
@@ -2962,11 +2991,7 @@ namespace WinFORCustomizer
         }
         private void TestButton(object sender, RoutedEventArgs e)
         {
-                DebloatWindow debloatWindow = new()
-                {
-                    Owner = this
-                };
-                debloatWindow.Show();
+
         }
     }
 }

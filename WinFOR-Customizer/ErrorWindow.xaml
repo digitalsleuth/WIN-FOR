@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WinFORCustomizer"
         mc:Ignorable="d"
         Title="Errors" SizeToContent="WidthandHeight" ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen">
@@ -15,6 +14,13 @@
             <RowDefinition Height="*" MaxHeight="600"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <Button x:Name="ShowLogFile" Content="Open Log Files" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Click="OpenLogFiles" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+        </Grid>
+        <Button x:Name="ShowLogFile" Content="Open Log Files" HorizontalAlignment="Center" Margin="0,0,140,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Width="105" Height="24" Click="OpenLogFiles" />
+        <Button x:Name="ErrorDetails" Content="Diplay Log Errors" HorizontalAlignment="Center" Margin="140,0,0,0" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" Width="105" Height="24" Click="DisplayLogErrors" />
     </Grid>
 </Window>
