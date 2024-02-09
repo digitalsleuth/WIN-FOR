@@ -1742,7 +1742,7 @@
       "Passware Encryption Analyzer": {
         "CbName": "packages_passware_encryption_analyzer",
         "CbContent": "Passware Encryption Analyzer",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Passware\\Encryption Analyzer 2023\\PasswareEncryptionAnalyzer.exe",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Passware\\Encryption Analyzer 2024\\PasswareEncryptionAnalyzer.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2326,7 +2326,7 @@
         "DAID": "",
         "AUMID": false,
         "DALP": false,
-        "StartMenu": true,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -2557,7 +2557,7 @@
         "DAID": "",
         "AUMID": false,
         "DALP": false,
-        "StartMenu": true,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -2685,7 +2685,7 @@
         "DAID": "",
         "AUMID": false,
         "DALP": false,
-        "StartMenu": true,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []

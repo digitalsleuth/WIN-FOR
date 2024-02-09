@@ -118,9 +118,10 @@ namespace WinFORCustomizer
             public override void Write(char value)
             {
                 base.Write(value);
-                textBox.Dispatcher.BeginInvoke(new Action(() =>
+                textBox.Dispatcher.BeginInvoke(new Action(async () =>
                 {
                     textBox.AppendText(value.ToString());
+                    await Task.Delay(100);
                     textBox.Focus();
                     textBox.CaretIndex = textBox.Text.Length;
                     textBox.ScrollToEnd();
@@ -531,25 +532,14 @@ namespace WinFORCustomizer
             string themeFolder = Path.Join(themePath, themeName);
             try
             {
-                var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
-                if (!Directory.Exists($"{themeFolder}"))
+                if (Directory.Exists($"{themeFolder}"))
                 {
-                    Directory.CreateDirectory($"{themeFolder}");
-                    DirectoryInfo destDirInfo = new(themeFolder);
-                    destDirInfo.Attributes &= FileAttributes.ReadOnly;
-                    DirectorySecurity destSecurityRules = new();
-                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                    destDirInfo.SetAccessControl(destSecurityRules);
+                    ManageDirectory(themeFolder, "delete");
+                    ManageDirectory(themeFolder, "create");
                 }
                 else
                 {
-                    Directory.Delete(themeFolder, true);
-                    Directory.CreateDirectory($"{themeFolder}");
-                    DirectoryInfo destDirInfo = new(themeFolder);
-                    destDirInfo.Attributes &= FileAttributes.ReadOnly;
-                    DirectorySecurity destSecurityRules = new();
-                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                    destDirInfo.SetAccessControl(destSecurityRules);
+                    ManageDirectory($"{themeFolder}", "create");
                 }
                 ConsoleOutput($"Extracting {zipFile} to {themeFolder}");
                 ZipFile.ExtractToDirectory(zipFile!, themeFolder, true);
@@ -731,6 +721,65 @@ namespace WinFORCustomizer
         {
             Close();
         }
+        private static void ManageDirectory(string dirToManage, string dirOperation, string destDir = "")
+        {
+            var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
+            try
+            {
+                if (dirOperation == "create")
+                {
+                    Directory.CreateDirectory(dirToManage);
+                    DirectoryInfo manageDirInfo = new(dirToManage);
+                    manageDirInfo.Attributes &= ~FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    manageDirInfo.SetAccessControl(destSecurityRules);
+                }
+                else if (dirOperation == "delete")
+                {
+                    DirectoryInfo manageDirInfo = new(dirToManage);
+                    manageDirInfo.Attributes &= ~FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    manageDirInfo.SetAccessControl(destSecurityRules);
+                    FileInfo[] fileNames = manageDirInfo.GetFiles("*", SearchOption.AllDirectories);
+                    DirectoryInfo[] directoryNames = manageDirInfo.GetDirectories("*", SearchOption.AllDirectories);
+                    foreach (DirectoryInfo directoryName in directoryNames)
+                    {
+                        directoryName.Attributes &= ~FileAttributes.ReadOnly;
+                    }
+                    foreach (FileInfo fileName in fileNames)
+                    {
+                        fileName.Attributes &= ~FileAttributes.ReadOnly;
+                        fileName.Delete();
+                    }
+                    Directory.Delete(dirToManage, true);
+                }
+                else if (dirOperation == "perms")
+                {
+                    DirectoryInfo manageDirInfo = new(dirToManage);
+                    manageDirInfo.Attributes &= ~FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    manageDirInfo.SetAccessControl(destSecurityRules);
+                }
+                else if (dirOperation == "move" && destDir != "")
+                {
+                    DirectoryInfo manageDirInfo = new(dirToManage);
+                    manageDirInfo.Attributes &= ~FileAttributes.ReadOnly;
+                    DirectorySecurity destSecurityRules = new();
+                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
+                    manageDirInfo.SetAccessControl(destSecurityRules);
+                    Directory.Move(dirToManage, destDir);
+                }
+            }
+            catch (Exception ex)
+            {
+                ConsoleOutput($"[ERROR] Unable to manage directory {dirToManage}:\n{ex}");
+                return;
+            }
+
+        }
         private async void InstallClick(object sender, RoutedEventArgs e)
         // The main function for determining the status of all fields and initiating the installation of the Win-FOR environment
         {
@@ -871,7 +920,14 @@ namespace WinFORCustomizer
                 string uriZip = currentReleaseData[1];
                 string uriHash = currentReleaseData[2];
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                CreateTempDirectory(tempDir);
+                if (!Directory.Exists(tempDir))
+                {
+                    ManageDirectory(tempDir, "create");
+                }
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
+                }
                 if (!CheckGitInstalled(gitVersion))
                 {
                     ConsoleOutput($"Git {gitVersion} is not installed");
@@ -939,7 +995,11 @@ namespace WinFORCustomizer
                         return;
                     }
                 }
-
+                ConsoleOutput("Checking for and removing previous repo folder");
+                if (Directory.Exists(@"C:\ProgramData\Salt Project\Salt\srv\salt\win\"))
+                {
+                    ManageDirectory(@"C:\ProgramData\Salt Project\Salt\srv\salt\win\", "delete");
+                }
                 string stateFile = GenerateState("install", isThemed);
                 statesExtracted = ExtractStates(tempDir, releaseVersion);
                 if (statesExtracted)
@@ -990,38 +1050,6 @@ namespace WinFORCustomizer
             {
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"[ERROR] Unable to complete the installation process:\n{ex}");
-            }
-        }
-        public static void CreateTempDirectory(string tempDir)
-        // Creates a pre-defined temp directory to store required files
-        {
-            try
-            {
-                if (Directory.Exists(tempDir))
-                {
-                    ConsoleOutput($"Directory {tempDir} already exists");
-                    DirectoryInfo tempDirInfo = new(tempDir);
-                    tempDirInfo.Attributes &= FileAttributes.ReadOnly;
-                    DirectorySecurity tempDirSecurityRules = new();
-                    var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
-                    tempDirSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                    tempDirInfo.SetAccessControl(tempDirSecurityRules);
-                    return;
-                }
-                else
-                {
-                    DirectoryInfo tempDirInfo = Directory.CreateDirectory(tempDir);
-                    tempDirInfo.Attributes &= FileAttributes.ReadOnly;
-                    DirectorySecurity tempDirSecurityRules = new();
-                    var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
-                    tempDirSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                    tempDirInfo.SetAccessControl(tempDirSecurityRules);
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsoleOutput($"[ERROR] Unable to create temp directory {tempDir}:\n{ex}");
-                return;
             }
         }
         private static bool CheckSaltStackInstalled(string saltVersion)
@@ -1119,10 +1147,13 @@ namespace WinFORCustomizer
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"{tempDir} does not exist. Creating...");
-                    CreateTempDirectory(tempDir);
+                    ManageDirectory(tempDir, "create");
                     ConsoleOutput($"{tempDir} created");
                 }
-
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
+                }
                 if (File.Exists($"{tempDir}{saltFile}"))
                 {
                     ConsoleOutput("Found previous download of SaltStack - comparing hash");
@@ -1202,8 +1233,12 @@ namespace WinFORCustomizer
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"{tempDir} does not exist. Creating...");
-                    CreateTempDirectory(tempDir);
+                    ManageDirectory(tempDir, "create");
                     ConsoleOutput($"{tempDir} created");
+                }
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
                 }
                 if (File.Exists($"{tempDir}{gitFile}"))
                 {
@@ -1308,7 +1343,11 @@ namespace WinFORCustomizer
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"Temp directory {tempDir} does not exist, creating...");
-                    CreateTempDirectory(tempDir);
+                    ManageDirectory(tempDir, "create");
+                }
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
                 }
                 ConsoleOutput($"Downloading {uriZip}");
                 bool zipStatus = await FileDownload(uriZip, @$"{tempDir}\{currentRelease}.zip");
@@ -1387,8 +1426,8 @@ namespace WinFORCustomizer
                 string saltPath = @"C:\ProgramData\Salt Project\Salt\";
                 if (!Directory.Exists($"{saltPath}srv"))
                 {
-                    Directory.CreateDirectory($"{saltPath}srv");
-                    Directory.CreateDirectory($@"{saltPath}srv\salt\");
+                    ManageDirectory($"{saltPath}srv", "create");
+                    ManageDirectory($@"{saltPath}srv\salt\", "create");
                     saltPath = $@"{saltPath}srv\salt\";
                 }
                 else
@@ -1401,22 +1440,11 @@ namespace WinFORCustomizer
                 ConsoleOutput($"Extracting {file} to {tempDir}");
                 ZipFile.ExtractToDirectory(file, tempDir, true);
                 ConsoleOutput($"Moving {distroFolder} folder to {distroDest}");
-                var identity = new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null);
                 if (Directory.Exists(distroDest))
                 {
-                    DirectoryInfo destDirInfo = new(distroDest);
-                    destDirInfo.Attributes &= FileAttributes.ReadOnly;
-                    DirectorySecurity destSecurityRules = new();
-                    destSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                    destDirInfo.SetAccessControl(destSecurityRules);
-                    Directory.Delete(distroDest, true);
+                    ManageDirectory(distroDest, "delete");
                 }
-                DirectoryInfo distroDirInfo = new(distroFolder);
-                distroDirInfo.Attributes &= FileAttributes.ReadOnly;
-                DirectorySecurity distroSecurityRules = new();
-                distroSecurityRules.AddAccessRule(new FileSystemAccessRule(identity, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow));
-                distroDirInfo.SetAccessControl(distroSecurityRules);
-                Directory.Move(distroFolder, distroDest);
+                ManageDirectory(distroFolder, "move", distroDest);
                 extracted = true;
             }
             catch (Exception ex)
@@ -1548,8 +1576,14 @@ namespace WinFORCustomizer
                     downloadPath = DownloadsPath.Text;
                 }
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                CreateTempDirectory(tempDir);
-
+                if (!Directory.Exists(tempDir))
+                {
+                    ManageDirectory(tempDir, "create");
+                }
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
+                }
                 if (!CheckGitInstalled(gitVersion))
                 {
                     ConsoleOutput($"Git {gitVersion} is not installed");
@@ -1976,8 +2010,14 @@ namespace WinFORCustomizer
                 string? saltVersion = softwareConfig[0].Software!["saltstack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["saltstack"].SoftwareHash!;
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                CreateTempDirectory(tempDir);
-
+                if (!Directory.Exists(tempDir))
+                {
+                    ManageDirectory(tempDir, "create");
+                }
+                else
+                {
+                    ManageDirectory(tempDir, "perms");
+                }
                 if (!CheckGitInstalled(gitVersion))
                 {
                     ConsoleOutput($"Git is being downloaded.");
