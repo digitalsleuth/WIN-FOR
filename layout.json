@@ -866,6 +866,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "maldump": {
+        "CbName": "python3_tools_maldump",
+        "CbContent": "maldump",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "mal_unpack": {
         "CbName": "standalones_mal_unpack",
         "CbContent": "mal_unpack",
@@ -1428,6 +1439,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "iBackup Viewer": {
+        "CbName": "packages_ibackup_viewer",
+        "CbContent": "iBackup Viewer",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\iMacTools\\iBackup Viewer\\iBackup Viewer.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "ILEAPP": {
         "CbName": "python3_tools_ileapp",
         "CbContent": "ILEAPP",
@@ -1666,6 +1688,28 @@
         "CbName": "installers_dcode",
         "CbContent": "DCode",
         "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Digital Detective\\DCode v5\\DCode.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "deark": {
+        "CbName": "standarlones_deark",
+        "CbContent": "deark",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "DROID": {
+        "CbName": "standalones_droid",
+        "CbContent": "DROID",
+        "DAID": "PLACEHOLDER_PATH\\droid\\droid.bat",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2166,6 +2210,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Caffeine": {
+        "CbName": "standalones_caffeine",
+        "CbContent": "Caffeine",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "CAiNE ISO": {
         "CbName": "standalones_caine",
         "CbContent": "CAiNE ISO",
@@ -2261,6 +2316,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Hash Generator": {
+        "CbName": "standalones_hash_generator",
+        "CbContent": "Hash Generator",
+        "DAID": "PLACEHOLDER_PATH\\hash-generator\\hash-generator.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -2936,17 +3002,6 @@
         "CbName": "standalones_windows_timeline",
         "CbContent": "Windows Timeline",
         "DAID": "PLACEHOLDER_PATH\\windowstimeline\\WindowsTimeline.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "WLEAPP": {
-        "CbName": "python3_tools_wleapp",
-        "CbContent": "WLEAPP",
-        "DAID": "PLACEHOLDER_PATH\\wleapp\\wleappGUI.py",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
