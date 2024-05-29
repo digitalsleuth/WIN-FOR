@@ -1696,7 +1696,7 @@
         "ExtraTiles": []
       },
       "deark": {
-        "CbName": "standarlones_deark",
+        "CbName": "standalones_deark",
         "CbContent": "deark",
         "DAID": "",
         "AUMID": false,
