@@ -1472,6 +1472,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "iTunes Backup Explorer": {
+        "CbName": "standalones_itunes_backup_explorer",
+        "CbContent": "iTunes Backup Explorer",
+        "DAID": "PLACEHOLDER_PATH\\itunes-backup-explorer\\itunes-backup-explorer-1.4.jar",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "jd-gui": {
         "CbName": "standalones_jd_gui",
         "CbContent": "jd-gui",
@@ -2064,17 +2075,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Python 2.7": {
-        "CbName": "packages_python2",
-        "CbContent": "Python 2.7",
-        "DAID": "",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "Python 3.10": {
         "CbName": "packages_python3",
         "CbContent": "Python 3.10",
@@ -2089,17 +2089,6 @@
       "Strawberry Perl": {
         "CbName": "packages_strawberryperl",
         "CbContent": "Strawberry Perl",
-        "DAID": "",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "Visual C++ Compiler for Python 2.7": {
-        "CbName": "packages_vcforpython27",
-        "CbContent": "Visual C++ Compiler for Python 2.7",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -2657,17 +2646,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "autotimeliner": {
-        "CbName": "python3_tools_autotimeliner",
-        "CbContent": "autotimeliner",
-        "DAID": "",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "bitsparser": {
         "CbName": "python3_tools_bitsparser",
         "CbContent": "bitsparser",
@@ -2947,17 +2925,6 @@
         "CbName": "standalones_velociraptor",
         "CbContent": "Velociraptor",
         "DAID": "PLACEHOLDER_PATH\\velociraptor\\velociraptor.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "Volatility (Python 2.7)": {
-        "CbName": "python2_tools_volatility2",
-        "CbContent": "Volatility (Python 2.7)",
-        "DAID": "",
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
