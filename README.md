@@ -1,3 +1,10 @@
+# STATUS UPDATE
+
+Due to recent changes in the Saltstack infrastructure [more information found here](https://saltproject.io/blog/salt-project-package-repo-migration-and-guidance/), it is expected that Win-FOR will not function properly until new implementations are made.
+As this information was just released on 28 October 2024 (today being 31 October 2024), it will take a couple of days until this is addressed in a sufficient manner to keep Win-FOR functioning.  
+
+I appreciate your patience, and will make sure to keep you in the loop!
+
 # Win-FOR
 
 Windows Forensics (Win-FOR) Customizer
