@@ -37,6 +37,7 @@ namespace WinFORCustomizer
         private static DispatcherTimer? elapsedTimer;
         private static readonly Stopwatch? stopWatch = new();
         private static string customThemeZip = "";
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0";
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
 #pragma warning restore CS8602 // Deference of a possibly null reference.
@@ -364,7 +365,8 @@ namespace WinFORCustomizer
             try
             {
                 bool isThemed = themed.IsChecked == true;
-                string allTools = GenerateState("install", isThemed);
+                bool wslInstall = wsl.IsChecked == true;
+                string allTools = GenerateState("install", isThemed, wslInstall);
                 SaveFileDialog saveFileDialog = new()
                 {
                     Filter = "SaltState File | *.sls"
@@ -551,7 +553,7 @@ namespace WinFORCustomizer
             }
             return extractStatus;
         }
-        public string GenerateState(string stateType, bool themedInstall)
+        public string GenerateState(string stateType, bool themedInstall, bool wslInstall)
         // Used to generate the data for the custom SaltStack state file
         {
             string allToolsString = "";
@@ -562,21 +564,21 @@ namespace WinFORCustomizer
                 {
                     treeItem.IsExpanded = true;
                 }
-                if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "CPC-WIN")
+                if (themedInstall && ThemeChoices.SelectedTheme == "CPC-WIN")
                 {
                     repo = "cpcwin";
                 }
-                else if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "WIN-FOR")
+                else if (themedInstall && ThemeChoices.SelectedTheme == "WIN-FOR")
                 {
                     repo = "winfor";
                 }
-                else if (themed.IsChecked == true && ThemeChoices.SelectedTheme == "Custom")
+                else if (themedInstall && ThemeChoices.SelectedTheme == "Custom")
                 {
                     repo = "custom-theme";
                 }
                 (List<string> allChecked, _) = GetCheckStatus();
                 allChecked.Sort();
-                List<string> states = new();
+                List<string> states = [];
                 StringBuilder includeTool = new();
                 StringBuilder requireTool = new();
                 if (stateType == "install")
@@ -589,11 +591,11 @@ namespace WinFORCustomizer
                     requireTool.Append("    - require:\n");
                     requireTool.Append($"      - sls: winfor.repos\n");
                     requireTool.Append($"      - sls: winfor.config\n");
-                    if (wsl.IsChecked == true || themed.IsChecked == true)
+                    if (wslInstall || themedInstall)
                     {
-                        includeTool.Append($"  - winfor.theme.computer-name\n");
+                        includeTool.Append($"  - winfor.theme.{repo}.computer-name\n");
                         includeTool.Append($"  - winfor.config.debloat-windows\n");
-                        requireTool.Append($"      - sls: winfor.theme.computer-name\n");
+                        requireTool.Append($"      - sls: winfor.theme.{repo}.computer-name\n");
                         requireTool.Append($"      - sls: winfor.config.debloat-windows\n");
                     }
                 }
@@ -607,7 +609,7 @@ namespace WinFORCustomizer
                 foreach (string tool in allChecked)
                 {
                     int underScoreIndex = tool.IndexOf("_");
-                    if (tool.Split("_")[0] == "python3" || tool.Split("_")[0] == "python2")
+                    if (tool.Split("_")[0] == "python3")
                     {
                         if (stateType == "install")
                         {
@@ -663,6 +665,11 @@ namespace WinFORCustomizer
                     includeTool.Append($"  - winfor.cleanup\n");
                     requireTool.Append($"      - sls: winfor.cleanup\n");
                 }
+                if (wslInstall && stateType == "install")
+                {
+                    includeTool.Append($"  - winfor.wsl\n");
+                    requireTool.Append($"      - sls: winfor.wsl\n");
+                }
                 string include_tools = includeTool.ToString() + "\n";
                 string require_tools = requireTool.ToString().TrimEnd('\n');
                 allToolsString = include_tools + require_tools;
@@ -679,8 +686,8 @@ namespace WinFORCustomizer
         // Identify the status of all checkboxes - also adds the ability to grab the proper name for the tool
         // The checkedItems_content is not yet in use, but is setup for future use under ToolList
         {
-            List<string> checkedItems = new();
-            List<string> checkedItemsContent = new();
+            List<string> checkedItems = [];
+            List<string> checkedItemsContent = [];
             try
             {
 
@@ -832,6 +839,7 @@ namespace WinFORCustomizer
                 ConsoleOutput($"Win-FOR Customizer v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
                 string distro = "WIN-FOR";
+                string repo;
                 bool isThemed;
                 string currentUser = Environment.UserName;
                 string xwaysData;
@@ -1000,7 +1008,7 @@ namespace WinFORCustomizer
                 {
                     ManageDirectory(@"C:\ProgramData\Salt Project\Salt\srv\salt\win\", "delete");
                 }
-                string stateFile = GenerateState("install", isThemed);
+                string stateFile = GenerateState("install", isThemed, wslSelected);
                 statesExtracted = ExtractStates(tempDir, releaseVersion);
                 if (statesExtracted)
                 {
@@ -1021,11 +1029,12 @@ namespace WinFORCustomizer
                         {
                             ExtractCustomTheme(customThemeZip);
                         }
-                    }
-                    if ((themed.IsChecked == true) && (HostName.Text != ""))
-                    {
-                        hostName = HostName.Text;
-                        InsertHostName(hostName);
+                        if (HostName.Text != "")
+                        {
+                            hostName = HostName.Text;
+                            repo = Theme.Name;
+                            InsertHostName(hostName, repo);
+                        }
                     }
                     bool copied = CopyCustomState(stateFile);
                     if (!copied)
@@ -1112,7 +1121,7 @@ namespace WinFORCustomizer
             {
                 HttpClient httpClient = new();
                 {
-                    httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/116.0");
+                    httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 }
                 HttpResponseMessage response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 ConsoleOutput($"Response code {(int)response.StatusCode} - {response.StatusCode}");
@@ -1142,8 +1151,8 @@ namespace WinFORCustomizer
         {
             try
             {
-                string saltFile = $"salt-{saltVersion}-windows-amd64.exe";
-                string uri = $"https://repo.saltproject.io/salt/py3/windows/{saltVersion}/{saltFile}";
+                string saltFile = $"Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe";
+                string uri = $"https://packages.broadcom.com/artifactory/saltproject-generic/windows/{saltVersion}/{saltFile}";
                 if (!Directory.Exists(tempDir))
                 {
                     ConsoleOutput($"{tempDir} does not exist. Creating...");
@@ -1198,7 +1207,7 @@ namespace WinFORCustomizer
                 ConsoleOutput($"Installing SaltStack v{saltVersion}");
                 ProcessStartInfo startInfo = new()
                 {
-                    FileName = $"{tempDir}salt-{saltVersion}-windows-amd64.exe",
+                    FileName = $"{tempDir}Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe",
                     Arguments = @$"/S /master=localhost /minion-name=WIN-FOR",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -1317,7 +1326,7 @@ namespace WinFORCustomizer
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 string uri = $@"https://api.github.com/repos/digitalsleuth/winfor-salt/releases/latest";
                 var result = await httpClient.GetAsync(uri, cancellationToken.Token);
                 string data = result.Content.ReadAsStringAsync().Result;
@@ -1474,9 +1483,9 @@ namespace WinFORCustomizer
             }
         }
 
-        private static void InsertHostName(string hostName)
+        private static void InsertHostName(string hostName, string repo)
         {
-            string hostnameState = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\computer-name.sls";
+            string hostnameState = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\theme\{repo}\computer-name.sls";
             try
             {
                 if (File.Exists(hostnameState))
@@ -1555,7 +1564,7 @@ namespace WinFORCustomizer
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"Win-FOR Customizer v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
-                string stateList = GenerateState("download", false);
+                string stateList = GenerateState("download", false, false);
                 string tempDir = $@"{driveLetter}winfor-temp\";
                 List<string>? currentReleaseData = await IdentifyRelease();
                 string releaseVersion = currentReleaseData![0];
@@ -1563,10 +1572,10 @@ namespace WinFORCustomizer
                 string uriHash = currentReleaseData[2];
                 string downloadPath;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["git"].SoftwareVersion!;
-                string? gitHash = softwareConfig[0].Software!["git"].SoftwareHash!;
-                string? saltVersion = softwareConfig[0].Software!["saltstack"].SoftwareVersion!;
-                string? saltHash = softwareConfig[0].Software!["saltstack"].SoftwareHash!;
+                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
+                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
+                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
                 if (DownloadsPath.Text == "")
                 {
                     downloadPath = @"C:\winfor-downloads\";
@@ -1680,13 +1689,13 @@ namespace WinFORCustomizer
         private TaskCompletionSource<bool>? ProcHandled;
         private TaskCompletionSource<bool>? wslHandled;
         private async Task ExecuteSaltStack(string userName, string standalonesPath, string release)
-        // Generate a salt.exe process with the required arguments to install the custom salt states
+        // Generate a salt-call.exe process with the required arguments to install the custom salt states
         {
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             ProcHandled = new TaskCompletionSource<bool>();
-            string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.custom pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}.log\" --log-file-level=debug";
+            string saltExe = @"C:\Program Files\Salt Project\Salt\salt-call.exe";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls winfor.custom pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1746,13 +1755,13 @@ namespace WinFORCustomizer
             }
         }
         private async Task ExecuteSaltStackDownloads(string release, string downloadPath)
-        // Generate a salt.exe process with the required argument to simply download the selected files
+        // Generate a salt-call.exe process with the required argument to simply download the selected files
         {
             ProcHandled = new TaskCompletionSource<bool>();
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
-            string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --log-file-level=debug";
+            string saltExe = @"C:\Program Files\Salt Project\Salt\salt-call.exe";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls winfor.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1851,13 +1860,13 @@ namespace WinFORCustomizer
             }
         }
         private async Task ExecuteWsl(string userName, string release, string standalonesPath, bool waitForSalt)
-        // A salt.exe process used for the installation of the Windows Subsystem for Linux v2 environment
+        // A salt-call.exe process used for the installation of the Windows Subsystem for Linux v2 environment
         {
             wslHandled = new TaskCompletionSource<bool>();
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
-            string saltExe = @"C:\Program Files\Salt Project\Salt\bin\salt.exe";
-            string args = $"call -l info --local --retcode-passthrough --state-output=mixed state.sls winfor.wsl pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --log-file-level=debug";
+            string saltExe = @"C:\Program Files\Salt Project\Salt\salt-call.exe";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls winfor.wsl pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\" --log-file-level=debug";
             using (wslproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -2005,10 +2014,10 @@ namespace WinFORCustomizer
                 string uriZip = currentReleaseData[1];
                 string uriHash = currentReleaseData[2];
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["git"].SoftwareVersion!;
-                string? gitHash = softwareConfig[0].Software!["git"].SoftwareHash!;
-                string? saltVersion = softwareConfig[0].Software!["saltstack"].SoftwareVersion!;
-                string? saltHash = softwareConfig[0].Software!["saltstack"].SoftwareHash!;
+                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
+                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
+                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
                 ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
                 if (!Directory.Exists(tempDir))
                 {
@@ -2219,7 +2228,7 @@ namespace WinFORCustomizer
                 List<string> releaseData = new();
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 string uri = $@"https://api.github.com/repos/digitalsleuth/win-for/releases/latest";
                 var getRequest = await httpClient.GetAsync(uri, cancellationToken.Token);
                 string data = getRequest.Content.ReadAsStringAsync().Result;
@@ -2671,7 +2680,7 @@ namespace WinFORCustomizer
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/.config";
                 jsonConfig = await httpClient.GetFromJsonAsync<List<ConfigItems>>(uri, cancellationToken.Token);
             }
@@ -2689,7 +2698,7 @@ namespace WinFORCustomizer
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
                 jsonData = await httpClient.GetFromJsonAsync<List<TreeItems>>(uri, cancellationToken.Token);
             }

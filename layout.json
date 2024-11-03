@@ -1516,6 +1516,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "UFADE": {
+        "CbName": "standalones_ufade",
+        "CbContent": "UFADE",
+        "DAID": "PLACEHOLDER_PATH\\UFADE\\UFADE.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "VLEAPP": {
         "CbName": "python3_tools_vleapp",
         "CbContent": "VLEAPP",
@@ -2217,7 +2228,7 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
-        "Checked": true,
+        "Checked": false,
         "Enabled": true,
         "ExtraTiles": []
       },

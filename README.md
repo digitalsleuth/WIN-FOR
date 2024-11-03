@@ -1,9 +1,3 @@
-# STATUS UPDATE
-
-Due to recent changes in the Saltstack infrastructure [more information found here](https://saltproject.io/blog/salt-project-package-repo-migration-and-guidance/), it is expected that Win-FOR will not function properly until new implementations are made.
-As this information was just released on 28 October 2024 (today being 31 October 2024), it will take a couple of days until this is addressed in a sufficient manner to keep Win-FOR functioning.  
-
-I appreciate your patience, and will make sure to keep you in the loop!
 
 # Win-FOR
 
@@ -21,7 +15,7 @@ Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) sect
 
 ## Win-FOR Customizer
 
-**FIRST OFF - Requires .NET 6.0 Desktop Runtime**
+**FIRST OFF - Requires .NET 8.0 Desktop Runtime**
 **If you do not have it, you will be prompted to install at execution**
 
 Why a GUI? Who doesn't like a good GUI!?
@@ -41,12 +35,10 @@ The customizer tool gives you the following features:
 
 ![screenshot-options-v8 4 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v8.4.0.png)
 
+# STATUS UPDATE
 
-## PowerShell or CLI
+Due to recent changes in the Saltstack infrastructure [more information found here](https://saltproject.io/blog/salt-project-package-repo-migration-and-guidance/), Win-FOR Customizer had to be updated to the latest SaltStack and drop support for v3005.
 
-The PowerShell script and standalone CLI executable have been deprecated in favour of the Win-FOR Customizer.  
-However, if there is need for a command-line version of the Customizer, it can be done. Until such time, the Customizer is your best choice!
-
-## Issues
+# Issues
 
 All issues should be raised [here](https://github.com/digitalsleuth/WIN-FOR/Issues)

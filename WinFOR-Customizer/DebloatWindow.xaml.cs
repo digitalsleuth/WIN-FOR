@@ -17,6 +17,7 @@ namespace WinFORCustomizer
     /// </summary>
     public partial class DebloatWindow : Window
     {
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0";
         public DebloatWindow()
         {
             InitializeComponent();
@@ -155,7 +156,7 @@ namespace WinFORCustomizer
         private List<string> GetRadioButtonsStatus()
         // Get the current state of all Radio Buttons and return a List of those which are not None
         {
-            List<string> selectedRadioButtons = new();
+            List<string> selectedRadioButtons = [];
 
             // Iterate through all TabItems in the TabControl
             foreach (TabItem tabItem in Tabs.Items)
@@ -228,12 +229,12 @@ namespace WinFORCustomizer
 
         private static async Task<List<TabItems>> GetDebloatJson()
         {
-            List<TabItems>? jsonData = new();
+            List<TabItems>? jsonData = [];
             try
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0");
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
                 string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/debloat.json";
                 jsonData = await httpClient.GetFromJsonAsync<List<TabItems>>(uri, cancellationToken.Token);
             }

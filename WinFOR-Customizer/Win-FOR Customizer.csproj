@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.18362.0</TargetFramework>
     <RootNamespace>WinFORCustomizer</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
@@ -12,16 +12,16 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>img\fp.ico</ApplicationIcon>
-    <Version>9.2.0</Version>
+    <Version>10.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
     <Description>A graphical interface to choose which packages are installed in a Windows Forensics (Win-FOR) environment.</Description>
     <PackageProjectUrl>https://github.com/digitalsleuth/win-for</PackageProjectUrl>
-    <PackageTags>winfor;crawin;cpcwin;digitalsleuth</PackageTags>
+    <PackageTags>winfor;digitalsleuth</PackageTags>
     <Copyright>Corey Forman (digitalsleuth)</Copyright>
     <Company>digitalsleuth</Company>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>WinFOR.Customizer</PackageId>
@@ -71,6 +71,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="img\downloadsbg.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -100,7 +104,6 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="Publish">
     <Exec Command="powershell .\postbuild.ps1" />
   </Target>
