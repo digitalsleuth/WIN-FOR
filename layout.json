@@ -745,6 +745,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Dependencies": {
+        "CbName": "standalones_dependencies",
+        "CbContent": "Dependencies",
+        "DAID": "PLACEHOLDER_PATH\\dependencies\\DependenciesGui.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "DIE (Detect It Easy)": {
         "CbName": "standalones_die",
         "CbContent": "DIE (Detect It Easy)",
@@ -1031,6 +1042,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Reko": {
+        "CbName": "packages_reko",
+        "CbContent": "Reko",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\jklSoft\\Reko\\WindowsDecompiler.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Resource Hacker": {
         "CbName": "packages_resource_hacker",
         "CbContent": "Resource Hacker",
@@ -1124,6 +1146,17 @@
         "CbContent": "WinDbg",
         "DAID": "Microsoft.WinDbg_8wekyb3d8bbwe!Microsoft.WinDbg",
         "AUMID": true,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "WinDepends": {
+        "CbName": "standalones_windepends",
+        "CbContent": "WinDepends",
+        "DAID": "PLACEHOLDER_PATH\\windepends\\WinDepends.exe",
+        "AUMID": false,
         "DALP": false,
         "StartMenu": true,
         "Checked": true,
@@ -1227,9 +1260,20 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Pyinstaller Extractor": {
+      "PyInstaller Extractor": {
         "CbName": "python3_tools_pyinstxtractor",
-        "CbContent": "Pyinstaller Extractor",
+        "CbContent": "PyInstaller Extractor",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "PyInstaller Extractor NG": {
+        "CbName": "standalones_pyinstxtractor_ng",
+        "CbContent": "PyInstaller Extractor NG",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -1366,7 +1410,7 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Zirolite": {
+      "Zircolite": {
         "CbName": "standalones_zircolite",
         "CbContent": "Zircolite",
         "DAID": "",
@@ -2646,6 +2690,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "analyzeMFT": {
+        "CbName": "python3_tools_analyzemft",
+        "CbContent": "analyzeMFT",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Autorunner": {
         "CbName": "standalones_autorunner",
         "CbContent": "Autorunner",
@@ -2829,6 +2884,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "python-evtx": {
+        "CbName": "python3_tools_python_evtx",
+        "CbContent": "python-evtx",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []

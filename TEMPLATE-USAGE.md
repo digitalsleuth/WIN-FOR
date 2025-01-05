@@ -113,4 +113,4 @@ The folders are set up with numerical values to ensure that, when they are creat
 
 ### Final Steps
 
-The remainder of the variables found within the S
+The remainder of the variables found within the State should stay as they are. Zip all of the files together as they are, and not in their own folder. Using Windows built-in zip will work fine, as will any other "zip" format.

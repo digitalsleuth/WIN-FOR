@@ -2470,7 +2470,7 @@ namespace WinFORCustomizer
         private static void ConsoleOutput(string message)
         // Function to output the given content with a date/time value in front of it for tracking events
         {
-            Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} - {message}");
+            Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}");
         }
         private void DownloadToolList(object sender, RoutedEventArgs e)
         // Downloads the latest Win-FOR Tool List from GitHub which shows all tools and versions available.
