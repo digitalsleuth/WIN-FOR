@@ -31,9 +31,9 @@ The customizer tool gives you the following features:
 - Check for updates to the Customizer
 - Graphically enter any settings you need!
 
-![screenshot-v8 4 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-v8.4.0.png)
+![screenshot-10 0 1](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-10.0.1.png)
 
-![screenshot-options-v8 4 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-options-v8.4.0.png)
+![screenshot-10 0 1-options](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-10.0.1-options.png)
 
 # STATUS UPDATE
 
