@@ -853,6 +853,7 @@ namespace WinFORCustomizer
                 List<string>? debloatOptions = DebloatWindow.DebloatSettings.Selections;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
@@ -1098,6 +1099,7 @@ namespace WinFORCustomizer
                 const string uninstallkey64 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1";
                 string version32 = (string)Registry.GetValue($@"{localMachine}\{uninstallkey32}", "DisplayVersion", null)!;
                 string version64 = (string)Registry.GetValue($@"{localMachine}\{uninstallkey64}", "DisplayVersion", null)!;
+                gitVersion = gitVersion.Split(".windows")[0];
                 if (version32 == gitVersion || version64 == gitVersion)
                 {
                     gitInstalled = true;
@@ -1234,9 +1236,10 @@ namespace WinFORCustomizer
         private static async Task DownloadGit(string tempDir, string gitVersion, string gitHash)
         // Downloads the pre-determined version of Git
         {
-            string gitFile = $"Git-{gitVersion}-64-bit.exe";
-            gitVersion = gitVersion.Split(".")[0] + "." + gitVersion.Split(".")[1] + "." + gitVersion.Split(".")[2];
-            string uri = $"https://github.com/git-for-windows/git/releases/download/v{gitVersion}.windows.2/{gitFile}";
+            string coreVersion = gitVersion.Split(".windows")[0];
+            string winVersion = gitVersion.Split(".windows")[1];
+            string gitFile = $"Git-{coreVersion}-64-bit.exe";
+            string uri = $"https://github.com/git-for-windows/git/releases/download/v{coreVersion}.windows{winVersion}/{gitFile}";
             try
             {
                 if (!Directory.Exists(tempDir))
@@ -1264,7 +1267,7 @@ namespace WinFORCustomizer
                         File.Delete($"{tempDir}{gitFile}");
                     }
                 }
-                ConsoleOutput($"Downloading Git v{gitVersion}");
+                ConsoleOutput($"Downloading Git v{coreVersion}");
                 bool status = await FileDownload(uri, $"{tempDir}{gitFile}");
                 if (!status)
                 {
@@ -1288,6 +1291,7 @@ namespace WinFORCustomizer
         private static async Task InstallGit(string tempDir, string gitVersion)
         // Installs the pre-determined version of Git, provided it can be downloaded, or is available in the tempDir
         {
+            gitVersion = gitVersion.Split(".windows")[0];
             try
             {
                 ConsoleOutput($"Installing Git {gitVersion}");
@@ -1573,6 +1577,7 @@ namespace WinFORCustomizer
                 string downloadPath;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
@@ -2015,6 +2020,7 @@ namespace WinFORCustomizer
                 string uriHash = currentReleaseData[2];
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
+                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
