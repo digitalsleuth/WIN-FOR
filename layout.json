@@ -178,8 +178,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "Tableau Imager": {
@@ -339,6 +339,17 @@
         "CbName": "standalones_exiftoolgui",
         "CbContent": "ExifTool GUI",
         "DAID": "PLACEHOLDER_PATH\\exiftoolgui\\ExifToolGUI.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "LibreOffice": {
+        "CbName": "packages_libreoffice",
+        "CbContent": "LibreOffice",
+        "DAID": "TheDocumentFoundation.LibreOffice.Startcenter",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -818,17 +829,6 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "IDA Free": {
-        "CbName": "packages_ida_free",
-        "CbContent": "IDA Free",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\IDA Freeware 8.3\\ida64.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -2595,17 +2595,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "WiebeTech WriteBlocking Validation": {
-        "CbName": "packages_wiebetech_writeblocking_validation_utility",
-        "CbContent": "WiebeTech WriteBlocking Validation",
-        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\CDSG\\WriteBlocking Validation Utility\\WbValUtil.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "WindowGrid": {
         "CbName": "standalones_windowgrid",
         "CbContent": "WindowGrid",
@@ -2922,9 +2911,9 @@
         "ExtraTiles": []
       },
       "srum-dump": {
-        "CbName": "standalones_srum_dump2",
+        "CbName": "standalones_srum_dump",
         "CbContent": "srum-dump",
-        "DAID": "PLACEHOLDER_PATH\\srum-dump2\\srum-dump2.exe",
+        "DAID": "PLACEHOLDER_PATH\\srum-dump\\srum-dump.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

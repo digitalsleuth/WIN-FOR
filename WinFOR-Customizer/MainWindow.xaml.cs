@@ -853,7 +853,6 @@ namespace WinFORCustomizer
                 List<string>? debloatOptions = DebloatWindow.DebloatSettings.Selections;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
@@ -1577,7 +1576,6 @@ namespace WinFORCustomizer
                 string downloadPath;
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
@@ -2020,7 +2018,6 @@ namespace WinFORCustomizer
                 string uriHash = currentReleaseData[2];
                 List<ConfigItems> softwareConfig = await GetJsonConfig();
                 string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                gitVersion = gitVersion.Split(".windows")[0];
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
