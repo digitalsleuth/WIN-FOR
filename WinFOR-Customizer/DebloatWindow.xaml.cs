@@ -278,7 +278,7 @@ namespace WinFORCustomizer
         {
             try
             {
-                string themeColourBlue = "#FF1644B9";
+                string themeColourBlue = "#7EB4EA";
                 string themeColourRed = "#FFCB393B";
                 Color colourBlue = (Color)ColorConverter.ConvertFromString(themeColourBlue);
                 Color colourRed = (Color)ColorConverter.ConvertFromString(themeColourRed);
@@ -304,7 +304,7 @@ namespace WinFORCustomizer
                         {
                             Header = function.Key,
                             Foreground = themeBrushRed,
-                            Width = 360,
+                            Width = 300,
                             HorizontalAlignment = HorizontalAlignment.Center,
                             BorderBrush = Brushes.CornflowerBlue
 

@@ -5,115 +5,120 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         ResizeMode="CanMinimize"
-        WindowStartupLocation="CenterScreen"
-        Title="Debloat Options" SizeToContent="Height" Width="770">
+        WindowStartupLocation="CenterScreen" SnapsToDevicePixels="True" UseLayoutRounding="True"
+        Title="Debloat Options" SizeToContent="Height" Width="650">
     <StackPanel MaxHeight="1200">
         <Grid>
-            <TextBox Width="770" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Margin="0,1,0,0" Text="These options will allow you to debloat your Windows Setup during the installation process.&#x0a;USE AT YOUR OWN RISK!" Foreground="Black" BorderBrush="Transparent" FontSize="14" Focusable="False" IsReadOnly="True" IsEnabled="True" BorderThickness="0,0,0,0" />
-            <Button x:Name="savesettings_button" Content="Save Settings" Margin="-300,45,0,5" Click="GetRadioButtonsStatus_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" Height="25" FontSize="13.5" Background="White" BorderThickness="1" BorderBrush="CornflowerBlue"/>
-            <Button x:Name="saveasfile_button" Content="Save As File" Margin="-100,45,0,5" Click="SaveAsFileButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" Height="25" FontSize="13.5" Background="White" BorderThickness="1" BorderBrush="CornflowerBlue"/>
-            <Button x:Name="defaultoptions_button" Content="Show Default" Margin="100,45,0,5" Click="DefaultButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" Height="25" FontSize="13.5" Background="White" BorderThickness="1" BorderBrush="CornflowerBlue"/>
-            <Button x:Name="resetall_button" Content="Reset" Margin="300,45,0,5" Click="ResetButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Width="90" Height="25" FontSize="13.5" Background="White" BorderThickness="1" BorderBrush="CornflowerBlue"/>
+            <TextBox Width="660" FontSize="12" Margin="0,3,0,0" Text="These options will allow you to debloat your Windows Setup during the installation process.&#x0a;USE AT YOUR OWN RISK!" VerticalAlignment="Top" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Foreground="Black" BorderBrush="Transparent" Focusable="False" IsReadOnly="True" IsEnabled="True" BorderThickness="0,0,0,0" />
+            <Button x:Name="DefaultOptionsButton" Width="90" Height="25" FontSize="12" Content="Show Default" Margin="-300,45,0,5" Click="DefaultButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="White" BorderThickness="1" BorderBrush="#7EB4EA"/>
+            <Button x:Name="ResetAllButton" Width="90" Height="25" FontSize="12" Content="Reset" Margin="-100,45,0,5" Click="ResetButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="White" BorderThickness="1" BorderBrush="#7EB4EA"/>
+            <Button x:Name="SaveSettingsButton" Width="90" Height="25" FontSize="12" Content="Save Settings" Margin="100,45,0,5" Click="GetRadioButtonsStatus_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="White" BorderThickness="1" BorderBrush="#7EB4EA"/>
+            <Button x:Name="SaveAsFileButton" Width="90" Height="25" FontSize="12" Content="Save As File" Margin="300,45,0,5" Click="SaveAsFileButton_Click" HorizontalAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Background="White" BorderThickness="1" BorderBrush="#7EB4EA"/>
         </Grid>
-        <TabControl x:Name="Tabs" Margin="0,5,0,0" TabStripPlacement="Top" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <TabControl x:Name="Tabs" Margin="0,5,0,0" TabStripPlacement="Top" FontSize="12" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top">
+            <TabControl.Resources>
+                <Style TargetType="TabPanel">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </TabControl.Resources>
             <TabItem Header="Application" Name="Application">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ApplicationStack0" Margin="6,5,0,0" Height="780"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="ApplicationStack1" Margin="0,5,6,0" Height="780"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="ApplicationStack0" Margin="6,5,0,0" Height="660"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ApplicationStack1" Margin="0,5,6,0" Height="660"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Explorer UI" Name="ExplorerUI">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ExplorerUIStack0" Margin="6,5,0,0" Height="1020"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="ExplorerUIStack1" Margin="0,5,6,0" Height="1020"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="ExplorerUIStack0" Margin="6,5,0,0" Height="890"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ExplorerUIStack1" Margin="0,5,6,0" Height="890"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Network" Name="Network">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="NetworkStack0" Margin="6,5,0,0" Height="450"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="NetworkStack1" Margin="0,5,6,0" Height="450"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="NetworkStack0" Margin="6,5,0,0" Height="355"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="NetworkStack1" Margin="0,5,6,0" Height="355"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Privacy" Name="Privacy">
-                <Grid Width="770" x:Name="PrivacyGrid">
+                <Grid Width="660" x:Name="PrivacyGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="PrivacyStack0" Height="580" Margin="6,5,0,0" HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="PrivacyStack1" Height="580" Margin="0,5,6,0" HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="PrivacyStack0" Height="470" Margin="6,5,0,0" HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="PrivacyStack1" Height="470" Margin="0,5,6,0" HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Security" Name="Security">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="SecurityStack0" Margin="6,5,0,0" Height="500"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="SecurityStack1" Margin="0,5,6,0" Height="500"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="SecurityStack0" Margin="6,5,0,0" Height="390"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="SecurityStack1" Margin="0,5,6,0" Height="390"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Server" Name="Server">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ServerStack0" Margin="6,5,0,0" Height="200"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="ServerStack1" Margin="0,5,6,0" Height="200"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="ServerStack0" Margin="6,5,0,0" Height="125"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ServerStack1" Margin="0,5,6,0" Height="125"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Service" Name="Service">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ServiceStack0" Margin="6,5,0,0" Height="600"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="ServiceStack1" Margin="0,5,6,0" Height="600"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="ServiceStack0" Margin="6,5,0,0" Height="510"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ServiceStack1" Margin="0,5,6,0" Height="510"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Unpinning" Name="Unpinning">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="UnpinningStack0" Margin="6,5,0,0" Height="100"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="UnpinningStack1" Margin="0,5,6,0" Height="100"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="UnpinningStack0" Margin="6,5,0,0" Height="50"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="UnpinningStack1" Margin="0,5,6,0" Height="50"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="UWP" Name="UWP">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="UWPStack0" Margin="6,5,0,0" Height="400"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="UWPStack1" Margin="0,5,6,0" Height="400"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="UWPStack0" Margin="6,5,0,0" Height="320"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="UWPStack1" Margin="0,5,6,0" Height="320"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Windows UI" Name="WindowsUI">
-                <Grid Width="770">
+                <Grid Width="660">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="378"/>
-                        <ColumnDefinition Width="378"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="WindowsUIStack0" Margin="6,5,0,0" Height="950"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="WindowsUIStack1" Margin="0,5,6,0" Height="950"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="WindowsUIStack0" Margin="6,5,0,0" Height="815"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="WindowsUIStack1" Margin="0,5,6,0" Height="815"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
         </TabControl>

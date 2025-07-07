@@ -8,8 +8,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -33,10 +34,11 @@ namespace WinFORCustomizer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly TextBoxOutputter outputter;
         private static DispatcherTimer? elapsedTimer;
         private static readonly Stopwatch? stopWatch = new();
         private static string customThemeZip = "";
+        private static string runningUser = "";
+        private static string currentHostname = "";
         private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0";
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
@@ -46,8 +48,11 @@ namespace WinFORCustomizer
             InitializeComponent();
             DataContext = this;
             mainWindow.Title = $"Win-FOR Customizer v{appVersion}";
-            outputter = new TextBoxOutputter(OutputConsole);
-            Console.SetOut(outputter);
+            runningUser = WindowsIdentity.GetCurrent().Name.Split("\\")[1];
+            currentHostname = Environment.MachineName;
+            HostNamePlaceholder.Text = currentHostname;
+            UserNamePlaceholder.Text = runningUser;
+            Console.SetOut(new TextBoxOutputter(OutputConsole));
             elapsedTimer = new DispatcherTimer();
             elapsedTimer.Tick += new EventHandler(ElapsedTime!);
             elapsedTimer.Interval = TimeSpan.FromSeconds(1);
@@ -73,6 +78,10 @@ namespace WinFORCustomizer
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.ToolList, new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LocalLayout, (sender, e) => { _ = LocalLayout(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.LocalLayout, new KeyGesture(Key.L, ModifierKeys.Control | ModifierKeys.Shift)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.SaveConsole, (sender, e) => { SaveConsoleOutput(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.SaveConsole, new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.ResultsOutput, (sender, e) => { ResultsButton_Click(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.ResultsOutput, new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift)));
             OutputExpander.Visibility = Visibility.Visible;
             OutputExpander.IsEnabled = true;
             OutputExpander.IsExpanded = false;
@@ -95,6 +104,8 @@ namespace WinFORCustomizer
                 ClearConsole = new RoutedCommand("ClearConsole", typeof(MainWindow));
                 ToolList = new RoutedCommand("ToolList", typeof(MainWindow));
                 LocalLayout = new RoutedCommand("LocalLayout", typeof(MainWindow));
+                SaveConsole = new RoutedCommand("SaveConsoleOutput", typeof(MainWindow));
+                ResultsOutput = new RoutedCommand("ResultsOutput", typeof(MainWindow));
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
@@ -107,33 +118,35 @@ namespace WinFORCustomizer
             public static RoutedCommand ClearConsole { get; private set; }
             public static RoutedCommand ToolList { get; private set; }
             public static RoutedCommand LocalLayout { get; private set; }
+            public static RoutedCommand SaveConsole { get; private set; }
+            public static RoutedCommand ResultsOutput { get; private set; }
         }
-        public class TextBoxOutputter : TextWriter
+        public partial class TextBoxOutputter(TextBox output) : TextWriter
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
         {
-            readonly TextBox textBox;
-            public TextBoxOutputter(TextBox output)
+            private readonly TextBox textBox = output;
+
+            public override void Write(string? value)
             {
-                textBox = output;
-            }
-            public override void Write(char value)
-            {
-                base.Write(value);
-                textBox.Dispatcher.BeginInvoke(new Action(async () =>
+                if (string.IsNullOrEmpty(value)) return;
+
+                textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                 {
-                    textBox.AppendText(value.ToString());
-                    await Task.Delay(100);
-                    textBox.Focus();
+                    textBox.AppendText(value);
                     textBox.CaretIndex = textBox.Text.Length;
                     textBox.ScrollToEnd();
                     textBox.IsReadOnly = true;
                 }));
             }
-            public override Encoding Encoding
+
+            public override void WriteLine(string? value)
             {
-                get { return Encoding.UTF8; }
+                Write(value + Environment.NewLine);
             }
+
+            public override Encoding Encoding => Encoding.UTF8;
         }
+
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
             // Loop through Visual objects and find children of the item to perform operations
         {
@@ -148,7 +161,7 @@ namespace WinFORCustomizer
         }
         public static List<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject
         {
-            List<T> logicalCollection = new();
+            List<T> logicalCollection = [];
             GetLogicalChildCollection((DependencyObject)parent, logicalCollection);
             return logicalCollection;
         }
@@ -169,14 +182,16 @@ namespace WinFORCustomizer
                 }
             }
         }
-
-        public class CheckNetworkConnection
+        public static class CheckNetworkConnection
         {
-            [DllImport("wininet.dll")]
-            private extern static bool InternetGetConnectedState(out int description, int reservedValue);
             public static bool IsConnected()
             {
-                return InternetGetConnectedState(out _, 0);
+                // Return true if any network interface is up and not a loopback or tunnel
+                return NetworkInterface.GetAllNetworkInterfaces()
+                    .Any(ni =>
+                        ni.OperationalStatus == OperationalStatus.Up &&
+                        ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                        ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
             }
         }
         private void ElapsedTime(object source, EventArgs e)
@@ -265,12 +280,29 @@ namespace WinFORCustomizer
             catch (Exception ex)
             {
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"[ERROR] Unable to UnCheck All:\n{ex}");
+                ConsoleOutput($"[ERROR] Unable to Uncheck All:\n{ex}");
             }
         }
+
+        private void CheckUncheckAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (CheckUncheckTextBox.Text == "Check All")
+            {
+                CheckAll();
+                CheckUncheckTextBox.Text = "Uncheck All";
+                CheckUncheckTextBox.Focus();
+            }
+            else if (CheckUncheckTextBox.Text == "Uncheck All")
+            {
+                UncheckAll();
+                CheckUncheckTextBox.Text = "Check All";
+                CheckUncheckTextBox.Focus();
+            }
+        }
+
         private void CheckAllBtn(object sender, RoutedEventArgs e)
         {
-            CheckAll();
+                CheckAll();
         }
         private void CheckAll()
         // Checks all CheckBoxes in the TreeView AllTools component
@@ -315,10 +347,10 @@ namespace WinFORCustomizer
                 string cbName = obj!.Name;
                 if (cbName == "standalones_x_ways")
                 {
-                    cbXways.IsChecked = true;
+                    XWays.IsChecked = true;
                     xwaysTemplateCheckBox!.IsChecked = true;
                 }
-                else if (cbName == "cbXways")
+                else if (cbName == "XWays")
                 {
                     xwaysCheckBox!.IsChecked = true;
                     xwaysTemplateCheckBox!.IsChecked = true;
@@ -345,7 +377,7 @@ namespace WinFORCustomizer
                 string cbName = obj!.Name;
                 if (cbName == "standalones_x_ways")
                 {
-                    cbXways.IsChecked = false;
+                    XWays.IsChecked = false;
                     xwaysTemplateCheckBox!.IsChecked = false;
                 }
                 else
@@ -365,7 +397,7 @@ namespace WinFORCustomizer
             try
             {
                 bool isThemed = themed.IsChecked == true;
-                bool wslInstall = wsl.IsChecked == true;
+                bool wslInstall = WSL.IsChecked == true;
                 string allTools = GenerateState("install", isThemed, wslInstall);
                 SaveFileDialog saveFileDialog = new()
                 {
@@ -399,7 +431,7 @@ namespace WinFORCustomizer
                     string file = openFile.FileName;
                     ExpandAll();
                     UncheckAll();
-                    List<string> listedTools = new();
+                    List<string> listedTools = [];
                     
                     OutputExpander.IsExpanded = true;
                     ConsoleOutput($"Loading configuration from {file}");
@@ -433,7 +465,7 @@ namespace WinFORCustomizer
                         }
                     }
                     List<CheckBox> allCheckBoxes = GetLogicalChildCollection<CheckBox>(AllTools);
-                    List<string> checkBoxNames = new();
+                    List<string> checkBoxNames = [];
                     foreach (CheckBox checkBox in allCheckBoxes)
                     {
                         checkBoxNames.Add(checkBox.Name);
@@ -468,19 +500,19 @@ namespace WinFORCustomizer
         }
         private void EnableTheme(object sender, RoutedEventArgs e)
         {
-            Theme.IsEnabled = true;
             Theme.Text = "WIN-FOR";
-            HostName.Visibility = Visibility.Visible;
-            HostNameLabel.Visibility = Visibility.Visible;
+            Theme.IsEnabled = true;
             HostName.Text = null;
+            HostName.IsEnabled = true;
+            HostNameLabel.IsEnabled = true;
         }
         private void DisableTheme(object sender, RoutedEventArgs e)
         {
-            Theme.IsEnabled = false;
             Theme.Text = null;
-            HostName.Visibility = Visibility.Hidden;
-            HostNameLabel.Visibility = Visibility.Hidden;
+            Theme.IsEnabled = false;
             HostName.Text = null;
+            HostName.IsEnabled = false;
+            HostNameLabel.IsEnabled = false;
         }
         public static class ThemeChoices
         {
@@ -608,13 +640,13 @@ namespace WinFORCustomizer
                 }
                 foreach (string tool in allChecked)
                 {
-                    int underScoreIndex = tool.IndexOf("_");
+                    int underScoreIndex = tool.IndexOf('_');
                     if (tool.Split("_")[0] == "python3")
                     {
                         if (stateType == "install")
                         {
                             string pythonTool = tool.Remove(underScoreIndex, "_".Length).Insert(underScoreIndex, "-");
-                            int secondUnderScoreIndex = pythonTool.IndexOf("_");
+                            int secondUnderScoreIndex = pythonTool.IndexOf('_');
                             string pythonVal = pythonTool.Remove(secondUnderScoreIndex, "_".Length).Insert(secondUnderScoreIndex, ".");
                             states.Add(pythonVal);
                         }
@@ -684,7 +716,6 @@ namespace WinFORCustomizer
         }
         public (List<string>, List<string>) GetCheckStatus()
         // Identify the status of all checkboxes - also adds the ability to grab the proper name for the tool
-        // The checkedItems_content is not yet in use, but is setup for future use under ToolList
         {
             List<string> checkedItems = [];
             List<string> checkedItemsContent = [];
@@ -706,10 +737,10 @@ namespace WinFORCustomizer
                         }
                     }
                 }
-                if (wsl.IsChecked == true)
+                if (WSL.IsChecked == true)
                 {
-                    checkedItems.Add(wsl.Name.ToString());
-                    checkedItemsContent.Add(wsl.Content.ToString()!);
+                    checkedItems.Add(WSL.Name.ToString());
+                    checkedItemsContent.Add(WSL.Content.ToString()!);
                 }
                 if (themed.IsChecked == true)
                 {
@@ -841,7 +872,7 @@ namespace WinFORCustomizer
                 string distro = "WIN-FOR";
                 string repo;
                 bool isThemed;
-                string currentUser = Environment.UserName;
+                string currentUser = runningUser; //Environment.UserName;
                 string xwaysData;
                 string xwaysToken;
                 bool xwaysSelected;
@@ -856,14 +887,14 @@ namespace WinFORCustomizer
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
-                if (cbXways.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                if (XWays.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
                 {
                     xwaysData = $"{XUser.Text}:{XPass.Text}";
                     xwaysToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(xwaysData));
                     xwaysSelected = true;
                     ConsoleOutput($"X-Ways is selected and credentials have been provided");
                 }
-                else if (cbXways.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
+                else if (XWays.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
                 {
                     ConsoleOutput("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
                     MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
@@ -889,10 +920,10 @@ namespace WinFORCustomizer
                     isThemed = false;
                     ConsoleOutput($"No theme has been selected.");
                 }
-                if (wsl.IsChecked == true)
+                if (WSL.IsChecked == true)
                 {
                     wslSelected = true;
-                    MessageBoxResult result = MessageBox.Show("WSLv2 installation will require a reboot! Ensure that you save any open documents, then click OK to continue.","WSLv2 requires a reboot!",MessageBoxButton.OKCancel,MessageBoxImage.Warning);
+                    MessageBoxResult result = MessageBox.Show("WSL installation will require a reboot! Ensure that you save any open documents, then click OK to continue.","WSL requires a reboot!",MessageBoxButton.OKCancel,MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Cancel) 
                     {
                         return;
@@ -1019,7 +1050,7 @@ namespace WinFORCustomizer
                     if (xwaysSelected)
                     {
                         ConsoleOutput("Adding authentication token to X-Ways state");
-                        InsertXwaysToken(xwaysToken);
+                        InsertXwaysToken(xwaysToken, true);
                     }
                     if (isThemed)
                     {
@@ -1032,6 +1063,12 @@ namespace WinFORCustomizer
                         if (HostName.Text != "")
                         {
                             hostName = HostName.Text;
+                            repo = Theme.Name;
+                            InsertHostName(hostName, repo);
+                        }
+                        else
+                        {
+                            hostName = currentHostname;
                             repo = Theme.Name;
                             InsertHostName(hostName, repo);
                         }
@@ -1324,7 +1361,7 @@ namespace WinFORCustomizer
         private static async Task<List<string>> IdentifyRelease()
         // Identifies the most recent release of the winfor-salt states for installation
         {
-            List<string> releaseData = new();
+            List<string> releaseData = [];
             try
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
@@ -1465,10 +1502,18 @@ namespace WinFORCustomizer
             }
             return extracted;
         }
-        private static void InsertXwaysToken(string authtoken)
+        private static void InsertXwaysToken(string authtoken, bool install)
         // This function will take the provided authtoken and insert it in the required spot in the x-ways.sls State file once available.
         {
-            string stateFile = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls";
+            string stateFile;
+            if (install)
+            {
+                stateFile = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\standalones\x-ways.sls";
+            }
+            else
+            {
+                stateFile = $@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\downloads\standalones\x-ways.sls";
+            }
             try
             {
                 if (File.Exists(stateFile))
@@ -1542,7 +1587,7 @@ namespace WinFORCustomizer
                     MessageBox.Show("No items selected! Choose at least one item to download.", "No items selected!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else if ((checkedItems.Count == 1) && (checkedItems.Contains("themed") || checkedItems.Contains("wsl")))
+                if ((checkedItems.Count == 1) && (checkedItems.Contains("themed") || checkedItems.Contains("wsl")))
                 {
                     string item = char.ToUpper(checkedItems[0][0]) + checkedItems[0][1..];
                     if (item == "Wsl")
@@ -1555,7 +1600,7 @@ namespace WinFORCustomizer
                     }
                     return;
                 }
-                else if ((checkedItems.Count == 2) && (checkedItems.Contains("themed") && checkedItems.Contains("wsl")))
+                if ((checkedItems.Count == 2) && (checkedItems.Contains("themed") && checkedItems.Contains("wsl")))
                 {
                     (string item0, string item1) = (checkedItems[0], checkedItems[1]);
                     item0 = char.ToUpper(item0[0]) + item0[1..];
@@ -1579,6 +1624,31 @@ namespace WinFORCustomizer
                 string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
                 string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
                 string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
+                string xwaysData;
+                string xwaysToken;
+                bool xwaysSelected;
+                if (XWays.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                {
+                    xwaysData = $"{XUser.Text}:{XPass.Text}";
+                    xwaysToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(xwaysData));
+                    xwaysSelected = true;
+                    ConsoleOutput($"X-Ways is selected and credentials have been provided");
+                }
+                else if (XWays.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
+                {
+                    ConsoleOutput("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
+                    MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
+                                    "X-Ways Portal Credentials Not Supplied",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Warning);
+                    return;
+                }
+                else
+                {
+                    xwaysSelected = false;
+                    xwaysToken = "TOKENPLACEHOLDER";
+                    ConsoleOutput("X-Ways is not selected and will not be downloaded / installed");
+                }
                 if (DownloadsPath.Text == "")
                 {
                     downloadPath = @"C:\winfor-downloads\";
@@ -1669,6 +1739,11 @@ namespace WinFORCustomizer
                     ConsoleOutput($@"State files extracted, writing winfor\downloads\init.sls");
                     File.WriteAllText($@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\downloads\init.sls", stateList);
                 }
+                if (xwaysSelected)
+                {
+                    ConsoleOutput("Adding authentication token to X-Ways state");
+                    InsertXwaysToken(xwaysToken, false);
+                }
                 if (File.Exists($@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\downloads\init.sls"))
                 {
                     await ExecuteSaltStackDownloads(releaseVersion, downloadPath);
@@ -1719,17 +1794,10 @@ namespace WinFORCustomizer
                     {
                         ConsoleOutput(
                             $"Installing the selected states.\n" +
+                            $"Log File: C:\\winfor-saltstack-{release}.log\n" +
                             $"Executing: salt call with the following variables\n" +
-                            $"  -l info --local\n" +
-                            $"  --retcode-passthrough\n" +
-                            $"  --state-output=mixed\n" +
-                            $"  state.sls\n" +
                             $"  winfor.custom\n" +
-                            $"  pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\"\n" +
-                            $"  --out-file=\"C:\\winfor-saltstack-{release}.log\"\n" +
-                            $"  --out-file-append\n" +
-                            $"  --log-file=\"C:\\winfor-saltstack-{release}.log\"\n" +
-                            $"  --log-file-level=debug\n"
+                            $"  {{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\n"
                             );
                         saltproc.Exited += new EventHandler(InstallExited);
                         if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
@@ -1784,17 +1852,10 @@ namespace WinFORCustomizer
                     {
                         ConsoleOutput(
                             $"Installing the selected states.\n" +
+                            $"Log File: C:\\winfor-saltstack-downloads-{release}.log\n" +
                             $"Executing: salt call with the following variables\n" +
-                            $"  -l info --local\n" +
-                            $"  --retcode-passthrough\n" +
-                            $"  --state-output=mixed\n" +
-                            $"  state.sls\n" +
                             $"  winfor.downloads\n" +
-                            $"  pillar=\"{{ 'downloads': '{downloadPath}'}}\"\n" +
-                            $"  --out-file=\"C:\\winfor-saltstack-downloads-{release}.log\"\n" +
-                            $"  --out-file-append\n" +
-                            $"  --log-file=\"C:\\winfor-saltstack-downloads-{release}.log\"\n" +
-                            $"  --log-file-level=debug"
+                            $"  {{ 'downloads': '{downloadPath}'}}\n"
                             );
                         saltproc.Exited += new EventHandler(DownloadExited);
                         if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
@@ -1894,18 +1955,11 @@ namespace WinFORCustomizer
                         }
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
                         ConsoleOutput(
-                           $"Installing WSLv2.\n" +
+                           $"Installing WSL.\n" +
+                           $"Log File: C:\\winfor-saltstack-{release}-wsl.log\n" +
                            $"Executing: salt call with the following variables\n" +
-                           $"  -l info --local\n" +
-                           $"  --retcode-passthrough\n" +
-                           $"  --state-output=mixed\n" +
-                           $"  state.sls\n" +
                            $"  winfor.wsl\n" +
-                           $"  pillar=\"{{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\"\n" +
-                           $"  --out-file=\"C:\\winfor-saltstack-{release}-wsl.log\"\n" +
-                           $"  --out-file-append\n" +
-                           $"  --log-file=\"C:\\winfor-saltstack-{release}-wsl.log\"\n" +
-                           $"  --log-file-level=debug\n"
+                           $"  {{ 'winfor_user': '{userName}', 'inpath': '{standalonesPath}'}}\n"
                            );
                         wslproc.Exited += new EventHandler(WslProcessExited);
                         if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
@@ -1929,7 +1983,7 @@ namespace WinFORCustomizer
                 }
                 catch (Exception ex)
                 {
-                    ConsoleOutput($"[ERROR] Unable to execute WSLv2 install:\n{ex}");
+                    ConsoleOutput($"[ERROR] Unable to execute WSL install:\n{ex}");
                     return;
                 }
                 await Task.WhenAny(wslHandled.Task, Task.Delay(10000));
@@ -1971,7 +2025,7 @@ namespace WinFORCustomizer
                     ConsoleOutput("[ERROR] No network connection detected - Please check your network connection and try the WSL Only option again.");
                     return;
                 }
-                MessageBoxResult result = MessageBox.Show("WSLv2 installation will require a reboot! Ensure that you save any open documents, then click OK to continue.", "WSLv2 requires a reboot!", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                MessageBoxResult result = MessageBox.Show("WSL installation will require a reboot! Ensure that you save any open documents, then click OK to continue.", "WSL requires a reboot!", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                 if (result == MessageBoxResult.Cancel)
                 {
                     return;
@@ -2107,7 +2161,7 @@ namespace WinFORCustomizer
             }
             catch (Exception ex)
             {
-                ConsoleOutput($"[ERROR] Unable to execute WSLv2 install:\n{ex}");
+                ConsoleOutput($"[ERROR] Unable to execute WSL install:\n{ex}");
                 return;
             }
         }
@@ -2183,13 +2237,12 @@ namespace WinFORCustomizer
                 }
             }
         }
-        private async void SaveConsoleOutput(object sender, RoutedEventArgs? e)
+        private void SaveConsoleOutput(object sender, RoutedEventArgs? e)
         // Saves the TextBox console Output for log analysis or review
         {
-            await Task.Delay(100);
             string dateTimeNow = $"{DateTime.Now:yyyyMMdd-hhmmss}";
             string fileName;
-            if (sender.GetType() == typeof(Button))
+            if ((sender.GetType() == typeof(Button)) | (sender.GetType() == typeof(MenuItem)))
             {
                 if (OutputConsole.Text == "")
                 {
@@ -2228,7 +2281,7 @@ namespace WinFORCustomizer
         {
             try
             {
-                List<string> releaseData = new();
+                List<string> releaseData = [];
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
@@ -2265,73 +2318,8 @@ namespace WinFORCustomizer
                 MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
             }
         }
-        public (StringBuilder, StringBuilder, StringBuilder, List<string>) ProcessResults(string releaseVersion)
-        {
-            StringBuilder errors = new();
-            StringBuilder results = new();
-            StringBuilder errorIds = new();
-            string logFile = $@"C:\winfor-saltstack-{releaseVersion}.log";
-            string downloadLog = $@"C:\winfor-saltstack-downloads-{releaseVersion}.log";
-            string wslLog = $@"C:\winfor-saltstack-{releaseVersion}-wsl.log";
-            List<string> logfiles = new()
-                {
-                    logFile,
-                    downloadLog,
-                    wslLog
-                };
-            try
-            {
-                foreach (string log in logfiles)
-                {
-                    if (File.Exists(log))
-                    {
-                        string[] contents = File.ReadAllLines(log);
-                        string[] splits = contents[1].Split('[', ']');
-                        string pid = splits[5];
-                        string errorString = $"[ERROR   ][{pid}]";
-                        var ignorable = new[] { "return code: 3010", "retcode: 3010", "Can't parse line", "retcode: 12345", "return code: 12345", $"{errorString} output:", "return code: 128", "fatal: not a git", "retcode: 128" };
-                        results.Append($"{log}\n");
-                        string logResults = ParseLog(contents, "Summary for", 7);
-                        logResults = logResults.Replace("Summary for local\r", "");
-                        logResults = logResults.Replace("------------\r", "");
-                        logResults = logResults.Replace("--Succeeded", "Succeeded");
-                        logResults = logResults.Replace("-Succeeded", "Succeeded");
-                        logResults = logResults.Replace("--Total", "Total");
-                        logResults = logResults.Replace("-Total", "Total");
-                        results.Append(logResults);
-                        results.Append(new string('-', 50) + "\n");
-                        errors.Append($"{log}\n");
-                        string error = ParseLog(contents, $"{errorString}", 1);
-                        foreach (string line in error.Split("\n"))
-                        {
-                            if (ignorable.Any(x => line.Contains(x)))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                string newLine = line.Replace(@"\r\n", "\n");
-                                errors.Append(newLine);
-                            }
-                        }
-                        errors.Append(new string('-', 50) + "\n");
-                        string idResults = ParseLog(contents, "ID: ", 8);
-                        errorIds.Append(idResults);
-                    }
-                }
-            }
-            catch (IOException)
-            {
-                ConsoleOutput($"One or more log files are being used by another process.");
-            }
-            catch (Exception ex)
-            {
-                OutputExpander.IsExpanded = true;
-                ConsoleOutput($"Unable to access logs:\n{ex}");
-            }
-            return (results, errors, errorIds, logfiles);
-        }
-        private void ResultsButton(object sender, RoutedEventArgs e)
+
+        private void ResultsButton_Click(object sender, RoutedEventArgs e)
         // Parses the available logs for the SaltStack and WSL installs to determine its summary
         {
             string versionFileSalt = @"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\VERSION";
@@ -2351,16 +2339,14 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                (StringBuilder results, StringBuilder errors, StringBuilder errorIds, List<string> logfiles) = ProcessResults(releaseVersion);
-                int linesInResults = results.ToString().Split('\r').Length;
-                if (linesInResults < 4)
+                if (!File.Exists(@$"C:\winfor-saltstack-{releaseVersion}.log") && !File.Exists(@$"C:\winfor-saltstack-downloads-{releaseVersion}.log") && !File.Exists(@$"C:\winfor-saltstack-{releaseVersion}-wsl.log"))
                 {
                     MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files,\n or no log file was found for {releaseVersion}.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
                 }
                 else
                 {
-                    ResultsWindow resultsWindow = new(results, errors, errorIds, logfiles, releaseVersion)
+                    ResultsWindow resultsWindow = new(releaseVersion)
                     {
                         Owner = this
                     };
@@ -2427,7 +2413,7 @@ namespace WinFORCustomizer
         public static List<int> Find_AllLineNumbers(string[] content, string searchTerm)
         // Used to identify all line numbers within the given content for the provided searchTerm
         {
-            List<int> lineNumbers = new();
+            List<int> lineNumbers = [];
             for (int i = 0; i < content.Length; i++)
             {
                 if (content[i].Contains(searchTerm))
@@ -2438,38 +2424,7 @@ namespace WinFORCustomizer
             }
             return lineNumbers;
         }
-        private static string ParseLog(string[] contents, string searchText, int context)
-        // The function for actually parsing the log file provided and searching for the given text
-        {
-            StringBuilder summary = new();
-            string output;
-            try
-            {
-                List<int> lineNumbers = Find_AllLineNumbers(contents, searchText);
-                foreach (int number in lineNumbers)
-                {
-                    for (int line = number; line < (number + context); line++)
-                    {
-                        summary.Append($"{contents[line].TrimStart().TrimEnd()}\r");
-                    }
-                    if (searchText == "ID: ")
-                    {
-                        summary.Append("----------\n");
-                    }
-                    else
-                    {
-                        summary.Append('\n');
-                    }
-                }
-                output = summary.ToString();
-            }
-            catch (Exception ex)
-            {
-                ConsoleOutput($"Unable to parse the log file contents:\n{ex}");
-                output = $"Unable to parse the log file contents\n";
-            }
-            return output;
-        }
+
         private static void ConsoleOutput(string message)
         // Function to output the given content with a date/time value in front of it for tracking events
         {
@@ -2500,40 +2455,8 @@ namespace WinFORCustomizer
                 ConsoleOutput($"[ERROR] Unable to determine the latest version:\n{ex}");
             }
         }
-        void OnStandalonesChanged(object sender, TextChangedEventArgs e)
-        {
-            if (StandalonesPath.Text == "")
-            {
-                ImageBrush sbgImageBrush = new()
-                {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/standalonesbg.gif", UriKind.Absolute)),
-                    AlignmentX = AlignmentX.Left,
-                    Stretch = Stretch.None
-                };
-                StandalonesPath.Background = sbgImageBrush;
-            }
-            else
-            {
-                StandalonesPath.Background = null;
-            }
-        }
-        void OnDownloadsChanged(object sender, TextChangedEventArgs e)
-        {
-            if (DownloadsPath.Text == "")
-            {
-                ImageBrush dlbgImageBrush = new()
-                {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/downloadsbg.gif", UriKind.Absolute)),
-                    AlignmentX = AlignmentX.Left,
-                    Stretch = Stretch.None
-                };
-                DownloadsPath.Background = dlbgImageBrush;
-            }
-            else
-            {
-                DownloadsPath.Background = null;
-            }
-        }
+
+
         public class TreeItems
         {
             public string? TVI { get; set; }
@@ -2678,7 +2601,7 @@ namespace WinFORCustomizer
         }
         private async Task<List<ConfigItems>> GetJsonConfig()
         {
-            List<ConfigItems>? jsonConfig = new();
+            List<ConfigItems>? jsonConfig = [];
             try
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
@@ -2696,7 +2619,7 @@ namespace WinFORCustomizer
         }
         private async Task<List<TreeItems>> GetJsonLayout()
         {
-            List<TreeItems>? jsonData = new();
+            List<TreeItems>? jsonData = [];
             try
             {
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
@@ -2863,7 +2786,7 @@ namespace WinFORCustomizer
             debloatWindow.Show();
         }
 
-        private readonly List<CheckBox> searchResults = new();
+        private readonly List<CheckBox> searchResults = [];
         private int searchIndex;
         public void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
@@ -2911,13 +2834,14 @@ namespace WinFORCustomizer
                 {
                     var topItem = (TreeViewItem)AllTools.Items[0];
                     topItem.BringIntoView();
-                    ImageBrush searchbgImageBrush = new()
-                    {
-                        ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/search.gif", UriKind.Absolute)),
-                        AlignmentX = AlignmentX.Left,
-                        Stretch = Stretch.None
-                    };
-                    SearchBox.Background = searchbgImageBrush;
+                    //ImageBrush searchbgImageBrush = new()
+                    //{
+                        //ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/search.gif", UriKind.Absolute)),
+                        //AlignmentX = AlignmentX.Left,
+                        //Stretch = Stretch.None
+                    //};
+                    //SearchBox.Background = searchbgImageBrush;
+                    SearchBoxPlaceholder.Visibility = Visibility.Visible;
                     foreach (CheckBox restoreCheckBox in GetLogicalChildCollection<CheckBox>(AllTools))
                     {
                         restoreCheckBox.IsEnabled = true;
@@ -2931,9 +2855,6 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    ClearSearchBtn.Visibility = Visibility.Visible;
-                    NextResultBtn.Visibility = Visibility.Visible;
-                    PreviousResultBtn.Visibility = Visibility.Visible;
                     SearchBox.Background = null;
                 }
             }
@@ -3027,13 +2948,17 @@ namespace WinFORCustomizer
         }
         private void ClearSearch(object sender, RoutedEventArgs e)
         {
-            SearchBox.Text = string.Empty;
-            ClearSearchBtn.Visibility = Visibility.Hidden;
-            NextResultBtn.Visibility = Visibility.Hidden;
-            PreviousResultBtn.Visibility = Visibility.Hidden;
-            searchIndex = 0;
-            searchResults.Clear();
-            CollapseAll();
+            if (SearchBox.Text != string.Empty)
+            {
+                SearchBox.Text = string.Empty;
+                searchIndex = 0;
+                searchResults.Clear();
+                CollapseAll();
+            }
+            else
+            {
+                return;
+            }
         }
 
         private void ClearConsole(object sender, RoutedEventArgs e)
@@ -3041,9 +2966,125 @@ namespace WinFORCustomizer
             OutputConsole.Clear();
             OutputExpander.IsExpanded = false;
         }
-        private void TestButton(object sender, RoutedEventArgs e)
+        private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-
+            if (stopWatch.IsRunning)
+            {
+                stopWatch.Stop();
+                elapsedTimer.Stop();
+            }
+            else
+            {
+                stopWatch?.Reset();
+                stopWatch?.Start();
+                elapsedTimer?.Start();
+            }
         }
+
+        private void StandalonesPath_GotFocus(object sender, RoutedEventArgs e)
+        {
+            StandalonesPlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void StandalonesPath_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(StandalonesPath.Text))
+            {
+                StandalonesPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void DownloadsPath_GotFocus(object sender, RoutedEventArgs e)
+        {
+            DownloadsPlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void DownloadsPath_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(DownloadsPath.Text))
+            {
+                DownloadsPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            SearchBoxPlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(SearchBox.Text))
+            {
+                SearchBoxPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void UserName_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UserNamePlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void UserName_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(UserName.Text))
+            {
+                UserNamePlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void HostName_GotFocus(object sender, RoutedEventArgs e)
+        {
+            HostNamePlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void HostName_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(HostName.Text))
+            {
+                HostNamePlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void XUser_GotFocus(object sender, RoutedEventArgs e)
+        {
+            XUserPlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void XUser_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(XUser.Text))
+            {
+                XUserPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void XPass_GotFocus(object sender, RoutedEventArgs e)
+        {
+            XPassPlaceholder.Visibility = Visibility.Hidden;
+        }
+
+        private void XPass_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(XPass.Text))
+            {
+                XPassPlaceholder.Visibility = Visibility.Visible;
+            }
+        }
+        private void ExpandCollapse_Click(object sender, RoutedEventArgs e)
+        {
+            if (ExpandCollapseTextBox.Text == "Expand All")
+            {
+                ExpandAll();
+                ExpandCollapseTextBox.Text = "Collapse All";
+            }
+            else if (ExpandCollapseTextBox.Text == "Collapse All")
+            {
+                CollapseAll();
+                ExpandCollapseTextBox.Text = "Expand All";
+            }
+        }
+
+
     }
 }

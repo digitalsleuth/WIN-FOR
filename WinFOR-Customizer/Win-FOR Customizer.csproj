@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>img\fp.ico</ApplicationIcon>
-    <Version>10.2.0</Version>
+    <Version>11.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
@@ -53,19 +53,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ErrorWindow.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="downloadsbg.gif" />
     <None Remove="img\downloadsbg.gif" />
     <None Remove="img\find.png" />
     <None Remove="img\search.gif" />
     <None Remove="img\standalonesbg.gif" />
     <None Remove="img\Thumbs.db" />
+    <None Remove="standalonesbg.gif" />
     <None Remove="Thumbs.db" />
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="ErrorWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="img\fp.ico">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
-	<Content Include="img\search.gif">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>
@@ -75,14 +82,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="img\downloadsbg.gif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="img\fpw120.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="img\standalonesbg.gif">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 
