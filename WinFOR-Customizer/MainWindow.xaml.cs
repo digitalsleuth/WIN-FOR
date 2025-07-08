@@ -229,6 +229,7 @@ namespace WinFORCustomizer
                 {
                     ti.IsExpanded = true;
                 }
+                ExpandCollapseTextBox.Text = "Collapse All";
             }
             catch (Exception ex)
             {
@@ -249,6 +250,7 @@ namespace WinFORCustomizer
                 {
                     treeItem.IsExpanded = false;
                 }
+                ExpandCollapseTextBox.Text = "Expand All";
             }
             catch (Exception ex)
             {
@@ -872,7 +874,7 @@ namespace WinFORCustomizer
                 string distro = "WIN-FOR";
                 string repo;
                 bool isThemed;
-                string currentUser = runningUser; //Environment.UserName;
+                string currentUser = runningUser;
                 string xwaysData;
                 string xwaysToken;
                 bool xwaysSelected;
@@ -2456,7 +2458,6 @@ namespace WinFORCustomizer
             }
         }
 
-
         public class TreeItems
         {
             public string? TVI { get; set; }
@@ -2635,6 +2636,7 @@ namespace WinFORCustomizer
             }
             return jsonData!;
         }
+        private readonly Dictionary<TreeViewItem, List<CheckBox>> originalChildOrder = [];
         private async Task GenerateTree()
         {
             bool Connected = CheckNetworkConnection.IsConnected();
@@ -2657,6 +2659,7 @@ namespace WinFORCustomizer
                     Content = HEADER,
                     VerticalContentAlignment = VerticalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Top,
+                    IsTabStop = false,
                     IsChecked = true
                 };
                 checkBox.Checked += SectionCheckAll;
@@ -2681,6 +2684,8 @@ namespace WinFORCustomizer
                         IsChecked = tool.Value.Checked,
                         IsEnabled = tool.Value.Enabled
                     };
+                    toolCheckBox.Checked += ChildCheckChanged;
+                    toolCheckBox.Unchecked += ChildCheckChanged;
                     if (toolCheckBox.Name == "standalones_x_ways")
                     {
                         toolCheckBox.IsChecked = false;
@@ -2699,9 +2704,52 @@ namespace WinFORCustomizer
                     {
                         newChild.Items.Add(toolCheckBox);
                     }
+                    if (!originalChildOrder.ContainsKey(newChild))
+                        originalChildOrder[newChild] = [];
+
+                    originalChildOrder[newChild].Add(toolCheckBox);
                 }
             }
         }
+
+        private void ChildCheckChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is not CheckBox childCheckBox)
+                return;
+
+            TreeViewItem? parentItem = FindLogicalParent<TreeViewItem>(childCheckBox);
+            if (parentItem?.Header is not CheckBox parentCheckBox)
+                return;
+            var childCheckBoxes = parentItem.Items.OfType<CheckBox>().ToList();
+            if (childCheckBoxes.Count == 0)
+            {
+                childCheckBoxes = parentItem.Items
+                    .OfType<object>()
+                    .Select(item => item as CheckBox)
+                    .Where(cb => cb != null)
+                    .ToList()!;
+            }
+
+            int total = childCheckBoxes.Count;
+            int checkedCount = childCheckBoxes.Count(cb => cb.IsChecked == true);
+
+            if (checkedCount == total)
+            {
+                parentCheckBox.IsThreeState = false;
+                parentCheckBox.IsChecked = true;
+            }
+            else if (checkedCount == 0)
+            {
+                parentCheckBox.IsThreeState = false;
+                parentCheckBox.IsChecked = false;
+            }
+            else
+            {
+                parentCheckBox.IsThreeState = true;
+                parentCheckBox.IsChecked = null;
+            }
+        }
+
         private async Task LocalLayout()
         {
             MessageBoxResult dlgResult = MessageBox.Show("On the following Dialog Box, please select where your Standalone Executables are stored from your previous installation.", "Important - Please Read!", MessageBoxButton.OKCancel, MessageBoxImage.Exclamation);
@@ -2788,77 +2836,80 @@ namespace WinFORCustomizer
 
         private readonly List<CheckBox> searchResults = [];
         private int searchIndex;
+
         public void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
-            searchResults.Clear();
-            string searchText = SearchBox.Text.ToLower();
-            ExpandAll();
-            bool firstResult = true;
-            
-            foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
+            if ((SearchBox.Text == string.Empty) && (SearchBox.IsFocused))
             {
-                string content = checkBox.Content.ToString()!.ToLower();
-                if (content.Contains(searchText) && searchText != string.Empty)
+                SearchBoxPlaceholder.Visibility = Visibility.Hidden;
+            }
+            ExpandAll();
+            searchResults.Clear();
+            searchIndex = -1;
+
+            string searchText = SearchBox.Text.ToLower();
+
+            foreach (TreeViewItem parent in AllTools.Items.OfType<TreeViewItem>())
+            {
+                if (parent.Header is not CheckBox) continue;
+                if (!originalChildOrder.TryGetValue(parent, out var originalChildren))
+                    continue;
+                parent.Items.Clear();
+
+                List<CheckBox> matchingChildren = [];
+                List<CheckBox> nonMatchingChildren = [];
+
+                foreach (CheckBox child in originalChildren)
                 {
-                    if (checkBox.Name.StartsWith("header"))
+                    string content = child.Content.ToString()!.ToLower();
+
+                    if (!string.IsNullOrWhiteSpace(searchText) && content.Contains(searchText))
                     {
-                        checkBox.IsEnabled = false;
-                        continue;
+                        child.Visibility = Visibility.Visible;
+                        child.Foreground = Brushes.Red;
+                        matchingChildren.Add(child);
+                        searchResults.Add(child);
                     }
                     else
                     {
-                        checkBox.Foreground = Brushes.Red;
-                        searchResults.Add(checkBox);
-                        searchIndex++;
-                        if (firstResult)
-                        {
-                            checkBox.BringIntoView();
-                            firstResult = false;
-                        }
+                        child.Visibility = string.IsNullOrWhiteSpace(searchText) ? Visibility.Visible : Visibility.Collapsed;
+                        child.Foreground = Brushes.Black;
+                        nonMatchingChildren.Add(child);
                     }
                 }
-                else
+
+                foreach (var match in matchingChildren)
                 {
-                    if (checkBox.Name.StartsWith("header"))
-                    {
-                        checkBox.IsEnabled = false;
-                        continue;
-                    }
-                    else
-                    {                      
-                        checkBox.Foreground = Brushes.Black;
-                        checkBox.Visibility = Visibility.Hidden;
-                    }
+                    parent.Items.Add(match);
                 }
-                if (string.IsNullOrWhiteSpace(searchText))
+                foreach (var nonMatch in nonMatchingChildren)
                 {
-                    var topItem = (TreeViewItem)AllTools.Items[0];
-                    topItem.BringIntoView();
-                    //ImageBrush searchbgImageBrush = new()
-                    //{
-                        //ImageSource = new BitmapImage(new Uri("pack://application:,,,/img/search.gif", UriKind.Absolute)),
-                        //AlignmentX = AlignmentX.Left,
-                        //Stretch = Stretch.None
-                    //};
-                    //SearchBox.Background = searchbgImageBrush;
-                    SearchBoxPlaceholder.Visibility = Visibility.Visible;
-                    foreach (CheckBox restoreCheckBox in GetLogicalChildCollection<CheckBox>(AllTools))
-                    {
-                        restoreCheckBox.IsEnabled = true;
-                        restoreCheckBox.Foreground = Brushes.Black;
-                        restoreCheckBox.Visibility = Visibility.Visible;
-                        restoreCheckBox.FontWeight = FontWeights.Normal;
-                    }
+                    parent.Items.Add(nonMatch);
+                }
+
+                parent.Visibility = matchingChildren.Count > 0 || string.IsNullOrWhiteSpace(searchText) ? Visibility.Visible : Visibility.Collapsed;
+                parent.IsExpanded = matchingChildren.Count > 0;
+            }
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                SearchBoxPlaceholder.Visibility = Visibility.Hidden;
+                searchResults.Clear();
+                searchIndex = -1;
+                ClearSearch(this, new RoutedEventArgs());
+            }
+            else
+            {
+                SearchBox.Background = null;
+                if (searchResults.Count > 0)
+                {
                     searchIndex = 0;
-                    searchResults.Clear();
-                    ClearSearch(this, new RoutedEventArgs());
-                }
-                else
-                {
-                    SearchBox.Background = null;
+                    searchResults[0].BringIntoView();
+                    searchResults[0].FontWeight = FontWeights.Bold;
                 }
             }
         }
+
         public void NextResult(object sender, RoutedEventArgs e)
         {
             if (searchResults.Count == 0)
@@ -2869,40 +2920,12 @@ namespace WinFORCustomizer
             {
                 checkBox.FontWeight = FontWeights.Normal;
             }
-            int totalIndices = searchResults.Count - 1;
-            if (searchIndex > totalIndices)
-            {
-                searchIndex = totalIndices;
-            }
-            int currentIndex = searchIndex;
-            if (currentIndex < 0)
-            {
-                currentIndex = 0;
-                searchIndex = 0;
-            }
-            if (currentIndex < totalIndices)
-            {
-                CheckBox checkBoxLess = searchResults[currentIndex + 1];
-                checkBoxLess.BringIntoView();
-                checkBoxLess.FontWeight = FontWeights.Bold;
-                searchIndex++;
-            }
-            else if (currentIndex == totalIndices)
-            {
-                CheckBox checkBoxEqual = searchResults[0];
-                checkBoxEqual.BringIntoView();
-                checkBoxEqual.FontWeight = FontWeights.Bold;
-                searchIndex = 0;
-            }
-            else
-            {
-                CheckBox checkBoxResult = searchResults[currentIndex];
-                checkBoxResult.BringIntoView();
-                checkBoxResult.FontWeight = FontWeights.Bold;
-                searchIndex++;
-            }
-
+            searchIndex = (searchIndex + 1) % searchResults.Count;
+            CheckBox current = searchResults[searchIndex];
+            current.BringIntoView();
+            current.FontWeight = FontWeights.Bold;
         }
+
         public void PreviousResult(object sender, RoutedEventArgs e)
         {
             if (searchResults.Count == 0)
@@ -2913,53 +2936,36 @@ namespace WinFORCustomizer
             {
                 checkBox.FontWeight = FontWeights.Normal;
             }
-            int totalIndices = searchResults.Count - 1;
-            if (searchIndex > totalIndices)
-            {
-                searchIndex = totalIndices;
-            }
-            int currentIndex = searchIndex;
-            if (currentIndex < 0)
-            {
-                currentIndex = totalIndices;
-                searchIndex = totalIndices;
-            }
-            if (currentIndex < totalIndices && currentIndex > 0)
-            {
-                CheckBox cb = searchResults[currentIndex - 1];
-                cb.BringIntoView();
-                cb.FontWeight = FontWeights.Bold;
-                searchIndex--;
-            }
-            else if (currentIndex == totalIndices && currentIndex != 0)
-            {
-                CheckBox checkBoxBack = searchResults[currentIndex - 1];
-                checkBoxBack.BringIntoView();
-                checkBoxBack.FontWeight = FontWeights.Bold;
-                searchIndex--;
-            }
-            else if (currentIndex == 0)
-            {
-                CheckBox checkBoxEnd = searchResults[totalIndices];
-                checkBoxEnd.BringIntoView();
-                checkBoxEnd.FontWeight = FontWeights.Bold;
-                searchIndex = totalIndices;
-            }
+            searchIndex = (searchIndex - 1 + searchResults.Count) % searchResults.Count;
+            CheckBox current = searchResults[searchIndex];
+            current.BringIntoView();
+            current.FontWeight = FontWeights.Bold;
         }
-        private void ClearSearch(object sender, RoutedEventArgs e)
+        public void ClearSearch(object sender, RoutedEventArgs e)
         {
-            if (SearchBox.Text != string.Empty)
+            SearchBox.Text = string.Empty;
+            if (!SearchBox.IsFocused)
             {
-                SearchBox.Text = string.Empty;
-                searchIndex = 0;
-                searchResults.Clear();
-                CollapseAll();
+                SearchBoxPlaceholder.Visibility = Visibility.Visible;
             }
-            else
+
+            foreach (TreeViewItem parent in AllTools.Items.OfType<TreeViewItem>())
             {
-                return;
+                parent.Visibility = Visibility.Visible;
+                parent.IsExpanded = false;
+
+                foreach (CheckBox childCheckBox in parent.Items.OfType<CheckBox>())
+                {
+                    childCheckBox.Visibility = Visibility.Visible;
+                    childCheckBox.Foreground = Brushes.Black;
+                    childCheckBox.FontWeight = FontWeights.Normal;
+                }
             }
+            searchResults.Clear();
+            searchIndex = 0;
+            CollapseAll();
         }
+
 
         private void ClearConsole(object sender, RoutedEventArgs e)
         {
@@ -2968,17 +2974,7 @@ namespace WinFORCustomizer
         }
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-            if (stopWatch.IsRunning)
-            {
-                stopWatch.Stop();
-                elapsedTimer.Stop();
-            }
-            else
-            {
-                stopWatch?.Reset();
-                stopWatch?.Start();
-                elapsedTimer?.Start();
-            }
+
         }
 
         private void StandalonesPath_GotFocus(object sender, RoutedEventArgs e)
