@@ -31,9 +31,11 @@ The customizer tool gives you the following features:
 - Check for updates to the Customizer
 - Graphically enter any settings you need!
 
-![screenshot-10 0 1](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-10.0.1.png)
+![screenshot-11 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-11.0.0.png)
 
-![screenshot-10 0 1-options](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-10.0.1-options.png)
+![screenshot-11 0 0-options](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-11.0.0-options.png)
+
+![screenshot-11 0 0-debloat](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-11.0.0-debloat.png)
 
 # STATUS UPDATE
 
