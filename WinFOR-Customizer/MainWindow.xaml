@@ -5,9 +5,43 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Win-FOR Customizer" SizeToContent="Height" Width="495"
+        Title="Win-FOR" SizeToContent="Height" Width="495"
         ResizeMode="CanMinimize" SnapsToDevicePixels="True" UseLayoutRounding="True"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="HoverButton" TargetType="Button">
+            <Setter Property="Background" Value="DarkRed"/>
+            <Setter Property="BorderBrush" Value="DarkRed"/>
+            <Setter Property="Foreground" Value="DarkRed"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Red"/>
+                                <Setter Property="Foreground" Value="Red"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="DarkRed"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="DarkRed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="White" FontSize="12">
             <MenuItem Header="_File" x:Name="FileMenu">
@@ -42,7 +76,7 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_Tools" x:Name="ToolsMenu">
-                <MenuItem Header="_Download Tool List" x:Name="ToolListOption" Click="DownloadToolList" ToolTip="This will download the PDF tool list from the Win-FOR GitHub Repo" InputGestureText="Ctrl+T">
+                <MenuItem Header="_Download Tool List" x:Name="ToolListOption" Click="DownloadToolList" ToolTip="This will download the PDF tool list from the GitHub Repo" InputGestureText="Ctrl+T">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE896;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
@@ -52,7 +86,7 @@
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8FC;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Download Theme Template" x:Name="ThemeTemplateOption" ToolTip="Download a zip file containing everything you need to build a custom theme" InputGestureText="Ctrl+Shift+T">
+                <MenuItem Header="Download Theme Template" x:Name="ThemeTemplateOption" Click="DownloadThemeTemplate" ToolTip="Download a zip file containing everything you need to build a custom theme">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE771;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
@@ -64,18 +98,20 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+            <TextBlock x:Name="CheckUncheckTextBox" Text="Uncheck All" FontSize="12" Cursor="Hand" MouseLeftButtonDown="CheckUncheckAll_Click" ToolTip="Check / Uncheck All"/>
+            <TextBlock x:Name="ExpandCollapseTextBox" Text="Expand All" FontSize="12" Cursor="Hand" MouseLeftButtonDown="ExpandCollapse_Click" ToolTip="Expand / Collapse All"/>
             <MenuItem Header="_Help" x:Name="HelpMenu">
-                <MenuItem Header="Check for Win-FOR Customizer _Updates" x:Name="CheckForUpdates" Click="CheckUpdates" InputGestureText="Ctrl+U">
+                <MenuItem Header="Check for _Updates" x:Name="CheckForUpdates" Click="CheckUpdates" InputGestureText="Ctrl+U">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE895;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Check GitHub for latest Win-FOR version" x:Name="CheckLatestWinFOR" Click="ShowLatestRelease" InputGestureText="Ctrl+G">
+                <MenuItem Header="Check GitHub for latest version" x:Name="CheckLatestWinFOR" Click="ShowLatestRelease" InputGestureText="Ctrl+G">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEDE4;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Show installed Win-FOR _version" x:Name="CheckWinFORVersion" Click="CheckDistroVersion" InputGestureText="Ctrl+Shift+V">
+                <MenuItem Header="Show installed _version" x:Name="CheckWinFORVersion" Click="CheckDistroVersion" InputGestureText="Ctrl+Shift+V">
                     <MenuItem.Icon>
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEE57;" FontSize="15" Foreground="#FF1644B9" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </MenuItem.Icon>
@@ -87,8 +123,7 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <TextBlock x:Name="CheckUncheckTextBox" Text="Uncheck All" FontSize="12" Cursor="Hand" MouseLeftButtonDown="CheckUncheckAll_Click"/>
-            <TextBlock x:Name="ExpandCollapseTextBox" Text="Expand All" FontSize="12" Cursor="Hand" MouseLeftButtonDown="ExpandCollapse_Click"/>
+
         </Menu>
         <Grid Margin="5,5,0,0" ShowGridLines="False" Height="Auto">
             <Grid.ColumnDefinitions>
@@ -124,7 +159,7 @@
             <!-- Optional Installation Options -->
             <Label x:Name="UserNameLabel" Grid.Row="1" Target="{Binding ElementName=UserName}" Content="Username:" Height="24" Width="68" Margin="0,8,0,0" FontSize="12" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" ToolTip="Enter the username for whom to install and customize the environment.&#x0a;If the user does not exist, it will be created" />
             <TextBox x:Name="UserName" Grid.Row="1" Width="90" Height="22" FontSize="12" HorizontalAlignment="Left" Margin="76,10,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" VerticalAlignment="Top" IsTabStop="True" TabIndex="13" GotFocus="UserName_GotFocus" LostFocus="UserName_LostFocus"/>
-            <TextBlock Name="UserNamePlaceholder" Grid.Row="1" HorizontalAlignment="Left" Margin="80,13,0,0" Text="" Foreground="Gray" VerticalAlignment="Top" IsHitTestVisible="False" FontSize="12" FontStyle="Italic" />
+            <TextBlock Name="UserNamePlaceholder" Grid.Row="1" HorizontalAlignment="Left" Margin="79,13,0,0" Text="" Foreground="Gray" VerticalAlignment="Top" IsHitTestVisible="False" FontSize="12" FontStyle="Italic" />
             <CheckBox x:Name="themed" Grid.Row="1" Content="Themed" Height="17" Width="68" FontSize="12" Margin="3,42,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" IsChecked="False" Checked="EnableTheme" Unchecked="DisableTheme" ToolTip="This adds theme customization, Start Menu layout, and distro-specific Wallpaper and icons." IsTabStop="True" TabIndex="11"/>
             <ComboBox x:Name="Theme" Grid.Row="1" HorizontalAlignment="Left" Margin="76,38,0,0" FontSize="12" VerticalAlignment="Top" Width="90" MaxDropDownHeight="479" Height="22" TabIndex="27" IsEnabled="False" Loaded="CheckAllBtn" SelectionChanged="ThemeComboBox_SelectionChanged">
                 <ComboBoxItem Content="CPC-WIN" x:Name="cpcwin" />
@@ -132,8 +167,8 @@
                 <ComboBoxItem Content="Custom" x:Name="custom" />
             </ComboBox>
             <Label x:Name="HostNameLabel" Grid.Row="1" Target="{Binding ElementName=HostName}" Content="Hostname:" Height="24" Width="67" Margin="0,64,0,0" FontSize="12" HorizontalContentAlignment="Right" HorizontalAlignment="Left" VerticalContentAlignment="Center" VerticalAlignment="Top" ToolTip="Enter the hostname you would like for your installation.&#x0a;If nothing is selected, the default of WIN-FOR will be used." IsEnabled="False"/>
-            <TextBox x:Name="HostName" Grid.Row="1" Width="90" Height="22" FontSize="12" Margin="76,66,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalAlignment="Top" IsEnabled="False" GotFocus="HostName_GotFocus" LostFocus="HostName_LostFocus"/>
-            <TextBlock Name="HostNamePlaceholder" Grid.Row="1" Margin="80,69,0,0" Text="" FontSize="12" FontStyle="Italic" HorizontalAlignment="Left" Foreground="Gray" VerticalAlignment="Top" IsHitTestVisible="False" />
+            <TextBox x:Name="HostName" Grid.Row="1" Width="90" Height="22" FontSize="10" Margin="76,66,0,0" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalAlignment="Top" IsEnabled="False" GotFocus="HostName_GotFocus" LostFocus="HostName_LostFocus"/>
+            <TextBlock Name="HostNamePlaceholder" Grid.Row="1" Margin="78,69,0,0" Text="" FontStyle="Italic" HorizontalAlignment="Left" Foreground="Gray" VerticalAlignment="Top" IsHitTestVisible="False" />
             <CheckBox x:Name="WSL" Grid.Row="1" Content="Add WSL" FontSize="12" Height="20" Width="72" Margin="3,95,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" ToolTip="Select this option if you wish to install the Windows Subsystem for Linux v2 with SIFT and REMnux" IsTabStop="True" TabIndex="12"/>
             <CheckBox x:Name="XWays" Grid.Row="1" Content="Add X-Ways" Height="20" Margin="80,95,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" IsChecked="False" Checked="XwaysChecked" Unchecked="XwaysUnchecked" Width="88" FontSize="12" IsTabStop="True" TabIndex="16" />
             <!-- File Locations and X-Ways Configuration -->
@@ -153,12 +188,13 @@
             <TextBlock Name="XPassPlaceholder" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="302,97,0,0" FontSize="12" FontStyle="Italic" Text="Portal Password" Foreground="Gray" VerticalAlignment="Top" IsHitTestVisible="False" />
             <!-- Output and Results -->
             <Expander x:Name="OutputExpander" HorizontalAlignment="Left" Width="479" Height="Auto" Header="Output" Margin="2,123,0,10" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Top" IsExpanded="False" IsEnabled="True" IsTabStop="False">
-                <TextBox x:Name="OutputConsole" HorizontalAlignment="Left" Width="459" Height="250" Margin="2,4,0,10" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" IsReadOnly="True" IsTabStop="False"/>
+                <TextBox x:Name="OutputConsole" HorizontalAlignment="Left" Width="459" Height="250" Margin="2,4,0,10" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="11" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" IsReadOnly="True" IsTabStop="False"/>
             </Expander>
             <Button x:Name="ClearOutput" Grid.Row="1" Margin="77,123,0,0" FontSize="15" FontWeight="Normal" Height="22" Width="22" FontFamily="Segoe MDL2 Assets" Content="&#xED60;" Foreground="#FF1644B9" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="ClearConsole" BorderBrush="White" Background="White" ToolTip="Clear the content of the Console Window." IsTabStop="False" />
             <Button x:Name="SaveOutputButton" Grid.Row="1" Margin="103,123,0,0" FontSize="15" FontWeight="Normal" Height="22" Width="22" FontFamily="Segoe MDL2 Assets" Content="&#xEA35;" Foreground="#FF1644B9" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="SaveConsoleOutput" BorderBrush="White" Background="White" ToolTip="Save the content of the Console Window." IsTabStop="False" />
             <Button x:Name="ResultsButton" Grid.Row="1" Margin="130,124,0,0" Height="22" Width="22" FontSize="14" FontFamily="Segoe MDL2 Assets" Content="&#xE8BC;" Foreground="#FF1644B9" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="ResultsButton_Click" BorderBrush="White" Background="White" ToolTip="View Results of recent installation or download attempts." IsTabStop="True" TabIndex="9" />
-            <Label x:Name="TimerLabel" Grid.Row="1" Content="" HorizontalAlignment="Center" Margin="0,121,4,0" VerticalAlignment="Top" Width="84" VerticalContentAlignment="Top" HorizontalContentAlignment="Right" Height="24" Grid.Column="1"/>
+            <Button x:Name="StopButton" Grid.Row="1" Margin="160,126,0,0" Height="18" Width="18" FontSize="12" FontFamily="Segoe MDL2 Assets" Content="&#xE71A;" Style="{StaticResource HoverButton}" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="StopSaltStack_Click" BorderBrush="DarkRed" BorderThickness="2" ToolTip="Stop the currently executing SaltStack process." IsTabStop="True" TabIndex="10" IsEnabled="False" Visibility="Hidden"/>
+            <Label x:Name="TimerLabel" Grid.Row="1" Content="" HorizontalAlignment="Left" Margin="6,122,0,0" VerticalAlignment="Top" Width="84" VerticalContentAlignment="Top" HorizontalContentAlignment="Right" Height="24" Grid.Column="1"/>
             <!--<Button x:Name="TestButton" Grid.Row="1" Content="👍" Margin="151,121,0,0" FontSize="15" FontWeight="Normal" Height="24" Width="22" Foreground="#FF1644B9" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Top" Click="TestButton_Click" BorderBrush="Transparent" Background="White" IsTabStop="False" />-->
         </Grid>
     </DockPanel>

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -18,19 +19,20 @@ namespace WinFORCustomizer
     public partial class ResultsWindow : Window
     {
         private readonly ObservableCollection<LogEntry> logEntries;
+        private static readonly string src = "winfor";
         private ICollectionView logView;
         public ResultsWindow(string releaseVersion)
         {
 
             InitializeComponent();
-            logEntries = new ObservableCollection<LogEntry>();
+            logEntries = [];
             logView = CollectionViewSource.GetDefaultView(logEntries);
             logView.Filter = FilterLogEntries;
 
             LogListView.ItemsSource = logView;
-            string logFile = $@"C:\winfor-saltstack-{releaseVersion}.log";
-            string wslLog = $@"C:\winfor-saltstack-{releaseVersion}-wsl.log";
-            string downloadLog = $@"C:\winfor-saltstack-downloads-{releaseVersion}.log";
+            string logFile = $@"C:\{src}-saltstack-{releaseVersion}.log";
+            string wslLog = $@"C:\{src}-saltstack-{releaseVersion}-wsl.log";
+            string downloadLog = $@"C:\{src}-saltstack-downloads-{releaseVersion}.log";
             var buttonMap = new Dictionary<string, Button>
             {
                 { logFile, SaltStackLogButton },
@@ -113,32 +115,49 @@ namespace WinFORCustomizer
             dataView.Refresh();
         }
 
-        private void LoadLog_Click(object sender, RoutedEventArgs e)
+        private async void LoadLog_Click(object sender, RoutedEventArgs e)
         {
+            SplashWindow splash = new()
+            {
+                Owner = Application.Current.MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             if (sender is Button clickedButton)
             { 
                 string? buttonContent = clickedButton.Content.ToString();
-#pragma warning disable CS8604 // Possible null reference argument.
-                List<LogEntry> parsedEntries = LogParser.ParseLog(buttonContent);
-#pragma warning restore CS8604 // Possible null reference argument.
-                logEntries.Clear();
-                foreach (var entry in parsedEntries)
+
+                try
                 {
-                    logEntries.Add(entry);
+                    logEntries.Clear();
+                    splash.Show();
+                    await Task.Delay(100);
+                    List<LogEntry> parsedEntries = await Task.Run(() =>
+                    {
+                        return LogParser.ParseLog(buttonContent!); 
+                    });
+                    foreach (var entry in parsedEntries)
+                    {
+                        logEntries.Add(entry);
+                    }
+                    if (logView == null)
+                    {
+                        logView = CollectionViewSource.GetDefaultView(logEntries);
+                        logView.Filter = FilterLogEntries;
+                        LogListView.ItemsSource = logView;
+                    }
+                    else
+                    {
+                        logView.Refresh();
+                    }
+                    splash.Close();
                 }
-                if (logView == null)
+                catch (Exception ex)
                 {
-                    logView = CollectionViewSource.GetDefaultView(logEntries);
-                    logView.Filter = FilterLogEntries;
-                    LogListView.ItemsSource = logView;
-                }
-                else
-                {
-                    logView.Refresh();
+                    MessageBox.Show($"The log file {buttonContent} could not be processed:\n{ex}\nPlease consider reviewing this file manually.", "Unable to open log file", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
                 }
             }
- 
-        }
+         }
 
         private void ClearFilters_Click(object sender, RoutedEventArgs e)
         {
@@ -167,16 +186,12 @@ namespace WinFORCustomizer
             {
                 bool dateMatch = string.IsNullOrEmpty(DateFilterBox.Text) ||
                                  entry.Date?.ToString().IndexOf(DateFilterBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
-
                 bool levelMatch = string.IsNullOrEmpty(LevelFilterBox.Text) ||
                                   entry.Level?.IndexOf(LevelFilterBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
-
                 bool resultMatch = string.IsNullOrEmpty(ResultFilterBox.Text) ||
                                    entry.Result?.IndexOf(ResultFilterBox.Text, StringComparison.OrdinalIgnoreCase) >= 0;
-
                 return dateMatch && levelMatch && resultMatch;
             }
-
             return false;
         }
 
@@ -196,7 +211,6 @@ namespace WinFORCustomizer
             {
                 LevelFilterBox.Text = selectedLevel;
             }
-            
         }
         private void ContextMenuItem_CopyClick(object sender, RoutedEventArgs e)
         {
@@ -223,7 +237,6 @@ namespace WinFORCustomizer
             {
                 if (item is LogEntry entry)
                 {
-                    // Format the row content how you'd like
                     sb.AppendLine($"{entry.Date}\t{entry.Level}\t{entry.Result}");
                 }
             }
@@ -253,33 +266,43 @@ namespace WinFORCustomizer
         {
             var entries = new List<LogEntry>();
             LogEntry? current = null;
-
-            foreach (var line in File.ReadLines(filePath))
+            try
             {
-                var match = logRegex.Match(line);
-                if (match.Success)
+                using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(fs))
                 {
-                    if (current != null)
-                        entries.Add(current);
-
-                    current = new LogEntry
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        Date = match.Groups["date"].Value,
-                        Module = match.Groups["module"].Value.Trim(),
-                        Level = match.Groups["level"].Value.Trim(),
-                        Pid = match.Groups["pid"].Value,
-                        Result = match.Groups["result"].Value
-                    };
+                        var match = logRegex.Match(line);
+                        if (match.Success)
+                        {
+                            if (current != null)
+                                entries.Add(current);
+
+                            current = new LogEntry
+                            {
+                                Date = match.Groups["date"].Value,
+                                Module = match.Groups["module"].Value.Trim(),
+                                Level = match.Groups["level"].Value.Trim(),
+                                Pid = match.Groups["pid"].Value,
+                                Result = match.Groups["result"].Value
+                            };
+                        }
+                        else if (current != null)
+                        {
+                            current.Result += "\n" + line;
+                        }
+                    }
                 }
-                else if (current != null)
-                {
-                    current.Result += "\n" + line;
-                }
+
+                if (current != null)
+                    entries.Add(current);
             }
-
-            if (current != null)
-                entries.Add(current);
-
+            catch (IOException)
+            {
+                MessageBox.Show($"The log file {filePath} is locked and is being used by another process.\nTry ending that process, or making a copy of the log file and review its contents manually.", "Unable to open log file", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
             return entries;
         }
 

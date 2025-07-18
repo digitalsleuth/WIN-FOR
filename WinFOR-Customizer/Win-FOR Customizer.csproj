@@ -6,6 +6,7 @@
     <RootNamespace>WinFORCustomizer</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
     <Platforms>AnyCPU;x64</Platforms>
     <Title>Win-FOR Customizer</Title>
     <PackageIcon>fp128.png</PackageIcon>
@@ -30,7 +31,7 @@
 	<ApplicationManifest>app.manifest</ApplicationManifest>
 	<UseWindowsForms>True</UseWindowsForms>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-	<AssemblyName>winfor-customizer-v$(AssemblyVersion)</AssemblyName>
+	<AssemblyName>winfor-v$(AssemblyVersion)</AssemblyName>
 	<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
 

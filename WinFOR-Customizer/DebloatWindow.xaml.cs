@@ -17,7 +17,8 @@ namespace WinFORCustomizer
     /// </summary>
     public partial class DebloatWindow : Window
     {
-        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0";
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0";
+        private static readonly string debloatJson = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/debloat.json";
         public DebloatWindow()
         {
             InitializeComponent();
@@ -235,8 +236,8 @@ namespace WinFORCustomizer
                 CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
                 HttpClient httpClient = new();
                 httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
-                string uri = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/debloat.json";
-                jsonData = await httpClient.GetFromJsonAsync<List<TabItems>>(uri, cancellationToken.Token);
+                jsonData = await httpClient.GetFromJsonAsync<List<TabItems>>(debloatJson, cancellationToken.Token);
+                cancellationToken.Dispose();
             }
             catch (HttpRequestException)
             {
@@ -298,8 +299,6 @@ namespace WinFORCustomizer
                     {
                         int numFunctions = function.Value.Options!.Length;
                         string functionContent = function.Value.RadioButtonContents!;
-
-                        // Create a GroupBox to store the RadioButtons
                         GroupBox groupBox = new()
                         {
                             Header = function.Key,
@@ -309,14 +308,10 @@ namespace WinFORCustomizer
                             BorderBrush = Brushes.CornflowerBlue
 
                         };
-
-                        // Create a base StackPanel for the RadioButtons
                         StackPanel radioButtonPanel = new()
                         {
                             Orientation = Orientation.Horizontal
                         };
-                        // Create a for loop for the functions and create a radio button for them
-
                         for (int i = 0; i <= numFunctions - 1; i++)
                         {
                             RadioButton optionRadioButton = new()
@@ -334,14 +329,8 @@ namespace WinFORCustomizer
                             Name = "None",
                             GroupName = function.Key
                         };
-
-                        // Add RadioButtons to the StackPanel
                         radioButtonPanel.Children.Add(doNothingRadioButton);
-
-                        // Add the StackPanel to the GroupBox
                         groupBox.Content = radioButtonPanel;
-
-                        // Add the GroupBox to the main StackPanel
                         if (groupNumber <= numGroupsPerPanel)
                         {
                             stackName0.Children.Add(groupBox);
@@ -358,7 +347,6 @@ namespace WinFORCustomizer
                     foreach (TabItem tabItem in Tabs.Items)
                     {
                         List<RadioButton> radioButtons = MainWindow.GetLogicalChildCollection<RadioButton>((DependencyObject)tabItem.Content);
-                        // Find all RadioButton controls in each TabItem, which are in Grids, so we need to enumerate the Content
                         foreach (string setting in DebloatSettings.Selections)
                         {
                             foreach (RadioButton radioButton in radioButtons)
