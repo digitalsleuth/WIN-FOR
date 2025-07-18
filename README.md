@@ -37,6 +37,8 @@ The customizer tool gives you the following features:
 
 ![screenshot-11 0 0-debloat](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-11.0.0-debloat.png)
 
+![screenshot-11 0 0-results](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-11.0.0-results.png)
+
 # STATUS UPDATE
 
 Due to recent changes in the Saltstack infrastructure [more information found here](https://saltproject.io/blog/salt-project-package-repo-migration-and-guidance/), Win-FOR Customizer had to be updated to the latest SaltStack and drop support for v3005.
