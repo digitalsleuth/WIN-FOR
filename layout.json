@@ -37,6 +37,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "FEX Cloud Capture": {
+        "CbName": "standalones_fex_cloud_capture",
+        "CbContent": "FEX Cloud Capture",
+        "DAID": "PLACEHOLDER_PATH\\fex-cloud-capture\\FEXCloudCapture.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "FEX Imager": {
         "CbName": "packages_fex_imager",
         "CbContent": "FEX Imager",
@@ -218,6 +229,17 @@
       "X-Ways Forensics Templates": {
         "CbName": "standalones_x_ways_templates",
         "CbContent": "X-Ways Forensics Templates",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "ZAPiXDESK": {
+        "CbName": "standalones_zapixdesk",
+        "CbContent": "ZAPiXDESK",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -564,8 +586,8 @@
       },
       "Aid4Mail 5": {
         "CbName": "installers_aid4mail",
-        "CbContent": "Aid4Mail 5",
-        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Aid4Mail5\\Aid4Mail5.exe",
+        "CbContent": "Aid4Mail 6",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Aid4Mail6\\Aid4Mail.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -690,6 +712,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Binary Ninja": {
+        "CbName": "packages_binary_ninja",
+        "CbContent": "Binary Ninja",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Vector35\\BinaryNinja\\binaryninja.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Bintext": {
         "CbName": "standalones_bintext",
         "CbContent": "Bintext",
@@ -779,9 +812,9 @@
         "ExtraTiles": []
       },
       "dotPeek": {
-        "CbName": "standalones_dotpeek",
+        "CbName": "packages_dotpeek",
         "CbContent": "dotPeek",
-        "DAID": "PLACEHOLDER_PATH\\dotpeek\\dotPeek64.exe",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\JetBrains\\Installations\\dotPeek251_000\\dotPeek64.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -818,6 +851,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Ghidra": {
+        "CbName": "standalones_ghidra",
+        "CbContent": "Ghidra",
+        "DAID": "PLACEHOLDER_PATH\\ghidra\\ghidraRun.bat",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1009,17 +1053,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Process Hacker": {
-        "CbName": "packages_process_hacker",
-        "CbContent": "Process Hacker",
-        "DAID": "wj32.ProcessHacker2",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "PSDecode": {
         "CbName": "standalones_psdecode",
         "CbContent": "PSDecode",
@@ -1093,6 +1126,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "SystemInformer": {
+        "CbName": "packages_systeminformer",
+        "CbContent": "SystemInformer",
+        "DAID": "SystemInformer",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1517,9 +1561,9 @@
         "ExtraTiles": []
       },
       "iTunes Backup Explorer": {
-        "CbName": "standalones_itunes_backup_explorer",
+        "CbName": "packages_itunes_backup_explorer",
         "CbContent": "iTunes Backup Explorer",
-        "DAID": "PLACEHOLDER_PATH\\itunes-backup-explorer\\itunes-backup-explorer-1.4.jar",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\iTunes Backup Explorer\\iTunes Backup Explorer.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1794,10 +1838,32 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "H@x": {
+        "CbName": "packages_hax",
+        "CbContent": "H@x",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Hax\\Hax.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Hex Editor Neo": {
         "CbName": "packages_free_hex_editor_neo",
         "CbContent": "Hex Editor Neo",
         "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\HHD Software\\Hex Editor Neo\\HexFrame.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "HexWalk": {
+        "CbName": "standalones_hexwalk",
+        "CbContent": "HexWalk",
+        "DAID": "PLACEHOLDER_PATH\\hexwalk\\hexwalk.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1852,7 +1918,7 @@
       "Passware Encryption Analyzer": {
         "CbName": "packages_passware_encryption_analyzer",
         "CbContent": "Passware Encryption Analyzer",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Passware\\Encryption Analyzer 2024\\PasswareEncryptionAnalyzer.exe",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Passware\\Encryption Analyzer 2025\\PasswareEncryptionAnalyzer.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1921,7 +1987,7 @@
       "Time Decode GUI": {
         "CbName": "standalones_time_decode_gui",
         "CbContent": "Time Decode GUI",
-        "DAID": "PLACEHOLDER_PATH\\time-decode\\Time Decode GUI.exe",
+        "DAID": "PLACEHOLDER_PATH\\time-decode\\time-decode-gui.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1998,6 +2064,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      ".NET 3.5 Framework": {
+        "CbName": "packages_dotnetfx35",
+        "CbContent": ".NET 3.5 Framework",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       ".NET 6 Desktop Runtime": {
         "CbName": "packages_dotnet6_desktop_runtime",
         "CbContent": ".NET 6 Desktop Runtime",
@@ -2009,9 +2086,20 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      ".NET 3.5 Framework": {
-        "CbName": "packages_dotnetfx35",
-        "CbContent": ".NET 3.5 Framework",
+      ".NET 8 Desktop Runtime": {
+        "CbName": "packages_dotnet8_desktop_runtime",
+        "CbContent": ".NET 8 Desktop Runtime",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      ".NET 9 Desktop Runtime": {
+        "CbName": "packages_dotnet9_desktop_runtime",
+        "CbContent": ".NET 9 Desktop Runtime",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -2056,6 +2144,17 @@
       "Java Development Kit 17": {
         "CbName": "packages_jdk17",
         "CbContent": "Java Development Kit 17",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Java Development Kit 21": {
+        "CbName": "packages_jdk21",
+        "CbContent": "Java Development Kit 21",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -2148,8 +2247,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "Visual Studio Community 2022": {
@@ -2409,7 +2508,7 @@
         "ExtraTiles": []
       },
       "Irfanview x64 Plugins": {
-        "CbName": "installers_irfanview_plugins",
+        "CbName": "packages_irfanview_plugins",
         "CbContent": "Irfanview x64 Plugins",
         "DAID": "",
         "AUMID": false,

@@ -11,7 +11,8 @@ install all of the packages.
 
 The installer is a graphical interface to click and choose which items you want, and to enter the settings you need
 
-Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.
+Check out the [Releases](https://github.com/digitalsleuth/WIN-FOR/releases) section for the most up-to-date installers.  
+The "lite" version does not include the .NET 8 runtime, the "non-lite" version has the .NET 8 runtime built in.
 
 ## Win-FOR Customizer
 

@@ -1859,6 +1859,7 @@ namespace WinFORCustomizer
                     saltproc.Kill(true);
                     saltproc.WaitForExit();
                     ConsoleOutput("SaltStack was terminated.");
+                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -1872,6 +1873,7 @@ namespace WinFORCustomizer
                     wslproc.Kill(true);
                     wslproc.WaitForExit();
                     ConsoleOutput("SaltStack was terminated.");
+                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -1957,6 +1959,7 @@ namespace WinFORCustomizer
                     $"Exit code \t: {proc.ExitCode}\n" +
                     $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
                     ProcHandled?.TrySetResult(true);
+                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -2051,6 +2054,7 @@ namespace WinFORCustomizer
                     $"Exit code \t: {proc.ExitCode}\n" +
                     $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
                     wslHandled?.TrySetResult(true);
+                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
