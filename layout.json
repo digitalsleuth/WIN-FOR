@@ -222,7 +222,7 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
+        "Checked": false,
         "Enabled": true,
         "ExtraTiles": []
       },
@@ -233,7 +233,7 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
-        "Checked": true,
+        "Checked": false,
         "Enabled": true,
         "ExtraTiles": []
       },
@@ -1655,6 +1655,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "HTTrack": {
+        "CbName": "packages_httrack",
+        "CbContent": "HTTrack",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\WinHTTrack\\WinHTTrack.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "IPInfo": {
         "CbName": "standalones_ipinfo",
         "CbContent": "IPInfo",
@@ -1703,6 +1714,17 @@
         "CbName": "packages_fiddler",
         "CbContent": "Telerik Fiddler",
         "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Fiddler\\Fiddler.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "WebCopy": {
+        "CbName": "packages_webcopy",
+        "CbContent": "WebCopy",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Cyotek\\WebCopy\\cyowcopy.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -2719,7 +2741,7 @@
       "Win-FOR Customizer": {
         "CbName": "standalones_winfor_customizer",
         "CbContent": "Win-FOR Customizer",
-        "DAID": "PLACEHOLDER_PATH\\winfor-customizer-v8.0.0.exe",
+        "DAID": "PLACEHOLDER_PATH\\winfor-v11.1.0.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

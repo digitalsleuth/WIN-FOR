@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace WinFORCustomizer
 {
@@ -32,7 +34,7 @@ namespace WinFORCustomizer
             LogListView.ItemsSource = logView;
             string logFile = $@"C:\{src}-saltstack-{releaseVersion}.log";
             string wslLog = $@"C:\{src}-saltstack-{releaseVersion}-wsl.log";
-            string downloadLog = $@"C:\{src}-saltstack-downloads-{releaseVersion}.log";
+            string downloadLog = $@"C:\{src}-saltstack-{releaseVersion}-downloads.log";
             var buttonMap = new Dictionary<string, Button>
             {
                 { logFile, SaltStackLogButton },
@@ -243,6 +245,92 @@ namespace WinFORCustomizer
 
             Clipboard.SetText(sb.ToString());
         }
+
+        private void OpenLogFile_Click(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (MenuItem)sender;
+            var contextMenu = (ContextMenu)menuItem.Parent;
+            var button = (Button)contextMenu.PlacementTarget;
+            string buttonName = button.Content.ToString()!;
+
+            OpenLogFile(buttonName);
+        }
+
+        private static void OpenLogFile(string logFile)
+        {
+            Process.Start(new ProcessStartInfo($"{logFile}") { UseShellExecute = true });
+        }
+
+        private static T? VisualUpwardSearch<T>(DependencyObject source) where T : DependencyObject
+        {
+            while (source != null && source is not T)
+                source = VisualTreeHelper.GetParent(source);
+
+            return source as T;
+        }
+
+        private static string? GetCellValue(object row, GridViewColumn column)
+        {
+            if (column.DisplayMemberBinding is Binding binding)
+            {
+                string property = binding.Path.Path;
+                var prop = row.GetType().GetProperty(property);
+                if (prop != null)
+                    return prop.GetValue(row)?.ToString();
+            }
+
+            return "";
+        }
+
+        private static void ShowContent(string text)
+        {
+            var win = new Window
+            {
+                Title = "Cell Content",
+                MaxWidth = 600,
+                MaxHeight = 1000,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                SnapsToDevicePixels = true,
+                UseLayoutRounding = true,
+                Content = new TextBox
+                {
+                    Text = text,
+                    Margin = new Thickness(10),
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    BorderBrush = Brushes.Transparent,
+                    BorderThickness = new Thickness(0),
+                    IsReadOnly = true
+                }
+            };
+            win.ShowDialog();
+        }
+
+        private void Cell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ListViewItem item = VisualUpwardSearch<ListViewItem>((DependencyObject)e.OriginalSource);
+            if (item == null)
+                return;
+
+            dynamic row = item.Content;
+            if (LogListView.View is not GridView gridView)
+                return;
+            Point clickPosition = e.GetPosition(item);
+            double runningWidth = 0;
+
+            for (int i = 0; i < gridView.Columns.Count; i++)
+            {
+                runningWidth += gridView.Columns[i].ActualWidth;
+                if (clickPosition.X < runningWidth)
+                {
+                    string value = GetCellValue(row, gridView.Columns[i]);
+                    ShowContent(value);
+                    return;
+                }
+            }
+        }
+
     }
     public class LogEntry
     {
@@ -308,6 +396,7 @@ namespace WinFORCustomizer
 
         [GeneratedRegex(@"^(?<date>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) \[(?<module>.+?)\]\[(?<level>.{8})\]\[(?<pid>\d+)\] (?<result>.*)", RegexOptions.Compiled)]
         private static partial Regex LogRegex();
+
     }
 }
 

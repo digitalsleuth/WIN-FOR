@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using Windows.Media.SpeechRecognition;
 
 namespace WinFORCustomizer
 {
@@ -551,6 +552,22 @@ namespace WinFORCustomizer
                 }
             }
         }
+
+        private void ThemeComboBox_EnableChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (Theme.IsEnabled)
+            {
+                ThemeChoices.SelectedTheme = (Theme.SelectedItem as ComboBoxItem)?.Content.ToString();
+                Theme.ToolTip = ThemeChoices.SelectedTheme;
+                if (ThemeChoices.SelectedTheme == "Custom")
+                {
+                    ThemeChoices.ThemeZip = SelectThemeZip();
+                    Theme.ToolTip = ThemeChoices.ThemeZip;
+                    customThemeZip = ThemeChoices.ThemeZip;
+                }
+            }
+        }
+
         private string SelectThemeZip()
         {
             string file = "";
@@ -629,15 +646,39 @@ namespace WinFORCustomizer
                 (List<string> allChecked, _) = GetCheckStatus();
                 allChecked.Sort();
                 List<string> states = [];
+                var order = new Dictionary<string, int>
+                {
+                    ["python3_"] = 0,
+                    ["packages_"] = 1,
+                    ["installers_"] = 2,
+                    ["standalones_"] = 3,
+                    ["themed"] = 4
+                };
+
+                int GetOrder(string s)
+                {
+                    foreach (var kv in order)
+                        if (s.StartsWith(kv.Key))
+                            return kv.Value;
+
+                    return int.MaxValue;
+                }
+                allChecked = allChecked
+                    .OrderBy(GetOrder)
+                    .ThenBy(s => s)
+                    .ToList();
+
                 StringBuilder includeTool = new();
                 StringBuilder requireTool = new();
                 if (stateType == "install")
                 {
                     includeTool.Append("include:\n");
+                    includeTool.Append($"  - {src}.set-version\n");
                     includeTool.Append($"  - {src}.repos\n");
                     requireTool.Append($"{repo}-custom-states:\n");
                     requireTool.Append("  test.nop:\n");
                     requireTool.Append("    - require:\n");
+                    requireTool.Append($"      - sls: {src}.set-version\n");
                     requireTool.Append($"      - sls: {src}.repos\n");
                     if (wslInstall || themedInstall)
                     {
@@ -666,6 +707,7 @@ namespace WinFORCustomizer
                             string pythonTool = tool.Remove(underScoreIndex, "_".Length).Insert(underScoreIndex, "-");
                             int secondUnderScoreIndex = pythonTool.IndexOf('_');
                             string pythonVal = pythonTool.Remove(secondUnderScoreIndex, "_".Length).Insert(secondUnderScoreIndex, ".");
+                            pythonVal = pythonVal.Replace('_', '-');
                             states.Add(pythonVal);
                         }
                         else
@@ -673,14 +715,15 @@ namespace WinFORCustomizer
                             continue;
                         }
                     }
-                    else if (tool == "themed" || tool == "wsl")
+                    else if (tool == "themed" || tool == "WSL")
                     {
                         continue;
                     }
                     else
                     {
                         string notPythonVal = tool.Remove(underScoreIndex, "_".Length).Insert(underScoreIndex, ".");
-                        if (stateType == "download" && (notPythonVal == "installers.windbg" || notPythonVal == "installers.windows_sandbox"))
+                        notPythonVal = notPythonVal.Replace('_', '-');
+                        if (stateType == "download" && (notPythonVal == "installers.windbg" || notPythonVal == "installers.windows-sandbox"))
                         {
                             continue;
                         }
@@ -694,15 +737,13 @@ namespace WinFORCustomizer
                 {
                     if (stateType == "install")
                     {
-                        string result = selection.Replace("_", "-");
-                        includeTool.Append($"  - {src}.{result}\n");
-                        requireTool.Append($"      - sls: {src}.{result}\n");
+                        includeTool.Append($"  - {src}.{selection}\n");
+                        requireTool.Append($"      - sls: {src}.{selection}\n");
                     }
                     else if (stateType == "download")
                     {
-                        string result = selection.Replace("_", "-");
-                        includeTool.Append($"  - {src}.downloads.{result}\n");
-                        requireTool.Append($"      - sls: {src}.downloads.{result}\n");
+                        includeTool.Append($"  - {src}.downloads.{selection}\n");
+                        requireTool.Append($"      - sls: {src}.downloads.{selection}\n");
                     }
                 }
                 if (themedInstall)
@@ -1840,6 +1881,8 @@ namespace WinFORCustomizer
                         {
                             ConsoleOutput("Installation has completed successfully.");
                         }
+                        StopButton.Visibility = Visibility.Hidden;
+                        StopButton.IsEnabled = false;
                     }
                 }
                 catch (Exception ex)
@@ -1888,7 +1931,7 @@ namespace WinFORCustomizer
             string envPath = Environment.GetEnvironmentVariable("Path")!;
             string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
             string saltExe = @"C:\Program Files\Salt Project\Salt\salt-call.exe";
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\{src}-saltstack-downloads-{release}.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-downloads-{release}.log\" --log-file-level=debug";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.downloads pillar=\"{{ 'downloads': '{downloadPath}'}}\" --out-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1909,7 +1952,7 @@ namespace WinFORCustomizer
                     {
                         ConsoleOutput(
                             $"Installing the selected states.\n" +
-                            $"Log File: C:\\{src}-saltstack-downloads-{release}.log\n" +
+                            $"Log File: C:\\{src}-saltstack-{release}-downloads.log\n" +
                             $"Executing: salt call with the following variables\n" +
                             $"  {src}.downloads\n" +
                             $"  {{ 'downloads': '{downloadPath}'}}\n"
@@ -1936,6 +1979,8 @@ namespace WinFORCustomizer
                         {
                             ConsoleOutput("Installation has completed successfully.");
                         }
+                        StopButton.Visibility = Visibility.Hidden;
+                        StopButton.IsEnabled = false;
                     }
                 }
                 catch (Exception ex)
@@ -1959,7 +2004,6 @@ namespace WinFORCustomizer
                     $"Exit code \t: {proc.ExitCode}\n" +
                     $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
                     ProcHandled?.TrySetResult(true);
-                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -2054,7 +2098,6 @@ namespace WinFORCustomizer
                     $"Exit code \t: {proc.ExitCode}\n" +
                     $"Elapsed time\t: {Math.Round((proc.ExitTime - proc.StartTime).TotalMilliseconds)}");
                     wslHandled?.TrySetResult(true);
-                    StopButton.Visibility = Visibility.Hidden;
                 }
                 catch (Exception ex)
                 {
@@ -2388,7 +2431,7 @@ namespace WinFORCustomizer
                 {
                     throw new FileNotFoundException("VERSION files not found");
                 }
-                if (!File.Exists(@$"C:\{src}-saltstack-{releaseVersion}.log") && !File.Exists(@$"C:\{src}-saltstack-downloads-{releaseVersion}.log") && !File.Exists(@$"C:\{src}-saltstack-{releaseVersion}-wsl.log"))
+                if (!File.Exists(@$"C:\{src}-saltstack-{releaseVersion}.log") && !File.Exists(@$"C:\{src}-saltstack-{releaseVersion}-downloads.log") && !File.Exists(@$"C:\{src}-saltstack-{releaseVersion}-wsl.log"))
                 {
                     MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files,\n or no log file was found for {releaseVersion}.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                     return;
@@ -2718,16 +2761,6 @@ namespace WinFORCustomizer
                     };
                     toolCheckBox.Checked += ChildCheckChanged;
                     toolCheckBox.Unchecked += ChildCheckChanged;
-                    if (toolCheckBox.Name == "standalones_x_ways")
-                    {
-                        toolCheckBox.IsChecked = false;
-                        toolCheckBox.Checked += XwaysChecked;
-                        toolCheckBox.Unchecked += XwaysUnchecked;
-                    }
-                    if (toolCheckBox.Name == "standalones_x_ways_templates")
-                    {
-                        toolCheckBox.IsChecked = false;
-                    }
                     if (!toolCheckBox.IsEnabled)
                     {
                         continue;
@@ -2736,9 +2769,12 @@ namespace WinFORCustomizer
                     {
                         newChild.Items.Add(toolCheckBox);
                     }
+                    if (toolCheckBox.IsChecked is false)
+                    {
+                        checkBox.IsChecked = null;
+                    }
                     if (!originalChildOrder.ContainsKey(newChild))
                         originalChildOrder[newChild] = [];
-
                     originalChildOrder[newChild].Add(toolCheckBox);
                 }
             }
@@ -2906,7 +2942,8 @@ namespace WinFORCustomizer
                     {
                         child.Visibility = string.IsNullOrWhiteSpace(searchText) ? Visibility.Visible : Visibility.Collapsed;
                         child.Foreground = Brushes.Black;
-                        nonMatchingChildren.Add(child);
+                        if (string.IsNullOrWhiteSpace(searchText))
+                            nonMatchingChildren.Add(child);
                     }
                 }
 
@@ -2919,8 +2956,15 @@ namespace WinFORCustomizer
                     parent.Items.Add(nonMatch);
                 }
 
-                parent.Visibility = matchingChildren.Count > 0 || string.IsNullOrWhiteSpace(searchText) ? Visibility.Visible : Visibility.Collapsed;
-                parent.IsExpanded = matchingChildren.Count > 0;
+                if (matchingChildren.Count > 0 || string.IsNullOrWhiteSpace(searchText))
+                {
+                    parent.Visibility = Visibility.Visible;
+                    parent.IsExpanded = matchingChildren.Count > 0;
+                }
+                else
+                {
+                    parent.Visibility = Visibility.Collapsed;
+                }
             }
 
             if (string.IsNullOrWhiteSpace(searchText))

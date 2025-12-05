@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.18362.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <RootNamespace>WinFORCustomizer</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>img\fp.ico</ApplicationIcon>
-    <Version>11.0.0</Version>
+    <Version>11.1.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
@@ -22,7 +22,7 @@
     <PackageTags>winfor;digitalsleuth</PackageTags>
     <Copyright>Corey Forman (digitalsleuth)</Copyright>
     <Company>digitalsleuth</Company>
-    <SupportedOSPlatformVersion>10.0.18362.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>WinFOR.Customizer</PackageId>

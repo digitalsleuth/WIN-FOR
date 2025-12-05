@@ -38,7 +38,7 @@
             <Separator />
             <Button x:Name="ResetView_Button" Content="Reset View" Click="ResetView_Click"/>
             <Separator />
-            <Label Content="View Logs by Level:" x:Name="LogLevelLabel" VerticalContentAlignment="Center"/>
+            <Label Content="Filter Logs by Level:" x:Name="LogLevelLabel" VerticalContentAlignment="Center"/>
             <ComboBox Width="100" x:Name="LogLevelComboBox" SelectionChanged="LogLevelComboBox_SelectionChanged" Style="{DynamicResource {x:Type ComboBox}}">
                 <ComboBoxItem x:Name="ALL" Content="ALL"/>
                 <ComboBoxItem x:Name="INFO" Content="INFO"/>
@@ -48,7 +48,7 @@
                 <ComboBoxItem x:Name="CRITICAL" Content="CRITICAL"/>
             </ComboBox>
             <Separator/>
-            <TextBox x:Name="LogInfo" FontSize="12" Height="24" Text="Click on a log file button to load the logs content." VerticalContentAlignment="Bottom" TextWrapping="Wrap" Width="380" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True" BorderBrush="{x:Null}" IsTabStop="False" Focusable="False" IsHitTestVisible="False"/>
+            <TextBox x:Name="LogInfo" FontSize="12" Height="24" Text="Click a log file button to load its content, right-click to open." VerticalContentAlignment="Bottom" TextWrapping="Wrap" Width="380" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True" BorderBrush="{x:Null}" IsTabStop="False" Focusable="False" IsHitTestVisible="False"/>
         </ToolBar>
         <Grid Grid.Row="1" Margin="10,5,10,2">
             <Grid.ColumnDefinitions>
@@ -58,9 +58,27 @@
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Name="SaltStackLogButton" Content="SaltStack Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White"/>
-            <Button Grid.Column="2" Name="WSLLogButton" Content="WSL Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White"/>
-            <Button Grid.Column="4" Name="DownloadLogButton" Content="Download Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White" />
+            <Button Grid.Column="0" x:Name="SaltStackLogButton" Content="SaltStack Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White">
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="SaltStackLogContext">
+                        <MenuItem Header="Open Log File" Click="OpenLogFile_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Grid.Column="2" Name="WSLLogButton" Content="WSL Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White">
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="WSLLogContext">
+                        <MenuItem Header="Open Log File" Click="OpenLogFile_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
+            <Button Grid.Column="4" Name="DownloadLogButton" Content="Download Log" Click="LoadLog_Click" Visibility="Collapsed" Background="White">
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="DownloadLogContext">
+                        <MenuItem Header="Open Log File" Click="OpenLogFile_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </Button>
         </Grid>
         <Grid Grid.Row="2">
             <Separator HorizontalAlignment="Stretch" Margin="10,0,10,0" Foreground="Gray" Background="Gray" VerticalAlignment="Stretch" />
@@ -78,9 +96,9 @@
                 <TextBox Grid.Column="2" Margin="0,2,0,3" Name="LevelFilterBox" TextChanged="FilterBox_TextChanged" VerticalContentAlignment="Center" />
                 <TextBox Grid.Column="4" Margin="0,2,10,3" Name="ResultFilterBox" TextChanged="FilterBox_TextChanged" VerticalContentAlignment="Center" />
         </Grid>
-        <ListView Name="LogListView" Grid.Row="4" Margin="10,0,10,10" ItemsSource="{Binding}" GridViewColumnHeader.Click="GridViewColumnHeader_Clicked" SelectionMode="Extended" PreviewKeyDown="LogListView_KeyboardCopy" >
+        <ListView Name="LogListView" Grid.Row="4" Margin="10,0,10,10" ItemsSource="{Binding}" GridViewColumnHeader.Click="GridViewColumnHeader_Clicked" SelectionMode="Extended" PreviewKeyDown="LogListView_KeyboardCopy" MouseDoubleClick="Cell_MouseDoubleClick">
             <ListView.View>
-                <GridView AllowsColumnReorder="False">
+                <GridView AllowsColumnReorder="False" x:Name="ResultsGridView">
                     <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date}" Width="150" x:Name="DateColumn" />
                     <GridViewColumn Header="Level" DisplayMemberBinding="{Binding Level}" Width="80" x:Name="LevelColumn" />
                     <GridViewColumn Header="Result" DisplayMemberBinding="{Binding Result}" Width="495" x:Name="ResultColumn" />
