@@ -401,6 +401,28 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "MS Word Parser Standalone": {
+        "CbName": "standalones_ms_word_parser",
+        "CbContent": "MS Word Parser GUI",
+        "DAID": "PLACEHOLDER_PATH\\ms-word-parser\\parse-docx.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "MS Word Parser Python": {
+        "CbName": "python3_tools_ms_word_parser",
+        "CbContent": "MS Word Parser Python",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Notepad++": {
         "CbName": "packages_npp",
         "CbContent": "Notepad++",
@@ -506,6 +528,17 @@
         "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\PDFStreamDumper\\PDFStreamDumper.exe",
         "AUMID": false,
         "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "PDFXplorer": {
+        "CbName": "packages_pdfxplorer",
+        "CbContent": "PDFXplorer",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\PDFXplorer.lnk",
+        "AUMID": false,
+        "DALP": true,
         "StartMenu": true,
         "Checked": true,
         "Enabled": true,
@@ -2537,7 +2570,7 @@
         "DALP": false,
         "StartMenu": false,
         "Checked": true,
-        "Enabled": true,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "iTunes": {
@@ -3148,6 +3181,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Windexter": {
+        "CbName": "standalones_windexter",
+        "CbContent": "Windexter",
+        "DAID": "PLACEHOLDER_PATH\\windexter\\Windexter.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
