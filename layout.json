@@ -70,17 +70,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "FIT": {
-        "CbName": "standalones_fit",
-        "CbContent": "FIT",
-        "DAID": "PLACEHOLDER_PATH\\fit\\fit.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "FTK Imager": {
         "CbName": "packages_ftk_imager",
         "CbContent": "FTK Imager",
@@ -357,17 +346,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "ExifTool GUI": {
-        "CbName": "standalones_exiftoolgui",
-        "CbContent": "ExifTool GUI",
-        "DAID": "PLACEHOLDER_PATH\\exiftoolgui\\ExifToolGUI.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
       "LibreOffice": {
         "CbName": "packages_libreoffice",
         "CbContent": "LibreOffice",
@@ -640,7 +618,7 @@
         "ExtraTiles": []
       },
       "Email Header Analyzer": {
-        "CbName": "standalones_email_header_analyzer",
+        "CbName": "python3_tools_email_header_analyzer",
         "CbContent": "Email Header Analyzer",
         "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Python310\\Scripts\\email-header-analyzer.cmd",
         "AUMID": false,
@@ -928,8 +906,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "Magnet Process Capture": {
@@ -1068,17 +1046,6 @@
         "CbName": "standalones_ppee",
         "CbContent": "PPEE (puppy)",
         "DAID": "PLACEHOLDER_PATH\\ppee\\PPEE.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "ProcDOT": {
-        "CbName": "standalones_procdot",
-        "CbContent": "ProcDOT",
-        "DAID": "PLACEHOLDER_PATH\\procdot\\win64\\procdot.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1488,7 +1455,7 @@
         "ExtraTiles": []
       },
       "Zircolite": {
-        "CbName": "standalones_zircolite",
+        "CbName": "python3_tools_zircolite",
         "CbContent": "Zircolite",
         "DAID": "",
         "AUMID": false,
@@ -1816,6 +1783,17 @@
     "HeaderName": "header_raw",
     "HeaderContent": "Raw Parsers / Decoders",
     "Tools": {
+      "1768": {
+        "CbName": "python3_tools_1768",
+        "CbContent": "1768.py",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Bulk Extractor": {
         "CbName": "packages_bulk_extractor",
         "CbContent": "Bulk Extractor",
@@ -2163,6 +2141,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      ".NET 10 Desktop Runtime": {
+        "CbName": "packages_dotnet10_desktop_runtime",
+        "CbContent": ".NET 10 Desktop Runtime",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Elasticsearch": {
         "CbName": "standalones_elasticsearch",
         "CbContent": "Elasticsearch",
@@ -2243,6 +2232,17 @@
       "Microsoft Visual C++ 2015 Build Tools": {
         "CbName": "packages_ms_vcpp_2015_build_tools",
         "CbContent": "Microsoft Visual C++ 2015 Build Tools",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Microsoft Visual C++ 2017 Redistributable": {
+        "CbName": "packages_ms_vcpp_2017_redist_x64",
+        "CbContent": "Microsoft Visual C++ 2017 Redistributable",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -2340,17 +2340,6 @@
         "CbContent": "MobaXTerm",
         "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Mobatek\\MobaXterm\\MobaXterm.exe",
         "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "Windows Terminal": {
-        "CbName": "installers_windows_terminal",
-        "CbContent": "Windows Terminal",
-        "DAID": "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App",
-        "AUMID": true,
         "DALP": false,
         "StartMenu": true,
         "Checked": true,
@@ -2525,17 +2514,6 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "Hex2GUID": {
-        "CbName": "standalones_hex2guid",
-        "CbContent": "Hex2GUID",
-        "DAID": "PLACEHOLDER_PATH\\hex2guid\\hex2guid.cmd",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
