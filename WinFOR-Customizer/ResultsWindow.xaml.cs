@@ -49,7 +49,7 @@ namespace WinFORCustomizer
 
                 if (File.Exists(filePath))
                 {
-                    button.Content = filePath;
+                    button.Content = filePath.Replace("C:\\","");
                     button.Visibility = Visibility.Visible;
                     Grid.SetColumn(button, column);
                     column += 2;
@@ -126,7 +126,7 @@ namespace WinFORCustomizer
             };
             if (sender is Button clickedButton)
             { 
-                string? buttonContent = clickedButton.Content.ToString();
+                string? buttonContent = $@"C:\{clickedButton.Content.ToString()}";
 
                 try
                 {
@@ -309,7 +309,7 @@ namespace WinFORCustomizer
 
         private void Cell_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            ListViewItem item = VisualUpwardSearch<ListViewItem>((DependencyObject)e.OriginalSource);
+            ListViewItem item = VisualUpwardSearch<ListViewItem>((DependencyObject)e.OriginalSource)!;
             if (item == null)
                 return;
 
@@ -387,9 +387,9 @@ namespace WinFORCustomizer
                 if (current != null)
                     entries.Add(current);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
-                MessageBox.Show($"The log file {filePath} is locked and is being used by another process.\nTry ending that process, or making a copy of the log file and review its contents manually.", "Unable to open log file", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"The log file {filePath} is locked and is being used by another process.\nTry ending that process, or making a copy of the log file and review its contents manually.\n{ex}", "Unable to open log file", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             return entries;
         }

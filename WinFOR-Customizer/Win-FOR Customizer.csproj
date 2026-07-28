@@ -13,7 +13,7 @@
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>img\fp.ico</ApplicationIcon>
-    <Version>11.1.0</Version>
+    <Version>12.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
@@ -26,13 +26,16 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageId>WinFOR.Customizer</PackageId>
-	<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 	<NeutralLanguage>en</NeutralLanguage>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
 	<UseWindowsForms>True</UseWindowsForms>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	<AssemblyName>winfor-v$(AssemblyVersion)</AssemblyName>
 	<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+	<PublishReadyToRun>false</PublishReadyToRun>
+	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

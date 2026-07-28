@@ -31,14 +31,24 @@
                     <StackPanel x:Name="ApplicationStack1" Margin="0,5,6,0" Height="660"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="Explorer UI" Name="ExplorerUI">
+            <TabItem Header="Explorer 3-M" Name="ExplorerUI1">
                 <Grid Width="660">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="320"/>
                         <ColumnDefinition Width="320"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel x:Name="ExplorerUIStack0" Margin="6,5,0,0" Height="890"  HorizontalAlignment="Left" Grid.Column="0"/>
-                    <StackPanel x:Name="ExplorerUIStack1" Margin="0,5,6,0" Height="890"  HorizontalAlignment="Left" Grid.Column="1"/>
+                    <StackPanel x:Name="ExplorerUI1Stack0" Margin="6,5,0,0" Height="430"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ExplorerUI1Stack1" Margin="0,5,6,0" Height="430"  HorizontalAlignment="Left" Grid.Column="1"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Explorer N-V" Name="ExplorerUI2">
+                <Grid Width="660">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition Width="320"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel x:Name="ExplorerUI2Stack0" Margin="6,5,0,0" Height="470"  HorizontalAlignment="Left" Grid.Column="0"/>
+                    <StackPanel x:Name="ExplorerUI2Stack1" Margin="0,5,6,0" Height="470"  HorizontalAlignment="Left" Grid.Column="1"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Network" Name="Network">

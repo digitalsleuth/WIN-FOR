@@ -26,7 +26,7 @@ namespace WinFORCustomizer
         }
         public static class DebloatSettings
         {
-            public static List<string>? Selections;
+            public static List<string>? Selections = new();
             public static List<string>? DefaultOptions = new()
             {
                 "RequireAdmin",
