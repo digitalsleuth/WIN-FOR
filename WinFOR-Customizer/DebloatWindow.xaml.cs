@@ -1,6 +1,6 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Microsoft.Win32;
+
 
 namespace WinFORCustomizer
 {
@@ -18,7 +20,12 @@ namespace WinFORCustomizer
     public partial class DebloatWindow : Window
     {
         private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0";
-        private static readonly string debloatJson = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/debloat.json";
+        private static readonly string githubRaw = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt";
+        private static readonly string debloatJson = $@"{githubRaw}/main/winfor/config/debloat.json";
+        private static readonly string debloatPs1 = $@"{githubRaw}/main/winfor/config/Win10.ps1";
+        private static readonly string debloatPsm1 = $@"{githubRaw}/main/winfor/config/Win10.psm1";
+        //private static readonly Version windowsOS = Environment.OSVersion.Version;
+
         public DebloatWindow()
         {
             InitializeComponent();
@@ -26,9 +33,9 @@ namespace WinFORCustomizer
         }
         public static class DebloatSettings
         {
-            public static List<string>? Selections = new();
-            public static List<string>? DefaultOptions = new()
-            {
+            public static List<string>? Selections = [];
+            public static List<string>? DefaultOptions =
+            [
                 "RequireAdmin",
                 "DisableTelemetry",
                 "DisableCortana",
@@ -152,8 +159,10 @@ namespace WinFORCustomizer
                 "RemoveFaxPrinter",
                 "UnpinStartMenuTiles",
                 "UnpinTaskbarIcons"
-            };
+            ];
         }
+
+        
         private List<string> GetRadioButtonsStatus()
         // Get the current state of all Radio Buttons and return a List of those which are not None
         {
@@ -180,7 +189,7 @@ namespace WinFORCustomizer
         {
             List<string> selectedRadioButtons = GetRadioButtonsStatus();
             DebloatSettings.Selections = selectedRadioButtons;
-            MessageBox.Show("Selections saved!\nThese choices will be used for the debloat during installation.\n\nYou may now close this window.", "Selections saved!", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Selections saved!\nThese choices will be used for the debloat during installation.\n\nYou may now close this window, or click the Debloat Now button to begin.", "Selections saved!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         // Set all Radio Buttons status of "IsChecked" to false
@@ -197,6 +206,16 @@ namespace WinFORCustomizer
         private void DefaultButton_Click(object sender, RoutedEventArgs e)
         // Load all the default options from DebloatSettings.DefaultOptions
         {
+            List<string> defaultOptions = DebloatSettings.DefaultOptions!;
+            //List<string> laterOptions = ["DisableNewsAndInterests"];
+            //if (windowsOS.Major == 11 && windowsOS.Build >= 22000)
+            //{
+            //foreach (string option in laterOptions)
+            //{
+            //DebloatSettings.DefaultOptions!.Remove(option);
+            //defaultOptions.Remove(option);
+            //}
+            //}
             foreach (TabItem tabItem in Tabs.Items)
             {
                 List<RadioButton> radioButtons = MainWindow.GetLogicalChildCollection<RadioButton>((DependencyObject)tabItem.Content);
@@ -204,7 +223,7 @@ namespace WinFORCustomizer
                 // Sets / shows the default options if debloat is not chosen.
                 foreach (RadioButton radioButton in radioButtons) 
                 {
-                    foreach (string setting in DebloatSettings.DefaultOptions!)
+                    foreach (string setting in defaultOptions)
                     {
                         if (radioButton.Name == setting)
                         {
@@ -214,6 +233,68 @@ namespace WinFORCustomizer
                 }
             }
         }
+
+        private async void DebloatButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<List<string>> psFiles = [["Win10.ps1", debloatPs1], ["Win10.psm1", debloatPsm1]];
+            string tempDir = @"C:\salt\tempdownload";
+            if (!Directory.Exists(tempDir))
+            {
+                Directory.CreateDirectory(tempDir);
+            }
+            List<string> selectedRadioButtons = GetRadioButtonsStatus();
+            if (selectedRadioButtons.Count > 0)
+            {
+                File.Delete($@"{tempDir}\debloat.preset");
+                await File.WriteAllTextAsync(@$"{tempDir}\debloat.preset", string.Join("\n", selectedRadioButtons!));
+            }
+            foreach (List<string> psFile in psFiles)
+            {
+                string file = psFile[0];
+                string uri = psFile[1];
+                if (!File.Exists($@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\{file}"))
+                {
+                    bool success = await MainWindow.FileDownload($@"{uri}", $@"{tempDir}\{file}");
+                    if (!success)
+                    {
+                        MessageBox.Show($@"Unable to download {uri}.", $@"Unable to download required debloat file {file}.", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                }
+                else
+                {
+                    File.Delete($@"{tempDir}\{file}");
+                    File.Copy($@"C:\ProgramData\Salt Project\Salt\srv\salt\winfor\config\{file}", $@"{tempDir}\{file}");
+                }
+            }
+            try
+            {
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = $"powershell.exe",
+                    Arguments = @$"-nop -ep Bypass -File ""Win10.ps1"" -include ""Win10.psm1"" -preset ""debloat.preset""",
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false,
+                    UseShellExecute = true,
+                    CreateNoWindow = false,
+                    WorkingDirectory = @"C:\salt\tempdownload"
+                };
+                Process process = new()
+                {
+                    StartInfo = startInfo
+                };
+                process.Start();
+                await process.WaitForExitAsync();
+                MessageBox.Show($@"Debloat complete!", "Debloat complete!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to complete debloat:\n{ex}.", "Unable to complete debloat!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
+
         public class TabItems
         {
             public string? Header { get; set; }

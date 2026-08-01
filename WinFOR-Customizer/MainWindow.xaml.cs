@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 
 namespace WinFORCustomizer
@@ -1919,8 +1920,13 @@ namespace WinFORCustomizer
         private async Task ExecuteSaltStack(string userName, string standalonesPath, string release)
         // Generate a salt-call.exe process with the required arguments to install the custom salt states
         {
+            string pillar = $"'{src}_user': '{userName}', 'inpath': '{standalonesPath}'";
+            if (WslChoices.WslSelection != null)
+            {
+                pillar += $", 'wsl_choice': '{WslChoices.WslSelection}'";
+            }
             ProcHandled = new TaskCompletionSource<bool>();
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.custom pillar=\"{{ '{src}_user': '{userName}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\{src}-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}.log\" --log-file-level=debug";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.custom pillar=\"{{ {pillar} }}\" --out-file=\"C:\\{src}-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -1944,7 +1950,7 @@ namespace WinFORCustomizer
                             $"Log File: C:\\{src}-saltstack-{release}.log\n" +
                             $"Executing: salt call with the following variables\n" +
                             $"  {src}.custom\n" +
-                            $"  {{ '{src}_user': '{userName}', 'inpath': '{standalonesPath}'}}\n"
+                            $"  {{ {pillar} }}\n"
                             );
                         saltproc.Exited += new EventHandler(ProcessExited);
                         if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
@@ -1993,7 +1999,7 @@ namespace WinFORCustomizer
                 }
                 catch (Exception ex)
                 {
-                    ConsoleOutput($"[ERROR] Failed to kill SaltStack: {ex.Message}");
+                    ConsoleOutput($"[ERROR] Failed to kill SaltStack process: {ex.Message}");
                 }
             }
             if (wslproc != null && !wslproc.HasExited)
@@ -2007,15 +2013,20 @@ namespace WinFORCustomizer
                 }
                 catch (Exception ex)
                 {
-                    ConsoleOutput($"[ERROR] Failed to kill SaltStack: {ex.Message}");
+                    ConsoleOutput($"[ERROR] Failed to kill SaltStack WSL process: {ex.Message}");
                 }
             }
         }
         private async Task ExecuteSaltStackDownloads(string release, string downloadPath, string standalonesPath)
         // Generate a salt-call.exe process with the required argument to simply download the selected files
         {
+            string pillar = $"'downloads': '{downloadPath}', 'inpath': '{standalonesPath}'";
+            if (WslChoices.WslSelection != null)
+            {
+                pillar += $", 'wsl_choice': '{WslChoices.WslSelection}'";
+            }
             ProcHandled = new TaskCompletionSource<bool>();
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.downloads pillar=\"{{ 'downloads': '{downloadPath}', 'inpath': '{standalonesPath}'}}\" --out-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --log-file-level=debug";
+            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.downloads pillar=\"{{ {pillar} }}\" --out-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --log-file-level=debug";
             using (saltproc = new Process()
             {
                 EnableRaisingEvents = true,
@@ -2039,8 +2050,7 @@ namespace WinFORCustomizer
                             $"Log File: C:\\{src}-saltstack-{release}-downloads.log\n" +
                             $"Executing: salt call with the following variables\n" +
                             $"  {src}.downloads\n" +
-                            $"  {{ 'downloads': '{downloadPath}'}}\n" +
-                            $"  {{ 'inpath': '{standalonesPath}'}}\n"
+                            $"  {{ {pillar} }}\n"
                             );
                         saltproc.Exited += new EventHandler(ProcessExited);
                         if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
@@ -2802,17 +2812,49 @@ namespace WinFORCustomizer
             }
             return jsonData!;
         }
+
+        private async Task<List<TreeItems>> GetLocalJsonLayout()
+        {
+            List<TreeItems>? jsonData = [];
+            string jsonFile = Path.Combine(AppContext.BaseDirectory, "layout.json");
+            try
+            {
+                if (!File.Exists(jsonFile))
+                {
+                    return jsonData!;
+                }
+                await using FileStream stream = File.OpenRead(jsonFile);
+                jsonData = await JsonSerializer.DeserializeAsync<List<TreeItems>>(stream) ?? [];
+            }
+            catch (JsonException ex)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] Malformed local JSON layout - {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] Unable to read local JSON layout - {ex.Message}");
+            }
+            return jsonData!;
+        }
+
         private readonly Dictionary<TreeViewItem, List<CheckBox>> originalChildOrder = [];
         private async Task GenerateTree()
         {
-            bool Connected = CheckNetworkConnection.IsConnected();
-            if (!Connected)
+            List<TreeItems>? jsonQuery = [];
+            jsonQuery = await GetLocalJsonLayout();
+            if (jsonQuery is null || jsonQuery.Count == 0)
             {
-                OutputExpander.IsExpanded= true;
-                ConsoleOutput("[ERROR] No network connection detected - Please check your network connection and try launching the application again.");
-                return;
+                bool Connected = CheckNetworkConnection.IsConnected();
+                if (!Connected)
+                {
+                    OutputExpander.IsExpanded = true;
+                    ConsoleOutput("[ERROR] No network connection detected - Please check your network connection and try launching the application again.");
+                    return;
+                }
+                jsonQuery = await GetJsonLayout();
             }
-            List<TreeItems>? jsonQuery = await GetJsonLayout();
             int count = jsonQuery!.Count;
             for (int i = 0; i < count; i++)
             {   

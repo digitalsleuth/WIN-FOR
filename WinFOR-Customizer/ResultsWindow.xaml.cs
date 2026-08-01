@@ -258,7 +258,19 @@ namespace WinFORCustomizer
 
         private static void OpenLogFile(string logFile)
         {
-            Process.Start(new ProcessStartInfo($"{logFile}") { UseShellExecute = true });
+            if (!logFile.StartsWith(@"C:\"))
+            {
+                logFile = $@"C:\{logFile}";
+            }
+            try
+            {
+                Process.Start(new ProcessStartInfo($"{logFile}") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to open the log file {logFile}:\n{ex}\nPlease consider reviewing this file manually.", "Unable to open log file", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
         }
 
         private static T? VisualUpwardSearch<T>(DependencyObject source) where T : DependencyObject
