@@ -37,7 +37,7 @@ Win-FOR tool gives you the following features:
 
 ## Now with offline mode!
 
-1. In Win-FOR, select the apps and settings you want, then click Download.
+1. In Win-FOR, select the apps and settings you want, check the "Offline" box under the Download button, then click Download.
 2. Visit the [win-for-offline repo](https://github.com/digitalsleuth/win-for-offline) and download the latest release.
 3. Transfer your downloads and the win-for-offline installer to your offline machine.
 4. Launch the win-for-offline installer and select the path where your downloaded files are, where you want standalone applications to be placed, and the desired user
