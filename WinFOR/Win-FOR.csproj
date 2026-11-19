@@ -2,18 +2,17 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-    <RootNamespace>WinFORCustomizer</RootNamespace>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <RootNamespace>WinFOR</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-	<IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
     <Platforms>AnyCPU;x64</Platforms>
-    <Title>Win-FOR Customizer</Title>
+    <Title>Win-FOR</Title>
     <PackageIcon>fp128.png</PackageIcon>
     <RepositoryUrl>https://github.com/digitalsleuth/win-for</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <ApplicationIcon>img\fp.ico</ApplicationIcon>
-    <Version>12.0.0</Version>
+    <Version>13.0.0</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <Authors>Corey Forman (digitalsleuth)</Authors>
@@ -25,15 +24,13 @@
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>WinFOR.Customizer</PackageId>
+    <PackageId>WinFOR</PackageId>
 	<NeutralLanguage>en</NeutralLanguage>
 	<ApplicationManifest>app.manifest</ApplicationManifest>
-	<UseWindowsForms>True</UseWindowsForms>
 	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 	<AssemblyName>winfor-v$(AssemblyVersion)</AssemblyName>
 	<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
 	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-	<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 	<PublishReadyToRun>false</PublishReadyToRun>
 	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
@@ -57,10 +54,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ErrorWindow.xaml.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="downloadsbg.gif" />
     <None Remove="img\downloadsbg.gif" />
     <None Remove="img\find.png" />
@@ -72,23 +65,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="ErrorWindow.xaml" />
+    <Resource Include="img\fpw120.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="img\fp.ico">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="img\fpw120.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
   </ItemGroup>
 
   <ItemGroup>
