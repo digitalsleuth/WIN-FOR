@@ -1,12 +1,12 @@
 
 # Win-FOR
 
-Windows Forensics (Win-FOR) Customizer
+Windows Forensics (Win-FOR) customizer
 
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/digitalsleuth/win-for?style=flat&label=Latest%20Win-FOR%20Release)
 
-The design behind this is to use a barebones Windows VM or a Windows machine (preferably Windows 11 23H2 and higher to support WSLv2).
-Once configured, and activated (to support customization features), then you can use one of the installers to
+The design behind this is to start with a barebones Windows machine or VM (preferably Windows 11 23H2 and higher to support WSLv2).
+Once configured, and activated (to support customization features), then you can use Win-FOR to
 install all of the packages.  
 
 The installer is a graphical interface to click and choose which items you want, and to enter the settings you need
@@ -28,20 +28,21 @@ Win-FOR tool gives you the following features:
 - Check for updates to the Customizer
 - Graphically enter any settings you need!
 
-![screenshot-12 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-12.0.0.png)
+![screenshot-13 0 0](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-13.0.0.png)
 
-![screenshot-12 0 0-debloat](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-12.0.0-debloat.png)
+![screenshot-13 0 0-debloat](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-13.0.0-debloat.png)
 
-![screenshot-12 0 0-results](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-12.0.0-results.png)
+![screenshot-13 0 0-results](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-13.0.0-results.png)
+
+![screenshot-13 0 0-offline](https://github.com/digitalsleuth/WIN-FOR/raw/main/images/screenshot-13.0.0-offline.png)
 
 
 ## Now with offline mode!
 
-1. In Win-FOR, select the apps and settings you want, check the "Offline" box under the Download button, then click Download.
-2. Visit the [win-for-offline repo](https://github.com/digitalsleuth/win-for-offline) and download the latest release.
-3. Transfer your downloads and the win-for-offline installer to your offline machine.
-4. Launch the win-for-offline installer and select the path where your downloaded files are, where you want standalone applications to be placed, and the desired user
-5. Click Install!
+1. In Win-FOR, select the apps and settings you want, click the "Stage for Offline Install" button.
+2. Transfer your downloads folder (default winfor-downloads) to your offline machine.
+4. Launch WinFOR on the Offline machine (in the downloads\offline folder) and select the path where your downloaded files are, where you want standalone applications to be placed, and the desired user
+5. Click Install Offline!
 
 # Issues
 
