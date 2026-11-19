@@ -295,10 +295,10 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "RazorSQL": {
-        "CbName": "packages_razorsql_x64",
-        "CbContent": "RazorSQL",
-        "DAID": "razorsql",
+      "Letos (SQLiteStudio)": {
+        "CbName": "packages_letos",
+        "CbContent": "Letos (SQLiteStudio)",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Letos\\Letos.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -306,10 +306,10 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "SQLiteStudio": {
-        "CbName": "packages_sqlitestudio",
-        "CbContent": "SQLiteStudio",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\SQLiteStudio\\SQLiteStudio.exe",
+      "RazorSQL": {
+        "CbName": "packages_razorsql_x64",
+        "CbContent": "RazorSQL",
+        "DAID": "razorsql",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -382,7 +382,7 @@
       "MS Word Parser Standalone": {
         "CbName": "standalones_ms_word_parser",
         "CbContent": "MS Word Parser GUI",
-        "DAID": "PLACEHOLDER_PATH\\ms-word-parser\\parse-docx.exe",
+        "DAID": "PLACEHOLDER_PATH\\ms-word-parser\\ms-word-parser.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -899,17 +899,6 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "KsDumper 11": {
-        "CbName": "packages_ksdumper11",
-        "CbContent": "KsDumper 11",
-        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\KsDumper11\\KsDumper11.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": false,
-        "Enabled": false,
-        "ExtraTiles": []
-      },
       "Magnet Process Capture": {
         "CbName": "standalones_magnet_process_capture",
         "CbContent": "Magnet Process Capture",
@@ -935,6 +924,17 @@
       "maldump": {
         "CbName": "python3_tools_maldump",
         "CbContent": "maldump",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "malwoverview": {
+        "CbName": "python3_tools_malwoverview",
+        "CbContent": "malwoverview",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -1115,17 +1115,6 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "setdllcharacteristics": {
-        "CbName": "standalones_setdllcharacteristics",
-        "CbContent": "setdllcharacteristics",
-        "DAID": "PLACEHOLDER_PATH\\setdll\\setdllcharacteristics.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1479,8 +1468,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "Android Studio": {
@@ -1501,6 +1490,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Backup2FS": {
+        "CbName": "packages_backup2fs",
+        "CbContent": "Backup2FS",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Backup2FS\\Backup2FS.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -1545,8 +1545,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "iphoneanalyzer": {
@@ -1622,8 +1622,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       }
     }
@@ -1692,6 +1692,28 @@
         "CbName": "standalones_network_miner",
         "CbContent": "Network Miner",
         "DAID": "PLACEHOLDER_PATH\\network-miner\\NetworkMiner.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Nmap": {
+        "CbName": "installers_nmap",
+        "CbContent": "Nmap",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Paessler SNMP Tester": {
+        "CbName": "installers_snmp_tester",
+        "CbContent": "Paessler SNMP Tester",
+        "DAID": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Paessler SNMP Tester\\snmptest.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
@@ -1783,8 +1805,8 @@
     "HeaderName": "header_raw",
     "HeaderContent": "Raw Parsers / Decoders",
     "Tools": {
-      "1768": {
-        "CbName": "python3_tools_1768",
+      "1768 Script": {
+        "CbName": "python3_tools_1768_script",
         "CbContent": "1768.py",
         "DAID": "",
         "AUMID": false,
@@ -1801,8 +1823,8 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       },
       "CyberChef": {
@@ -1984,6 +2006,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "sift": {
+        "CbName": "standalones_sift",
+        "CbContent": "sift",
+        "DAID": "PLACEHOLDER_PATH\\sift\\sift.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "SMI Parser": {
         "CbName": "standalones_smi_parser",
         "CbContent": "SMI Parser",
@@ -2152,6 +2185,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "Desktop Frames Plus": {
+        "CbName": "standalones_desktop_frames",
+        "CbContent": "Desktop Frames Plus",
+        "DAID": "PLACEHOLDER_PATH\\desktop-frames\\Desktop Frames.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "Elasticsearch": {
         "CbName": "standalones_elasticsearch",
         "CbContent": "Elasticsearch",
@@ -2218,9 +2262,20 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Microsoft Visual C++ 2010 Redistributable": {
+      "Microsoft Visual C++ 2010 Redistributable x64": {
         "CbName": "packages_ms_vcpp_2010_redist_x64",
-        "CbContent": "Microsoft Visual C++ 2010 Redistributable",
+        "CbContent": "Microsoft Visual C++ 2010 Redistributable x64",
+        "DAID": "",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Microsoft Visual C++ 2010 Redistributable x86": {
+        "CbName": "packages_ms_vcpp_2010_redist_x86",
+        "CbContent": "Microsoft Visual C++ 2010 Redistributable x86",
         "DAID": "",
         "AUMID": false,
         "DALP": false,
@@ -2295,26 +2350,15 @@
         "Enabled": true,
         "ExtraTiles": []
       },
-      "Strawberry Perl": {
-        "CbName": "packages_strawberryperl",
-        "CbContent": "Strawberry Perl",
-        "DAID": "",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": false,
-        "Checked": false,
-        "Enabled": false,
-        "ExtraTiles": []
-      },
-      "Visual Studio Community 2022": {
-        "CbName": "packages_vs_community_2022",
-        "CbContent": "Visual Studio Community 2022",
-        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\Visual Studio 2022.lnk",
+      "Visual Studio Community 2026": {
+        "CbName": "packages_vs_community_2026",
+        "CbContent": "Visual Studio Community 2026",
+        "DAID": "%ALLUSERSPROFILE%\\Microsoft\\Windows\\Start Menu\\Programs\\Visual Studio 2026.lnk",
         "AUMID": false,
         "DALP": true,
         "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
+        "Checked": false,
+        "Enabled": false,
         "ExtraTiles": []
       }
     }
@@ -2419,6 +2463,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "CaseNotes Pro": {
+        "CbName": "installers_casenotes_pro",
+        "CbContent": "CaseNotes Pro",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\First Response\\CaseNotes Professional\\CaseNotesPro.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "ClamAV": {
         "CbName": "packages_clamav",
         "CbContent": "ClamAV",
@@ -2445,6 +2500,17 @@
         "CbName": "standalones_magnet_edd",
         "CbContent": "Encrypted Disk Detector (EDD)",
         "DAID": "PLACEHOLDER_PATH\\magnet\\EDD\\EDDv310.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": false,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
+      "Encrypted Disk Hunter": {
+        "CbName": "standalones_elcomsoft_eedh",
+        "CbContent": "Encrypted Disk Hunter",
+        "DAID": "PLACEHOLDER_PATH\\elcomsoft-eedh\\eedh.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
@@ -2552,7 +2618,7 @@
         "ExtraTiles": []
       },
       "iTunes": {
-        "CbName": "packages_itunes",
+        "CbName": "installers_itunes",
         "CbContent": "iTunes",
         "DAID": "Apple.iTunes",
         "AUMID": false,
@@ -2624,6 +2690,17 @@
         "AUMID": false,
         "DALP": false,
         "StartMenu": false,
+        "Checked": false,
+        "Enabled": false,
+        "ExtraTiles": []
+      },
+      "Reference PDFs": {
+        "CbName": "standalones_pdfs",
+        "CbContent": "Reference PDFs",
+        "DAID": "PLACEHOLDER_PATH\\references\\",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
         "Checked": true,
         "Enabled": true,
         "ExtraTiles": []
@@ -2771,6 +2848,17 @@
         "Enabled": true,
         "ExtraTiles": []
       },
+      "WizTree": {
+        "CbName": "packages_wiztree",
+        "CbContent": "WizTree",
+        "DAID": "{6D809377-6AF0-444B-8957-A3773F02200E}\\WizTree\\WizTree.exe",
+        "AUMID": false,
+        "DALP": false,
+        "StartMenu": true,
+        "Checked": true,
+        "Enabled": true,
+        "ExtraTiles": []
+      },
       "xsv": {
         "CbName": "standalones_xsv",
         "CbContent": "xsv",
@@ -2892,17 +2980,6 @@
         "CbName": "standalones_kape",
         "CbContent": "kape",
         "DAID": "PLACEHOLDER_PATH\\kape\\gkape.exe",
-        "AUMID": false,
-        "DALP": false,
-        "StartMenu": true,
-        "Checked": true,
-        "Enabled": true,
-        "ExtraTiles": []
-      },
-      "Live Response Collection (Cedarpelta)": {
-        "CbName": "standalones_lrc_cedarpelta",
-        "CbContent": "Live Response Collection (Cedarpelta)",
-        "DAID": "PLACEHOLDER_PATH\\lrc-cedarpelta\\Windows_Live_Response\\Windows Live Response Collection.exe",
         "AUMID": false,
         "DALP": false,
         "StartMenu": true,

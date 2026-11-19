@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.NetworkInformation;
@@ -14,19 +16,17 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Navigation;
 using System.Windows.Threading;
 using Microsoft.Win32;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
-
-namespace WinFORCustomizer
+namespace WinFOR
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -37,59 +37,121 @@ namespace WinFORCustomizer
         private static readonly Stopwatch? stopWatch = new();
         private static string customThemeZip = "";
         private string mode = "install";
-        /// TODO
-        /// Set up portable mode to download Git-Portable and Salt-onedir instead of installing
-        /// private bool portable = false;
-        private static readonly string runningUser = WindowsIdentity.GetCurrent().Name.Split("\\")[1];
+        private static readonly string runningUser = Environment.UserName;
         private static readonly string currentHostname = Environment.MachineName;
-        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0";
-        private static readonly string saltPath = @$"C:\ProgramData\Salt Project\Salt\srv\salt";
-        private static readonly string src = "winfor";
-        private static readonly string displayName = "Win-FOR";
+        // Branding
+        internal const string src = "winfor";
+        private const string displayName = "Win-FOR";
+        private const string authorName = "Corey Forman (digitalsleuth)";
+        private const string authorUrl = "https://github.com/digitalsleuth";
+        private const string logoToolTip = $"Visit me on GitHub!\n{authorUrl}";
+        private const string hostNameToolTip = $"Enter the hostname you would like for your installation.\nIf nothing is selected, the default of {defaultHostName} will be used.";
+        private const string minionName = "WIN-FOR";
+        private const string defaultHostName = "WIN-FOR";
+        private const string defaultTheme = "WIN-FOR";
+        private const string defaultThemeFolder = "winfor";
+        private const string startLayoutFile = "WIN-FOR-StartLayout.xml";
+        private static readonly string userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:159.0) Gecko/20100101 Firefox/159.0";
+        // Local paths and file names
+        internal const string localRoot = @"C:\";
+        internal const string defaultStandalonesPath = @"C:\standalone";
+        internal const string defaultDownloadsPath = $@"{localRoot}{src}-downloads";
+        internal const string debloatTempDir = @"C:\salt\tempdownload";
+        internal const string standalonesToolTip = $"Choose where the standalone tools will be installed on your system.\nIf left blank, the default is {defaultStandalonesPath}";
+        private const string downloadsToolTip = $"If selecting the 'Download' option,\nuse this to choose where the files will be downloaded.\nIf left blank, the default is {defaultDownloadsPath}";
+        private const string saltDataRoot = @"C:\ProgramData\Salt Project\Salt";
+        internal const string saltPath = $@"{saltDataRoot}\srv\salt";
+        private const string saltInstallDir = @"C:\Program Files\Salt Project\Salt";
+        private const string saltExe = $@"{saltInstallDir}\salt-call.exe";
+        private const string gitCmdDir = @"C:\Program Files\Git\cmd";
+        private const string gitExe = $@"{gitCmdDir}\git.exe";
+        internal const string saltLogPrefix = $"{src}-saltstack-";
+        private const string outputLogPrefix = $"{src}-output-";
+        private const string versionFileName = $"{src}-version";
+        private const string tempFolderName = $"{src}-temp";
         private static readonly string envPath = Environment.GetEnvironmentVariable("Path")!;
-        private static readonly string gitPath = $@"{envPath};C:\Program Files\Git\cmd";
-        private static readonly string saltExe = @"C:\Program Files\Salt Project\Salt\salt-call.exe";
+        private static readonly string gitPath = $@"{envPath};{gitCmdDir}";
+        // URLs
         private static readonly string saltUri = "https://packages.broadcom.com/artifactory/saltproject-generic/windows/";
         private static readonly string gitUri = "https://github.com/git-for-windows/git/releases/download/v";
+        private static readonly string githubSaltRepo = "https://github.com/digitalsleuth/winfor-salt";
         private static readonly string githubApi = "https://api.github.com/repos/digitalsleuth/winfor-salt/releases/latest";
         private static readonly string githubTags = "https://github.com/digitalsleuth/winfor-salt/archive/refs/tags";
         private static readonly string githubReleaseDownload = "https://github.com/digitalsleuth/winfor-salt/releases/download";
-        private static readonly string githubBinaryApi = $@"https://api.github.com/repos/digitalsleuth/win-for/releases/latest";
+        private static readonly string githubBinaryApi = "https://api.github.com/repos/digitalsleuth/win-for/releases/latest";
         private static readonly string githubBinaryReleaseDownload = "https://github.com/digitalsleuth/win-for/releases/download";
         private static readonly string githubBinaryRepo = "https://github.com/digitalsleuth/win-for";
         private static readonly string toolListPdf = "https://github.com/digitalsleuth/WIN-FOR/raw/main/WIN-FOR-Tool-List.pdf";
-        private static readonly string configFile = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/.config";
-        private static readonly string layoutFile = $@"https://raw.githubusercontent.com/digitalsleuth/winfor-salt/main/winfor/config/layout/layout.json";
+        internal const string githubRaw = "https://raw.githubusercontent.com/digitalsleuth/winfor-salt";
+        private static readonly string configFile = $"{githubRaw}/main/.config";
+        private static readonly string layoutFile = $"{githubRaw}/main/{src}/config/layout/layout.json";
+        private static readonly string localLayoutFile = Path.Combine(AppContext.BaseDirectory, "layout.json");
+        private static readonly string localConfigFile = Path.Combine(AppContext.BaseDirectory, ".config");
+        private static readonly bool debugMode = Environment.GetCommandLineArgs().Skip(1).Any(arg => arg.Equals("--debug", StringComparison.OrdinalIgnoreCase));
         private static readonly string themeTemplateZip = "https://github.com/digitalsleuth/WIN-FOR/raw/refs/heads/main/blank-template.zip";
+        private const int searchDelayMs = 150;
+        private const double treeSlack = 9;
+        private const double minConsoleHeight = 80;
+        private const double treeFrame = 10;
+        private const double treeCornerRadius = 6;
+        private double consoleHeight = 220;
+        private double collapsedMinHeight;
+        private static readonly HashSet<string> stateInfrastructure = ["repos", "config", "cleanup", "set_version", "config_debloat_windows"];
+        private static readonly Regex hostNameRegex = new("^[A-Za-z0-9-]{1,15}$");
+        private static readonly Regex releaseNameRegex = new(@"^v?[0-9A-Za-z.]+$");
+        private static readonly SolidColorBrush errorBrush = new(Color.FromRgb(0xCB, 0x39, 0x3B));
+        private static readonly SolidColorBrush countBrush = new(Color.FromRgb(0x77, 0x77, 0x77));
+        private static readonly SolidColorBrush onlineBackground = new(Color.FromRgb(0xDF, 0xF6, 0xDD));
+        private static readonly SolidColorBrush onlineForeground = new(Color.FromRgb(0x0F, 0x5B, 0x1C));
+        private static readonly SolidColorBrush offlineBackground = new(Color.FromRgb(0xFD, 0xE7, 0xE9));
+        private static readonly SolidColorBrush offlineForeground = new(Color.FromRgb(0x9E, 0x1B, 0x24));
+        internal static readonly HttpClient httpClient = CreateHttpClient(true);
+        private static readonly HttpClient redirectClient = CreateHttpClient(false);
+        private readonly TextBoxOutputter consoleWriter;
+        private readonly DispatcherTimer searchTimer = new();
+        private bool bulkUpdating;
+        private ResultsWindow? resultsWindow;
+        private DebloatWindow? debloatWindow;
+        private List<TreeItems> layoutItems = [];
+        private readonly Dictionary<string, CheckBox> toolBoxes = [];
+        private readonly Dictionary<Control, object?> fieldTips = [];
+        private readonly Dictionary<TreeViewItem, TextBlock> sectionCounts = [];
 #pragma warning disable CS8602 // Deference of a possibly null reference.
         private static readonly Version? appVersion = new(Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
 #pragma warning restore CS8602 // Deference of a possibly null reference.
+        // Optional X-Ways feature - implemented in MainWindow.XWays.cs, and skipped entirely when that file is deleted
+        partial void XwaysCheckInputs(ref bool cancel, ref bool selected, ref string token);
+        partial void XwaysInsertToken(bool selected, string token, bool install);
+        partial void XwaysScrubToken(bool selected, bool install);
+        partial void XwaysValidateField(Control field, string text, bool leaving, ref bool skipQuoteCheck, ref string? error);
+        partial void XwaysWireTool(string cbName, CheckBox toolCheckBox);
+        partial void XwaysReset();
         public MainWindow()
         {
             InitializeComponent();
+            collapsedMinHeight = MinHeight;
             DataContext = this;
-            mainWindow.Title = $"{displayName} v{appVersion}";
-            if (currentHostname.Length >= 15)
-            {
-                HostNamePlaceholder.FontSize = 10;
-            }
-            else if (currentHostname.Length >= 10 && currentHostname.Length < 15)
-            {
-                HostNamePlaceholder.FontSize = 11;
-            }
-            else
-            {
-                HostNamePlaceholder.FontSize = 12;
-            }
-            HostNamePlaceholder.Text = currentHostname;
-            UserNamePlaceholder.Text = runningUser;
-            Console.SetOut(new TextBoxOutputter(OutputConsole));
+            mainWindow.Title = $"{displayName} v{appVersion}{(debugMode ? " [DEBUG]" : "")}";
+            Placeholder.SetText(HostName, currentHostname);
+            Placeholder.SetText(UserName, runningUser);
+            Placeholder.SetText(StandalonesPath, defaultStandalonesPath);
+            Placeholder.SetText(DownloadsPath, defaultDownloadsPath);
+            StandalonesLabel.ToolTip = StandalonesPath.ToolTip = standalonesToolTip;
+            DownloadsLabel.ToolTip = DownloadsPath.ToolTip = downloadsToolTip;
+            HostNameLabel.ToolTip = hostNameToolTip;
+            DS_FingerPrint.ToolTip = logoToolTip;
+            consoleWriter = new TextBoxOutputter(OutputConsole);
+            Console.SetOut(consoleWriter);
             elapsedTimer!.Tick += new EventHandler(ElapsedTime!);
             elapsedTimer.Interval = TimeSpan.FromSeconds(1);
+            searchTimer.Interval = TimeSpan.FromMilliseconds(searchDelayMs);
+            searchTimer.Tick += (sender, e) => { searchTimer.Stop(); ApplySearch(); };
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.LoadFile, (sender, e) => { FileLoad(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.LoadFile, new KeyGesture(Key.L, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.SaveFile, (sender, e) => { FileSave(); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.SaveFile, new KeyGesture(Key.S, ModifierKeys.Control)));
+            CommandBindings.Add(new CommandBinding(KeyboardShortcuts.SaveOffline, (sender, e) => { FileSaveClickOffline(sender, e); }, (sender, e) => { e.CanExecute = true; }));
+            InputBindings.Add(new KeyBinding(KeyboardShortcuts.SaveOffline, new KeyGesture(Key.O, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.DownloadToolList, (sender, e) => { DownloadToolList(sender, e); }, (sender, e) => { e.CanExecute = true; }));
             InputBindings.Add(new KeyBinding(KeyboardShortcuts.DownloadToolList, new KeyGesture(Key.T, ModifierKeys.Control)));
             CommandBindings.Add(new CommandBinding(KeyboardShortcuts.CheckForUpdates, (sender, e) => { CheckUpdates(sender, e); }, (sender, e) => { e.CanExecute = true; }));
@@ -115,6 +177,13 @@ namespace WinFORCustomizer
             OutputExpander.Visibility = Visibility.Visible;
             OutputExpander.IsEnabled = true;
             OutputExpander.IsExpanded = false;
+            if (debugMode)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[DEBUG] Debug mode is on - the software configuration and layout come from {localConfigFile} and {localLayoutFile} instead of GitHub.");
+            }
+            UpdateNetworkState();
+            NetworkChange.NetworkAddressChanged += (sender, e) => Dispatcher.BeginInvoke(UpdateNetworkState);
             _ = GenerateTree();
         }
 
@@ -125,6 +194,7 @@ namespace WinFORCustomizer
             {
                 LoadFile = new RoutedCommand("LoadFile", typeof(MainWindow));
                 SaveFile = new RoutedCommand("SaveFile", typeof(MainWindow));
+                SaveOffline = new RoutedCommand("SaveOffline", typeof(MainWindow));
                 DownloadToolList = new RoutedCommand("DownloadToolList", typeof(MainWindow));
                 CheckForUpdates = new RoutedCommand("CheckForUpdates", typeof(MainWindow));
                 ShowLatest = new RoutedCommand("ShowLatest", typeof(MainWindow));
@@ -139,6 +209,7 @@ namespace WinFORCustomizer
             }
             public static RoutedCommand LoadFile { get; private set; }
             public static RoutedCommand SaveFile { get; private set; }
+            public static RoutedCommand SaveOffline { get; private set; }
             public static RoutedCommand DownloadToolList { get; private set; }
             public static RoutedCommand CheckForUpdates { get; private set; }
             public static RoutedCommand ShowLatest { get; private set; }
@@ -156,17 +227,31 @@ namespace WinFORCustomizer
         // Idea for the TextBoxOutputter from https://social.technet.microsoft.com/wiki/contents/articles/12347.wpf-howto-add-a-debugoutput-console-to-your-application.aspx
         {
             private readonly TextBox textBox = output;
+            private readonly ConcurrentQueue<string> pending = new();
+            private int flushScheduled;
 
             public override void Write(string? value)
             {
                 if (string.IsNullOrEmpty(value)) return;
 
-                textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
+                pending.Enqueue(value);
+                if (Interlocked.Exchange(ref flushScheduled, 1) == 0)
                 {
-                    textBox.AppendText(value);
-                    textBox.CaretIndex = textBox.Text.Length;
-                    textBox.ScrollToEnd();
-                }));
+                    textBox.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(FlushPending));
+                }
+            }
+
+            public void FlushPending()
+            {
+                Interlocked.Exchange(ref flushScheduled, 0);
+                if (pending.IsEmpty) return;
+                StringBuilder batch = new();
+                while (pending.TryDequeue(out string? text))
+                {
+                    batch.Append(text);
+                }
+                textBox.AppendText(batch.ToString());
+                textBox.ScrollToEnd();
             }
 
             public override void WriteLine(string? value)
@@ -189,28 +274,6 @@ namespace WinFORCustomizer
                 foreach (T childOfChild in FindVisualChildren<T>(ithChild)) yield return childOfChild;
             }
         }
-        public static List<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject
-        {
-            List<T> logicalCollection = [];
-            GetLogicalChildCollection((DependencyObject)parent, logicalCollection);
-            return logicalCollection;
-        }
-        private static void GetLogicalChildCollection<T>(DependencyObject parent, List<T> logicalCollection) where T : DependencyObject
-            // Loop through Logical objects (visible or not) to perform operations on them.
-        {
-            IEnumerable children = LogicalTreeHelper.GetChildren(parent);
-            foreach (object child in children)
-            {
-                if (child is DependencyObject depChild)
-                {
-                    if (child is T t)
-                    {
-                        logicalCollection.Add(t);
-                    }
-                    GetLogicalChildCollection(depChild!, logicalCollection);
-                }
-            }
-        }
         public static class CheckNetworkConnection
         {
             public static bool IsConnected()
@@ -223,19 +286,138 @@ namespace WinFORCustomizer
                         ni.NetworkInterfaceType != NetworkInterfaceType.Tunnel);
             }
         }
+        private bool? networkConnected;
+        private bool manualOffline;
+        private bool layoutLoading;
+        private bool layoutReloadPending;
+        private bool layoutLoadedOffline;
+        private bool OfflineMode => manualOffline || networkConnected == false;
+        private void UpdateNetworkState()
+        // Enables the buttons that need internet access only while a network connection is present, and switches to Offline mode while there is none
+        {
+            bool connected = CheckNetworkConnection.IsConnected();
+            if (connected == networkConnected)
+            {
+                return;
+            }
+            bool first = networkConnected is null;
+            bool wasOffline = OfflineMode;
+            bool wasDisconnected = networkConnected == false;
+            networkConnected = connected;
+            ApplyMode();
+            if (!connected)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput("[WARNING] No network connection detected. The Download, Offline, and WSL Only functions have been disabled, and Install has switched to Install Offline.");
+            }
+            else if (wasDisconnected)
+            {
+                ConsoleOutput("Network connection detected. The Download, Offline, and WSL Only functions have been enabled.");
+            }
+            if (!first && OfflineMode != wasOffline)
+            {
+                _ = ReloadLayout();
+            }
+        }
+        private void ApplyMode()
+        // Updates the Install button, the network chip and the menu to match the current mode
+        {
+            bool connected = networkConnected == true;
+            bool busy = elapsedTimer!.IsEnabled;
+            InstallButton.Content = OfflineMode ? "Install Offline" : "Install";
+            InstallButton.ToolTip = OfflineMode ? "Will install the downloaded tools / environment on this system without network access" : "Will install the chosen tools / environment";
+            DownloadButton.IsEnabled = connected;
+            OfflineButton.IsEnabled = connected;
+            InstallWslButton.IsEnabled = connected;
+            NetworkChip.Background = OfflineMode ? offlineBackground : onlineBackground;
+            NetworkChipText.Foreground = OfflineMode ? offlineForeground : onlineForeground;
+            NetworkChipText.Text = !connected ? "Offline" : manualOffline ? "Offline mode" : "Online";
+            NetworkChip.IsEnabled = !busy;
+            NetworkChip.Opacity = busy ? 0.5 : 1;
+            NetworkChip.Cursor = busy ? Cursors.Arrow : Cursors.Hand;
+            NetworkChip.ToolTip = busy ? "The mode cannot be changed while a task is running" : !connected ? "No network connection - Offline mode stays on until one is available" : manualOffline ? "Offline mode - click to switch back to Online mode" : "Online mode - click to switch to Offline mode";
+            OfflineModeOption.Header = manualOffline ? "Switch to _Online mode" : "Switch to _Offline mode";
+            OfflineModeOption.IsEnabled = connected && !busy;
+        }
+        private void StartTimer()
+        // Starts the elapsed timer and locks the mode switch until the task ends
+        {
+            elapsedTimer!.Start();
+            ApplyMode();
+        }
+        private void StopTimer()
+        {
+            elapsedTimer!.Stop();
+            ApplyMode();
+            if (OfflineMode != layoutLoadedOffline)
+            {
+                _ = ReloadLayout();
+            }
+        }
+        private void ToggleOfflineMode(object sender, RoutedEventArgs e)
+        // Switches between Online and Offline mode without touching the network connection
+        {
+            if (networkConnected != true)
+            {
+                ConsoleOutput("[INFO] There is no network connection, so Offline mode stays on until one is available.");
+                return;
+            }
+            manualOffline = !manualOffline;
+            ApplyMode();
+            ConsoleOutput(manualOffline ? "Offline mode is on. Install has switched to Install Offline." : "Offline mode is off. Install has switched back to Install.");
+            _ = ReloadLayout();
+        }
+        private async Task ReloadLayout()
+        // Loads the layout that matches the current mode, keeping the displayed one when that layout is unavailable
+        {
+            if (layoutLoading)
+            {
+                layoutReloadPending = true;
+                return;
+            }
+            layoutLoading = true;
+            try
+            {
+                do
+                {
+                    layoutReloadPending = false;
+                    if (elapsedTimer!.IsEnabled)
+                    {
+                        ConsoleOutput("[INFO] A task is running, so the layout will be reloaded when it finishes.");
+                    }
+                    else if (OfflineMode && !File.Exists(localLayoutFile))
+                    {
+                        layoutLoadedOffline = true;
+                        LayoutSourceText.Text = layoutItems.Count > 0 ?"Layout Source: Local (GitHub copy)" : LayoutSourceText.Text;
+                        ConsoleOutput($"[INFO] No layout.json was found in {AppContext.BaseDirectory}, so the layout already loaded from GitHub is being used offline.");
+                    }
+                    else
+                    {
+                        await GenerateTree();
+                    }
+                } while (layoutReloadPending);
+            }
+            finally
+            {
+                layoutLoading = false;
+            }
+        }
         private void ElapsedTime(object source, EventArgs e)
         {
             TimeSpan timeSpan = stopWatch!.Elapsed;
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
             TimerLabel.Content = elapsedTime;
         }
-        private void VisitGithub(object sender, RequestNavigateEventArgs e)
-        // Visits the digitalsleuth/win-for GitHub Repo
+
+        private void Logo_Click(object sender, MouseButtonEventArgs e)
+        {
+            OpenUrl(authorUrl);
+        }
+        private void OpenUrl(string url)
         {
             try
             {
-                Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
-                e.Handled = true;
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
@@ -244,11 +426,38 @@ namespace WinFORCustomizer
             }
         }
 
-        public static HttpClient NewHttpClient()
+
+        private static HttpClient CreateHttpClient(bool followRedirects)
         {
-            HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
-            return httpClient;
+            HttpClient client = new(new HttpClientHandler { AllowAutoRedirect = followRedirects });
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+            return client;
+        }
+        internal static Task<string?> LatestSaltRelease()
+        {
+            return LatestReleaseTag(githubSaltRepo, githubApi);
+        }
+        private static async Task<string?> LatestReleaseTag(string repoUrl, string apiUrl)
+        // The github.com redirect has no API rate limit, so the API is only a fallback
+        {
+            try
+            {
+                using CancellationTokenSource cancellation = new(TimeSpan.FromSeconds(30));
+                using HttpResponseMessage redirect = await redirectClient.GetAsync($"{repoUrl}/releases/latest", HttpCompletionOption.ResponseHeadersRead, cancellation.Token);
+                string location = redirect.Headers.Location?.ToString() ?? "";
+                int tagIndex = location.LastIndexOf("/tag/");
+                if (tagIndex >= 0)
+                {
+                    return Uri.UnescapeDataString(location[(tagIndex + 5)..]);
+                }
+                using JsonDocument api = JsonDocument.Parse(await httpClient.GetStringAsync(apiUrl, cancellation.Token));
+                return api.RootElement.GetProperty("tag_name").ToString();
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException or KeyNotFoundException)
+            {
+                ConsoleOutput($"[ERROR] Unable to look up the latest release of {repoUrl}: {ex.Message}");
+                return null;
+            }
         }
         private void ExpandAllBtn(object sender, RoutedEventArgs e)
         {
@@ -259,7 +468,7 @@ namespace WinFORCustomizer
         {
             try
             {
-                foreach (TreeViewItem ti in GetLogicalChildCollection<TreeViewItem>(AllTools))
+                foreach (TreeViewItem ti in AllTools.Items.OfType<TreeViewItem>())
                 {
                     ti.IsExpanded = true;
                 }
@@ -280,7 +489,7 @@ namespace WinFORCustomizer
         {
             try
             {
-                foreach (TreeViewItem treeItem in GetLogicalChildCollection<TreeViewItem>(AllTools))
+                foreach (TreeViewItem treeItem in AllTools.Items.OfType<TreeViewItem>())
                 {
                     treeItem.IsExpanded = false;
                 }
@@ -297,22 +506,69 @@ namespace WinFORCustomizer
             UncheckAll();
         }
         private void UncheckAll()
-        // Unchecks all CheckBoxes in the TreeView AllTools component
+        // Unchecks all tool CheckBoxes, including any which a search has detached from the TreeView
         {
             try
             {
-                foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
-                {
-                    if (checkBox.IsEnabled)
-                    {
-                        checkBox.IsChecked = false;
-                    }
-                }
+                SetAllTools(false);
             }
             catch (Exception ex)
             {
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"[ERROR] Unable to Uncheck All:\n{ex}");
+            }
+        }
+        private void SetAllTools(bool isChecked)
+        {
+            bulkUpdating = true;
+            try
+            {
+                foreach (CheckBox checkBox in originalChildOrder.Values.SelectMany(children => children))
+                {
+                    checkBox.IsChecked = isChecked;
+                }
+            }
+            finally
+            {
+                bulkUpdating = false;
+            }
+            RefreshSectionStates();
+        }
+        private void UpdateSectionState(TreeViewItem section)
+        {
+            if (section.Header is not CheckBox sectionBox || !originalChildOrder.TryGetValue(section, out List<CheckBox>? children))
+            {
+                return;
+            }
+            int checkedCount = children.Count(checkBox => checkBox.IsChecked == true);
+            bulkUpdating = true;
+            try
+            {
+                sectionBox.IsThreeState = checkedCount > 0 && checkedCount < children.Count;
+                sectionBox.IsChecked = checkedCount == children.Count ? true : checkedCount == 0 ? false : null;
+            }
+            finally
+            {
+                bulkUpdating = false;
+            }
+            if (sectionCounts.TryGetValue(section, out TextBlock? count))
+            {
+                count.Text = $"{checkedCount} / {children.Count}";
+            }
+            SelectionSummary.Text = $"{originalChildOrder.Values.Sum(sectionChildren => sectionChildren.Count(checkBox => checkBox.IsChecked == true))} of {originalChildOrder.Values.Sum(sectionChildren => sectionChildren.Count)} tools selected";
+        }
+        private void RefreshSectionStates()
+        {
+            foreach (TreeViewItem section in originalChildOrder.Keys)
+            {
+                UpdateSectionState(section);
+            }
+        }
+        private void SetTool(string name, bool isChecked)
+        {
+            if (toolBoxes.TryGetValue(name, out CheckBox? checkBox))
+            {
+                checkBox.IsChecked = isChecked;
             }
         }
 
@@ -332,87 +588,17 @@ namespace WinFORCustomizer
             }
         }
 
-        private void CheckAllBtn(object sender, RoutedEventArgs e)
-        {
-                CheckAll();
-        }
         private void CheckAll()
-        // Checks all CheckBoxes in the TreeView AllTools component
+        // Checks all tool CheckBoxes, including any which a search has detached from the TreeView
         {
             try
             {
-                foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
-                {
-                    if (checkBox.IsEnabled)
-                    {
-                        checkBox.IsChecked = true;
-                    }
-                }
+                SetAllTools(true);
             }
             catch (Exception ex)
             {
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"[ERROR] Unable to Check All:\n{ex}");
-            }
-        }
-        private void XwaysChecked(object sender, RoutedEventArgs e)
-        // Determine if the X-Ways CheckBox is checked, and enable the user/pass boxes to enter credentials for the portal
-        {
-            if (XUser == null || XPass == null)
-            {
-                return;
-            }
-            List<CheckBox> toolList = GetLogicalChildCollection<CheckBox>(AllTools);
-            CheckBox? xwaysCheckBox = toolList.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
-            CheckBox? xwaysTemplateCheckBox = toolList.FirstOrDefault(cb => cb.Name == "standalones_x_ways_templates");
-            XUser.IsEnabled = true;
-            XPass.IsEnabled = true;
-            XUserLabel.IsEnabled = true;
-            XPassLabel.IsEnabled = true;
-            if (sender.GetType() == typeof(CheckBox))
-            {
-                CheckBox? obj = sender as CheckBox;
-                string cbName = obj!.Name;
-                if (cbName == "standalones_x_ways")
-                {
-                    XWays.IsChecked = true;
-                    xwaysTemplateCheckBox!.IsChecked = true;
-                }
-                else if (cbName == "XWays")
-                {
-                    xwaysCheckBox!.IsChecked = true;
-                    xwaysTemplateCheckBox!.IsChecked = true;
-                }
-            }
-        }
-        private void XwaysUnchecked(object sender, RoutedEventArgs e)
-        // Determine if the X-Ways CheckBox is unchecked, and disable the user/pass boxes
-        {
-            if (XUser == null || XPass == null)
-            {
-                return;
-            }
-            List<CheckBox> toolList = GetLogicalChildCollection<CheckBox>(AllTools);
-            CheckBox? xwaysCheckBox = toolList.FirstOrDefault(cb => cb.Name == "standalones_x_ways");
-            CheckBox? xwaysTemplateCheckBox = toolList.FirstOrDefault(cb => cb.Name == "standalones_x_ways_templates");
-            XUser.IsEnabled = false;
-            XPass.IsEnabled = false;
-            XUserLabel.IsEnabled = false;
-            XPassLabel.IsEnabled = false;
-            if (sender.GetType() == typeof(CheckBox))
-            {
-                CheckBox? obj = sender as CheckBox;
-                string cbName = obj!.Name;
-                if (cbName == "standalones_x_ways")
-                {
-                    XWays.IsChecked = false;
-                    xwaysTemplateCheckBox!.IsChecked = false;
-                }
-                else
-                {
-                    xwaysCheckBox!.IsChecked = false;
-                    xwaysTemplateCheckBox!.IsChecked = false;
-                }
             }
         }
         private void FileSaveClickCustom(object sender, RoutedEventArgs e)
@@ -472,7 +658,6 @@ namespace WinFORCustomizer
                     ExpandAll();
                     UncheckAll();
                     List<string> listedTools = [];
-                    
                     OutputExpander.IsExpanded = true;
                     ConsoleOutput($"Loading configuration from {file}");
                     int includeLineNumber = FindLineNumber(customState, "include:");
@@ -489,11 +674,15 @@ namespace WinFORCustomizer
                         {
                             line = line.Replace('-', '_');
                         }
-                        if (line == "repos" || line == "config" || line == "cleanup")
+                        if (stateInfrastructure.Contains(line))
                         {
                             continue;
                         }
-                        else if (line.Contains("theme"))
+                        else if (line == "wsl")
+                        {
+                            WSL.IsChecked = true;
+                        }
+                        else if (line.StartsWith("theme_"))
                         {
                             string theme = line.Split("_")[1];
                             themed.IsChecked = true;
@@ -504,28 +693,27 @@ namespace WinFORCustomizer
                             listedTools.Add(line);
                         }
                     }
-                    List<CheckBox> allCheckBoxes = GetLogicalChildCollection<CheckBox>(AllTools);
-                    List<string> checkBoxNames = [];
-                    foreach (CheckBox checkBox in allCheckBoxes)
+                    bulkUpdating = true;
+                    try
                     {
-                        checkBoxNames.Add(checkBox.Name);
-                    }
-                    foreach (string tool in listedTools)
-                    {
-                        foreach (CheckBox checkBox in allCheckBoxes)
+                        foreach (string tool in listedTools)
                         {
-
-                            if (checkBox.Name == tool)
+                            if (toolBoxes.TryGetValue(tool, out CheckBox? checkBox))
                             {
                                 checkBox.IsChecked = true;
                             }
-                        }
-                        if (!checkBoxNames.Contains(tool))
-                        {
-                            OutputExpander.IsExpanded = true;
-                            ConsoleOutput($"{tool} is not, or is no longer, an available option - please check your custom state and try again. To continue using your custom state without this tool, simply remove the two lines containing that tool - one under the \"include\" heading, and one under the \"{src}-custom-states\" heading.");
+                            else
+                            {
+                                OutputExpander.IsExpanded = true;
+                                ConsoleOutput($"{tool} is not, or is no longer, an available option - please check your custom state and try again. To continue using your custom state without this tool, simply remove the two lines containing that tool - one under the \"include\" heading, and one under the \"{src}-custom-states\" heading.");
+                            }
                         }
                     }
+                    finally
+                    {
+                        bulkUpdating = false;
+                    }
+                    RefreshSectionStates();
                 }
                 else
                 {
@@ -540,7 +728,7 @@ namespace WinFORCustomizer
         }
         private void EnableTheme(object sender, RoutedEventArgs e)
         {
-            Theme.Text = "WIN-FOR";
+            Theme.Text = defaultTheme;
             Theme.IsEnabled = true;
             HostName.Text = null;
             HostName.IsEnabled = true;
@@ -673,25 +861,26 @@ namespace WinFORCustomizer
             }
             return extractStatus;
         }
+        private static string ThemeFolder(bool themed)
+        {
+            if (!themed)
+            {
+                return defaultThemeFolder;
+            }
+            return ThemeChoices.SelectedTheme switch
+            {
+                "CPC-WIN" => "cpcwin",
+                "Custom" => "custom-theme",
+                _ => defaultThemeFolder
+            };
+        }
         public string GenerateState(string stateType, bool themedInstall, bool wslInstall)
         // Used to generate the data for the custom SaltStack state file
         {
             string allToolsString = "";
             try
             {
-                string repo = "winfor";
-                if (themedInstall && ThemeChoices.SelectedTheme == "CPC-WIN")
-                {
-                    repo = "cpcwin";
-                }
-                else if (themedInstall && ThemeChoices.SelectedTheme == "WIN-FOR")
-                {
-                    repo = "winfor";
-                }
-                else if (themedInstall && ThemeChoices.SelectedTheme == "Custom")
-                {
-                    repo = "custom-theme";
-                }
+                string repo = ThemeFolder(themedInstall);
                 (List<string> allChecked, _) = GetCheckStatus();
                 allChecked.Sort();
                 List<string> states = [];
@@ -802,8 +991,9 @@ namespace WinFORCustomizer
                 }
                 if (themedInstall)
                 {
-                    includeTool.Append($"  - {src}.theme.{repo}\n");
-                    requireTool.Append($"      - sls: {src}.theme.{repo}\n");
+                    string themeState = stateType == "download" ? "downloads.theme" : $"theme.{repo}";
+                    includeTool.Append($"  - {src}.{themeState}\n");
+                    requireTool.Append($"      - sls: {src}.{themeState}\n");
                 }
                 if (stateType == "install" || stateType == "offline")
                 {
@@ -850,19 +1040,12 @@ namespace WinFORCustomizer
             try
             {
 
-                foreach (CheckBox checkBox in GetLogicalChildCollection<CheckBox>(AllTools))
+                foreach (CheckBox checkBox in originalChildOrder.Values.SelectMany(children => children))
                 {
                     if (checkBox.IsChecked == true)
                     {
-                        if (checkBox.Name.StartsWith("header_"))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            checkedItems.Add(checkBox.Name.ToString());
-                            checkedItemsContent.Add(checkBox.Content.ToString()!);
-                        }
+                        checkedItems.Add(checkBox.Name);
+                        checkedItemsContent.Add(checkBox.Content.ToString()!);
                     }
                 }
                 if (WSL.IsChecked == true)
@@ -949,12 +1132,17 @@ namespace WinFORCustomizer
         private async void InstallClick(object sender, RoutedEventArgs e)
         // The main function for determining the status of all fields and initiating the installation of the selected environment
         {
+            if (OfflineMode)
+            {
+                await InstallOffline();
+                return;
+            }
             try
             {
                 mode = "install";
                 stopWatch?.Reset();
                 stopWatch?.Start();
-                elapsedTimer?.Start();
+                StartTimer();
                 bool Connected = CheckNetworkConnection.IsConnected();
                 if (!Connected)
                 {
@@ -973,10 +1161,10 @@ namespace WinFORCustomizer
                     MessageBox.Show("No items selected! Choose at least one item to install.", "No items selected!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                else if ((checkedItems.Count == 1) && (checkedItems.Contains("themed") || checkedItems.Contains("wsl")))
+                else if ((checkedItems.Count == 1) && (checkedItems.Contains("themed") || checkedItems.Contains("WSL")))
                 {
                     string item = char.ToUpper(checkedItems[0][0]) + checkedItems[0][1..];
-                    if (item == "Wsl")
+                    if (item == "WSL")
                     {
                         MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to install.\nTo install WSL only, use the \"WSL Only\" button on the side.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
@@ -986,7 +1174,7 @@ namespace WinFORCustomizer
                     }
                     return;
                 }
-                else if ((checkedItems.Count == 2) && (checkedItems.Contains("themed") && checkedItems.Contains("wsl")))
+                else if ((checkedItems.Count == 2) && (checkedItems.Contains("themed") && checkedItems.Contains("WSL")))
                 {
                     (string item0, string item1) = (checkedItems[0], checkedItems[1]);
                     item0 = char.ToUpper(item0[0]) + item0[1..];
@@ -998,53 +1186,22 @@ namespace WinFORCustomizer
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"{displayName} v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
-                string distro;
-                string repo;
+                bool xwaysCancel = false;
+                bool xwaysSelected = false;
+                string xwaysToken = "";
                 bool isThemed;
-                string currentUser = runningUser;
-                string xwaysData;
-                string xwaysToken;
-                bool xwaysSelected;
-                string standalonesPath;
-                string userName;
                 bool wslSelected;
-                string hostName;
-                bool statesExtracted;
-                List<string>? debloatOptions = DebloatWindow.DebloatSettings.Selections;
-                List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
-                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
-                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
-                if (XWays.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                string userName;
+                string standalonesPath;
+                XwaysCheckInputs(ref xwaysCancel, ref xwaysSelected, ref xwaysToken);
+                if (xwaysCancel)
                 {
-                    xwaysData = $"{XUser.Text}:{XPass.Text}";
-                    xwaysToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(xwaysData));
-                    xwaysSelected = true;
-                    ConsoleOutput($"X-Ways is selected and credentials have been provided");
-                }
-                else if (XWays.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
-                {
-                    ConsoleOutput("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
-                    stopWatch?.Stop();
-                    elapsedTimer?.Stop();
-                    MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
-                                    "X-Ways Portal Credentials Not Supplied",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
                     return;
-                }
-                else
-                {
-                    xwaysSelected = false;
-                    xwaysToken = "TOKENPLACEHOLDER";
-                    ConsoleOutput("X-Ways is not selected and will not be downloaded / installed");
                 }
                 if (themed.IsChecked == true)
                 {
                     isThemed = true;
-                    distro = ThemeChoices.SelectedTheme!;
-                    ConsoleOutput($"Selected theme is {distro}");
+                    ConsoleOutput($"Selected theme is {ThemeChoices.SelectedTheme}");
                 }
                 else
                 {
@@ -1055,7 +1212,7 @@ namespace WinFORCustomizer
                 {
                     wslSelected = true;
                     MessageBoxResult result = MessageBox.Show("WSL installation will require a reboot! Ensure that you save any open documents, then click OK to continue.","WSL requires a reboot!",MessageBoxButton.OKCancel,MessageBoxImage.Warning);
-                    if (result == MessageBoxResult.Cancel) 
+                    if (result == MessageBoxResult.Cancel)
                     {
                         return;
                     }
@@ -1065,14 +1222,7 @@ namespace WinFORCustomizer
                     wslSelected = false;
                     ConsoleOutput("WSL is not selected.");
                 }
-                if (UserName.Text == "")
-                {
-                    userName = currentUser;
-                }
-                else
-                {
-                    userName = UserName.Text;
-                }
+                userName = UserName.Text == "" ? runningUser : UserName.Text;
                 ConsoleOutput($"Selected user is {userName}");
                 if (StandalonesPath.Text != "")
                 {
@@ -1081,150 +1231,163 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    standalonesPath = @$"C:\standalone";
+                    standalonesPath = defaultStandalonesPath;
                     ConsoleOutput($"Standalones path box was empty - default will be used - {standalonesPath}");
                 }
-                string tempDir = @$"{driveLetter}{src}-temp\";
-                List<string>? currentReleaseData = await IdentifyRelease();
-                string releaseVersion = currentReleaseData![0];
-                string uriZip = currentReleaseData[1];
-                string uriHash = currentReleaseData[2];
-                ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                if (!Directory.Exists(tempDir))
+                if (!InputsAreValid(userName, standalonesPath) || (isThemed && !HostNameIsValid()))
                 {
-                    ManageDirectory(tempDir, "create");
+                    return;
                 }
-                else
+                string tempDir = $@"{driveLetter}{tempFolderName}\";
+                string? releaseVersion = await PrepareEnvironment(tempDir);
+                if (releaseVersion is null)
                 {
-                    ManageDirectory(tempDir, "perms");
+                    return;
                 }
-                if (!CheckGitInstalled(gitVersion))
-                {
-                    ConsoleOutput($"Git {gitVersion} is not installed");
-                    await DownloadGit(tempDir, gitVersion, gitHash);
-                    await InstallGit(tempDir, gitVersion);
-                }
-                else
-                {
-                    ConsoleOutput($"Git {gitVersion} is already installed");
-                }
-                if (!CheckSaltStackInstalled(saltVersion))
-                {
-                    ConsoleOutput($"SaltStack {saltVersion} is not installed");
-                    await DownloadSaltStack(tempDir, saltVersion, saltHash);
-                    await InstallSaltStack(tempDir, saltVersion);
-                }
-                else
-                {
-                    ConsoleOutput($"SaltStack {saltVersion} is already installed");
-                }
-                string releaseFile = $"{tempDir}{releaseVersion}.zip";
-                string providedHash;
-                bool hashMatch;
-                ConsoleOutput($"Current release of WIN-FOR is {releaseVersion}");
-                FileInfo releaseFileFileInfo = new(releaseFile);
-                FileInfo releaseHashFileInfo = new($"{releaseFile}.sha256");
-                if ((File.Exists(releaseFile) && File.Exists($"{releaseFile}.sha256")) && (releaseFileFileInfo.Length != 0 && releaseHashFileInfo.Length != 0))
-                {
-                    ConsoleOutput($"{releaseFile} and {releaseFile}.sha256 already exist and not zero-byte files.");
-                    ConsoleOutput("Comparing hashes...");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
-                else
-                {
-                    ConsoleOutput("Downloading release file and SHA256 to compare");
-                    bool status = await DownloadStates(tempDir, releaseVersion, uriZip, uriHash);
-                    if (!status)
-                    {
-                        ConsoleOutput("[ERROR] Unable to download required Salt states.");
-                        return;
-                    }
-                    ConsoleOutput("Downloads complete...");
-                    ConsoleOutput("Comparing hashes...");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
+                ConsoleOutput("Extracting archive...");
                 ConsoleOutput("Checking for and removing previous repo folder");
                 if (Directory.Exists(@$"{saltPath}\win\"))
                 {
                     ManageDirectory(@$"{saltPath}\win\", "delete");
                 }
                 string stateFile = GenerateState(mode, isThemed, wslSelected);
-                statesExtracted = ExtractStates(tempDir, releaseVersion);
-                if (statesExtracted)
+                if (!ExtractStates(tempDir, releaseVersion))
                 {
-                    await File.WriteAllTextAsync(@$"{saltPath}\{src}\config\debloat.preset", string.Join("\n", debloatOptions!));
-                    if (xwaysSelected)
-                    {
-                        ConsoleOutput("Adding authentication token to X-Ways state");
-                        InsertXwaysToken(xwaysToken, true);
-                    }
-                    if (isThemed)
-                    {
-                        string layout = await GenerateLayout(standalonesPath);
-                        await File.WriteAllTextAsync(@$"{saltPath}\{src}\config\layout\WIN-FOR-StartLayout.xml", layout);
-                        if (ThemeChoices.SelectedTheme == "Custom" && customThemeZip != "") 
-                        {
-                            ExtractCustomTheme(customThemeZip);
-                        }
-                        if (HostName.Text != "")
-                        {
-                            hostName = HostName.Text;
-                            repo = Theme.Name;
-                            InsertHostName(hostName, repo);
-                        }
-                        else
-                        {
-                            hostName = currentHostname;
-                            repo = Theme.Name;
-                            InsertHostName(hostName, repo);
-                        }
-                    }
-                    bool copied = CopyCustomState(@$"{saltPath}\{src}\custom.sls", stateFile);
-                    if (!copied)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        await ExecuteSaltStack(userName, standalonesPath, releaseVersion);
-                        await File.WriteAllTextAsync(@$"C:\{src}-version", releaseVersion);
-                    }
+                    return;
                 }
+                await WriteDebloatPreset(saltPath);
+                XwaysInsertToken(xwaysSelected, xwaysToken, true);
+                if (isThemed)
+                {
+                    await PrepareTheme(standalonesPath);
+                }
+                if (!CopyCustomState(@$"{saltPath}\{src}\custom.sls", stateFile))
+                {
+                    return;
+                }
+                await ExecuteSaltStack(userName, standalonesPath, releaseVersion);
+                await File.WriteAllTextAsync($@"{localRoot}{versionFileName}", releaseVersion);
+                XwaysScrubToken(xwaysSelected, true);
                 if (wslSelected)
                 {
                     ConsoleOutput("WSL is selected, and will be installed last as a system reboot is required.");
-                    await ExecuteWsl(userName, releaseVersion, standalonesPath, true);
+                    await ExecuteWsl(userName, releaseVersion, standalonesPath);
                 }
-                stopWatch?.Stop();
-                elapsedTimer?.Stop();
             }
             catch (Exception ex)
             {
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"[ERROR] Unable to complete the installation process:\n{ex}");
             }
+            finally
+            {
+                stopWatch?.Stop();
+                StopTimer();
+            }
+        }
+        private static string OfflineRelease(string offlineRoot)
+        // The staged states carry their release in a VERSION file, which names the log the same way the online installs do
+        {
+            string versionFile = $@"{offlineRoot}\{src}\VERSION";
+            string release = File.Exists(versionFile) ? File.ReadAllText(versionFile).Trim() : "";
+            return releaseNameRegex.IsMatch(release) ? release : "unversioned";
+        }
+        private async Task InstallOffline()
+        // Asks for the offline paths, then installs from the downloaded files with the salt-call.exe that was downloaded alongside them
+        {
+            OfflineWindow dialog = new(StandalonesPath.Text, DownloadsPath.Text, UserName.Text) { Owner = this };
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+            try
+            {
+                stopWatch?.Reset();
+                stopWatch?.Start();
+                StartTimer();
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"{displayName} v{appVersion} - Offline install");
+                ConsoleOutput($"Downloads path is {dialog.SelectedDownloads}");
+                ConsoleOutput($"Standalones path is {dialog.SelectedStandalones}");
+                ConsoleOutput($"Selected user is {dialog.SelectedUser}");
+                string offlineRoot = $@"{dialog.SelectedDownloads}\offline";
+                string offlineSalt = $@"{offlineRoot}\Salt\salt-call.exe";
+                string pillar = BuildPillar($"{src}_user", dialog.SelectedUser, dialog.SelectedStandalones, false)
+                    + $", 'offline': '{dialog.SelectedDownloads.Replace("'", "''")}', 'saltpath': '{offlineSalt.Replace("'", "''")}'";
+                await WriteDebloatPreset(offlineRoot);
+                await RunSaltCall($"{src}.offline", pillar, $"{OfflineRelease(offlineRoot)}-offline", "Installing the selected states.", false, offlineSalt, offlineRoot);
+            }
+            catch (Exception ex)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] Unable to complete the offline installation process:\n{ex}");
+            }
+            finally
+            {
+                stopWatch?.Stop();
+                StopTimer();
+            }
+        }
+        internal static bool InputsAreValid(params string[] values)
+        // Values are placed inside a salt-call pillar argument, so a double quote or line break would corrupt the command
+        {
+            foreach (string value in values)
+            {
+                if (value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
+                {
+                    MessageBox.Show($"The value \"{value}\" contains a double quote or a line break, which cannot be used. Please correct it and try again.", "Invalid value", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
+                }
+            }
+            return true;
+        }
+        private void Field_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is Control field)
+            {
+                ValidateField(field);
+            }
+        }
+        private void ValidateField(Control field, bool leaving = false)
+        // Marks a field with a red border and an explanatory tooltip as soon as its content is not usable
+        {
+            string text = field is PasswordBox passwordBox ? passwordBox.Password : ((TextBox)field).Text;
+            bool skipQuoteCheck = false;
+            string? error = null;
+            XwaysValidateField(field, text, leaving, ref skipQuoteCheck, ref error);
+            if (field == HostName && text != "" && !hostNameRegex.IsMatch(text))
+            {
+                error = "A hostname may only contain letters, numbers and hyphens, and be at most 15 characters long.";
+            }
+            else if (!skipQuoteCheck && text.Contains('"'))
+            {
+                error = "A double quote cannot be used here.";
+            }
+            SetFieldError(field, error);
+        }
+        private void SetFieldError(Control field, string? message)
+        {
+            if (message is null)
+            {
+                field.ClearValue(Control.BorderBrushProperty);
+                if (fieldTips.TryGetValue(field, out object? tip))
+                {
+                    field.ToolTip = tip;
+                }
+                return;
+            }
+            fieldTips.TryAdd(field, field.ToolTip);
+            field.BorderBrush = errorBrush;
+            field.ToolTip = message;
+        }
+        private bool HostNameIsValid()
+        {
+            if (HostName.Text == "" || hostNameRegex.IsMatch(HostName.Text))
+            {
+                return true;
+            }
+            MessageBox.Show("A hostname may only contain letters, numbers and hyphens, and be at most 15 characters long.", "Invalid hostname", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
         }
         private static bool CheckSaltStackInstalled(string saltVersion)
         // Checks if the pre-determined version of SaltStack is installed
@@ -1252,6 +1415,25 @@ namespace WinFORCustomizer
             }
             return saltInstalled;
         }
+        private static bool GitReportsVersion(string gitVersion)
+        // git --version prints the exact release tag
+        {
+            if (!File.Exists(gitExe))
+            {
+                return false;
+            }
+            try
+            {
+                using Process process = Process.Start(new ProcessStartInfo(gitExe, "--version") { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true })!;
+                string output = process.StandardOutput.ReadToEnd().Trim();
+                process.WaitForExit();
+                return output == $"git version {gitVersion}";
+            }
+            catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception)
+            {
+                return false;
+            }
+        }
         private static bool CheckGitInstalled(string gitVersion)
         // Checks if the pre-determined version of Git is installed, required for the implementation of most of the Salt states
         {
@@ -1263,8 +1445,8 @@ namespace WinFORCustomizer
                 const string uninstallkey64 = @"Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1";
                 string version32 = (string)Registry.GetValue($@"{localMachine}\{uninstallkey32}", "DisplayVersion", null)!;
                 string version64 = (string)Registry.GetValue($@"{localMachine}\{uninstallkey64}", "DisplayVersion", null)!;
-                gitVersion = gitVersion.Split(".windows")[0];
-                if (version32 == gitVersion || version64 == gitVersion)
+                string installerVersion = GitInstallerVersion(gitVersion);
+                if (version32 == installerVersion || version64 == installerVersion || GitReportsVersion(gitVersion))
                 {
                     gitInstalled = true;
                 }
@@ -1285,13 +1467,16 @@ namespace WinFORCustomizer
         {
             try
             {
-                HttpClient httpClient = NewHttpClient();
-                HttpResponseMessage response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-                ConsoleOutput($"Response code {(int)response.StatusCode} - {response.StatusCode}");
+                string partialFile = $"{downloadLocation}.part";
+                using HttpResponseMessage response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                ConsoleOutput($"Response code {(int)response.StatusCode} - {response.StatusCode} ({Path.GetFileName(downloadLocation)})");
                 response.EnsureSuccessStatusCode();
-                HttpContent content = response.Content;
-                var fileBytes = await content.ReadAsByteArrayAsync();
-                await File.WriteAllBytesAsync(downloadLocation, fileBytes);
+                await using (Stream source = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                await using (FileStream destination = new(partialFile, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true))
+                {
+                    await source.CopyToAsync(destination).ConfigureAwait(false);
+                }
+                File.Move(partialFile, downloadLocation, true);
                 return true;
             }
             catch (HttpRequestException requestException)
@@ -1309,244 +1494,282 @@ namespace WinFORCustomizer
                 return false;
             }
         }
-        private static async Task DownloadSaltStack(string tempDir, string saltVersion, string saltHash)
+        private sealed record Tooling(string GitVersion, string GitHash, string? GitFile, string SaltVersion, string SaltHash);
+        private static (string Name, string Uri, string File) SaltInstaller(string tempDir, string saltVersion)
+        {
+            string saltFile = $"Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe";
+            return ($"SaltStack v{saltVersion}", $"{saltUri}{saltVersion}/{saltFile}", $"{tempDir}{saltFile}");
+        }
+        private static (string Name, string Uri, string File) GitInstaller(string tempDir, string gitVersion, string? configuredFile)
+        {
+            string gitFile = GitInstallerFile(gitVersion, configuredFile);
+            return ($"Git v{GitInstallerVersion(gitVersion)}", $"{gitUri}{gitVersion}/{gitFile}", $"{tempDir}{gitFile}");
+        }
+        private static async Task<bool> InstallerAvailable((string Name, string Uri, string File) installer)
+        // Confirms an installer can be downloaded before anything else is fetched, unless a copy is already in the temp folder
+        {
+            if (File.Exists(installer.File))
+            {
+                return true;
+            }
+            try
+            {
+                HttpStatusCode status = await ProbeStatus(HttpMethod.Head, installer.Uri);
+                if (status is HttpStatusCode.MethodNotAllowed or HttpStatusCode.NotImplemented)
+                {
+                    status = await ProbeStatus(HttpMethod.Get, installer.Uri);
+                }
+                if ((int)status is >= 200 and < 300)
+                {
+                    return true;
+                }
+                ConsoleOutput($"[ERROR] {installer.Name} is not available at {installer.Uri} - the server responded {(int)status} ({status}).");
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                ConsoleOutput($"[ERROR] Unable to reach {installer.Uri} to confirm that {installer.Name} is available ({ex.Message}).");
+            }
+            return false;
+        }
+        private static async Task<HttpStatusCode> ProbeStatus(HttpMethod method, string uri)
+        {
+            using CancellationTokenSource cancellation = new(TimeSpan.FromSeconds(30));
+            using HttpRequestMessage request = new(method, uri);
+            using HttpResponseMessage response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellation.Token);
+            return response.StatusCode;
+        }
+        private static Task<bool> DownloadSaltStack(string tempDir, string saltVersion, string saltHash)
         // Downloads the pre-determined version of SaltStack
         {
-            try
-            {
-                string saltFile = $"Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe";
-                string uri = $"{saltUri}{saltVersion}/{saltFile}";
-                if (!Directory.Exists(tempDir))
-                {
-                    ConsoleOutput($"{tempDir} does not exist. Creating...");
-                    ManageDirectory(tempDir, "create");
-                    ConsoleOutput($"{tempDir} created");
-                }
-                else
-                {
-                    ManageDirectory(tempDir, "perms");
-                }
-                if (File.Exists($"{tempDir}{saltFile}"))
-                {
-                    ConsoleOutput("Found previous download of SaltStack - comparing hash");
-                    bool matchExisting = CompareHash(saltHash, $"{tempDir}{saltFile}");
-                    if (matchExisting)
-                    {
-                        ConsoleOutput($"Hash value for {tempDir}{saltFile} is correct, continuing...");
-                        return;
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hash values don't match, deleting existing file and downloading again...");
-                        File.Delete($"{tempDir}{saltFile}");
-                    }
-                }
-                ConsoleOutput($"Downloading SaltStack v{saltVersion}");
-                bool status = await FileDownload(uri, $"{tempDir}{saltFile}");
-                if (!status)
-                {
-                    ConsoleOutput("[ERROR] Unable to download SaltStack - an issue occurred with internet connectivity. Check your connection and try again.");
-                    return;
-                }
-                ConsoleOutput($"{saltFile} downloaded");
-                bool matchDownloaded = CompareHash(saltHash, $"{tempDir}{saltFile}");
-                if (matchDownloaded)
-                {
-                    ConsoleOutput($"Hash value for {tempDir}{saltFile} is correct, continuing...");
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsoleOutput($"[ERROR] Unable to download SaltStack:\n{ex}");
-            }
+            (string name, string uri, string file) = SaltInstaller(tempDir, saltVersion);
+            return DownloadInstaller(name, uri, file, saltHash);
         }
-
-        private static async Task InstallSaltStack(string tempDir, string saltVersion)
-        // Installs the pre-determined version of SaltStack, provided it can be downloaded, or is already downloaded in the tempDir
+        private static string GitInstallerVersion(string gitVersion)
+        // Git for Windows names the first build of a release Git-2.49.0-64-bit.exe, and every later build Git-2.56.0.4-64-bit.exe
         {
-            try
-            {
-                ConsoleOutput($"Installing SaltStack v{saltVersion}");
-                ProcessStartInfo startInfo = new()
-                {
-                    FileName = $"{tempDir}Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe",
-                    Arguments = @$"/S /master=localhost /minion-name=WIN-FOR",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                Process process = new()
-                {
-                    StartInfo = startInfo
-                };
-                process.Start();
-                Task readOutput = process.StandardOutput.ReadToEndAsync();
-                Task readError = process.StandardError.ReadToEndAsync();
-                await readOutput;
-                await readError;
-                ConsoleOutput($"Installation of Saltstack v{saltVersion} is complete");
-            }
-            catch (Exception ex)
-            {
-                ConsoleOutput($"[ERROR] Unable to install SaltStack:\n{ex}");
-                return;
-            }
+            string[] parts = gitVersion.Split(".windows.");
+            return parts.Length == 2 && parts[1] != "1" ? $"{parts[0]}.{parts[1]}" : parts[0];
         }
-        private static async Task DownloadGit(string tempDir, string gitVersion, string gitHash)
+        private static string GitInstallerFile(string gitVersion, string? configuredFile)
+        // The installer name given in the .config file wins, otherwise it is worked out from the release tag
+        {
+            return string.IsNullOrWhiteSpace(configuredFile) ? $"Git-{GitInstallerVersion(gitVersion)}-64-bit.exe" : Path.GetFileName(configuredFile.Trim());
+        }
+        private static Task<bool> DownloadGit(string tempDir, string gitVersion, string gitHash, string? configuredFile)
         // Downloads the pre-determined version of Git
         {
-            string coreVersion = gitVersion.Split(".windows")[0];
-            string winVersion = gitVersion.Split(".windows")[1];
-            string gitFile = $"Git-{coreVersion}-64-bit.exe";
-            string uri = $"{gitUri}{coreVersion}.windows{winVersion}/{gitFile}";
+            (string name, string uri, string file) = GitInstaller(tempDir, gitVersion, configuredFile);
+            return DownloadInstaller(name, uri, file, gitHash);
+        }
+        private static async Task<bool> DownloadInstaller(string name, string uri, string file, string hash)
+        // Downloads an installer, and only reports success once its SHA256 hash matches the expected value
+        {
             try
             {
-                if (!Directory.Exists(tempDir))
+                if (File.Exists(file))
                 {
-                    ConsoleOutput($"{tempDir} does not exist. Creating...");
-                    ManageDirectory(tempDir, "create");
-                    ConsoleOutput($"{tempDir} created");
-                }
-                else
-                {
-                    ManageDirectory(tempDir, "perms");
-                }
-                if (File.Exists($"{tempDir}{gitFile}"))
-                {
-                    ConsoleOutput("Found previous download of Git - comparing hash");
-                    bool matchExisting = CompareHash(gitHash, $"{tempDir}{gitFile}");
-                    if (matchExisting)
+                    ConsoleOutput($"Found previous download of {name} - comparing hash");
+                    if (await Task.Run(() => CompareHash(hash, file)))
                     {
-                        ConsoleOutput($"Hash value for {tempDir}{gitFile} is correct, continuing...");
-                        return;
+                        ConsoleOutput($"Hash value for {file} is correct, continuing...");
+                        return true;
                     }
-                    else
-                    {
-                        ConsoleOutput("Hash values don't match, deleting existing file and downloading again...");
-                        File.Delete($"{tempDir}{gitFile}");
-                    }
+                    ConsoleOutput("Hash values don't match, deleting existing file and downloading again...");
+                    File.Delete(file);
                 }
-                ConsoleOutput($"Downloading Git v{coreVersion}");
-                bool status = await FileDownload(uri, $"{tempDir}{gitFile}");
-                if (!status)
+                ConsoleOutput($"Downloading {name}");
+                if (!await FileDownload(uri, file))
                 {
-                    ConsoleOutput("[ERROR] Unable to download Git - an issue occurred with internet connectivity. Check your connection and try again.");
-                    return;
+                    ConsoleOutput($"[ERROR] Unable to download {name} - an issue occurred with internet connectivity. Check your connection and try again.");
+                    return false;
                 }
-                ConsoleOutput($"{gitFile} downloaded");
-                bool matchDownload = CompareHash(gitHash, $"{tempDir}{gitFile}");
-                if (matchDownload)
+                ConsoleOutput($"{Path.GetFileName(file)} downloaded");
+                if (await Task.Run(() => CompareHash(hash, file)))
                 {
-                    ConsoleOutput($"Hash value for {tempDir}{gitFile} is correct, continuing...");
-                    return;
+                    ConsoleOutput($"Hash value for {file} is correct, continuing...");
+                    return true;
                 }
+                File.Delete(file);
+                ConsoleOutput($"[ERROR] The hash of the downloaded {name} does not match the expected value, so it will not be installed.");
+                return false;
             }
             catch (Exception ex)
             {
-                ConsoleOutput($"[ERROR] Unable to download git:\n{ex}");
+                ConsoleOutput($"[ERROR] Unable to download {name}:\n{ex}");
+                return false;
             }
         }
-        private static async Task InstallGit(string tempDir, string gitVersion)
+        private static Task<bool> InstallSaltStack(string tempDir, string saltVersion)
+        // Installs the pre-determined version of SaltStack, provided it can be downloaded, or is already downloaded in the tempDir
+        {
+            return RunInstaller($"SaltStack v{saltVersion}", $"{tempDir}Salt-Minion-{saltVersion}-Py3-AMD64-Setup.exe", $"/S /master=localhost /minion-name={minionName}");
+        }
+        private static Task<bool> InstallGit(string tempDir, string gitVersion, string? configuredFile)
         // Installs the pre-determined version of Git, provided it can be downloaded, or is available in the tempDir
         {
-            gitVersion = gitVersion.Split(".windows")[0];
+            return RunInstaller($"Git {GitInstallerVersion(gitVersion)}", $"{tempDir}{GitInstallerFile(gitVersion, configuredFile)}", "/VERYSILENT /NORESTART /SP- /NOCANCEL /SUPPRESSMSGBOXES");
+        }
+        private static async Task<bool> RunInstaller(string name, string file, string arguments)
+        {
             try
             {
-                ConsoleOutput($"Installing Git {gitVersion}");
-                ProcessStartInfo startInfo = new()
+                ConsoleOutput($"Installing {name}");
+                using Process process = new()
                 {
-                    FileName = $"{tempDir}Git-{gitVersion}-64-bit.exe",
-                    Arguments = @"/VERYSILENT /NORESTART /SP- /NOCANCEL /SUPPRESSMSGBOXES",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                };
-                Process process = new()
-                {
-                    StartInfo = startInfo
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = file,
+                        Arguments = arguments,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
                 };
                 process.Start();
-
-                Task readOutput = process.StandardOutput.ReadToEndAsync();
-                Task readError = process.StandardError.ReadToEndAsync();
-                await readOutput;
-                await readError;
-                ConsoleOutput($"Installation of Git v{gitVersion} is complete");
+                await Task.WhenAll(process.StandardOutput.ReadToEndAsync(), process.StandardError.ReadToEndAsync());
+                await process.WaitForExitAsync();
+                if (process.ExitCode is not (0 or 3010))
+                {
+                    ConsoleOutput($"[ERROR] The {name} installer ended with exit code {process.ExitCode}.");
+                    return false;
+                }
+                ConsoleOutput($"Installation of {name} is complete");
+                return true;
             }
             catch (Exception ex)
             {
-                ConsoleOutput($"[ERROR] Unable to install git:\n{ex}");
-                return;
+                ConsoleOutput($"[ERROR] Unable to install {name}:\n{ex}");
+                return false;
             }
         }
         private static async Task<List<string>> IdentifyRelease()
         // Identifies the most recent release of the salt states for installation
         {
-            List<string> releaseData = [];
-            try
+            string? release = await LatestReleaseTag(githubSaltRepo, githubApi);
+            if (release is null)
             {
-                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
-                HttpClient httpClient = NewHttpClient();
-                string uri = $@"{githubApi}";
-                var result = await httpClient.GetAsync(uri, cancellationToken.Token);
-                string data = result.Content.ReadAsStringAsync().Result;
-                var jsonData = JsonDocument.Parse(data);
-                var release = (jsonData.RootElement.GetProperty("tag_name")).ToString();
-                string releaseFile = $"{githubTags}/{release}.zip";
-                string releaseHash = $"{githubReleaseDownload}/{release}/{src}-salt-{release}.zip.sha256";
-                releaseData.Add(release);
-                releaseData.Add(releaseFile);
-                releaseData.Add(releaseHash);
-                cancellationToken.Dispose();
+                MessageBox.Show("Unable to identify the latest release - check your network connectivity and try again.", "Unable to identify release", MessageBoxButton.OK, MessageBoxImage.Error);
+                return [];
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"[ERROR] Unable to identify release:\n{ex}");
-            }
-            return releaseData;
+            return [release, $"{githubTags}/{release}.zip", $"{githubReleaseDownload}/{release}/{src}-salt-{release}.zip.sha256"];
         }
-        private static async Task<bool> DownloadStates(string tempDir, string currentRelease, string uriZip, string uriHash)
-        // Downloads the latest salt states
+        private async Task<string?> PrepareEnvironment(string tempDir)
+        // Identifies the release, installs Git and SaltStack when they are missing, and leaves a verified copy of the states in tempDir
+        {
+            Task<List<string>> releaseTask = IdentifyRelease();
+            Task<Tooling?> toolingTask = LoadTooling();
+            await Task.WhenAll(releaseTask, toolingTask);
+            List<string> release = await releaseTask;
+            Tooling? tooling = await toolingTask;
+            if (release.Count == 0 || tooling is null)
+            {
+                return null;
+            }
+            ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
+            ManageDirectory(tempDir, Directory.Exists(tempDir) ? "perms" : "create");
+            bool gitMissing = !CheckGitInstalled(tooling.GitVersion);
+            bool saltMissing = !CheckSaltStackInstalled(tooling.SaltVersion);
+            ConsoleOutput(gitMissing ? $"Git {tooling.GitVersion} is not installed" : $"Git {tooling.GitVersion} is already installed");
+            ConsoleOutput(saltMissing ? $"SaltStack {tooling.SaltVersion} is not installed" : $"SaltStack {tooling.SaltVersion} is already installed");
+            ConsoleOutput($"Current release of {displayName} is {release[0]}");
+            bool[] available = await Task.WhenAll(
+                gitMissing ? InstallerAvailable(GitInstaller(tempDir, tooling.GitVersion, tooling.GitFile)) : Task.FromResult(true),
+                saltMissing ? InstallerAvailable(SaltInstaller(tempDir, tooling.SaltVersion)) : Task.FromResult(true));
+            if (available.Contains(false))
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput("[ERROR] A required installer is not available, so the process has been stopped. Nothing was downloaded or installed.");
+                return null;
+            }
+            bool[] downloaded = await Task.WhenAll(
+                gitMissing ? DownloadGit(tempDir, tooling.GitVersion, tooling.GitHash, tooling.GitFile) : Task.FromResult(true),
+                saltMissing ? DownloadSaltStack(tempDir, tooling.SaltVersion, tooling.SaltHash) : Task.FromResult(true),
+                EnsureReleaseZip(tempDir, release[0], release[1], release[2]));
+            if (downloaded.Contains(false))
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput("[ERROR] A required download failed, so the process has been stopped. Nothing was installed.");
+                return null;
+            }
+            if (gitMissing && !await InstallGit(tempDir, tooling.GitVersion, tooling.GitFile))
+            {
+                return null;
+            }
+            if (saltMissing && !await InstallSaltStack(tempDir, tooling.SaltVersion))
+            {
+                return null;
+            }
+            return release[0];
+        }
+        private static async Task<bool> EnsureReleaseZip(string tempDir, string release, string uriZip, string uriHash)
+        // Makes sure a copy of the states zip whose hash matches the published SHA256 is in tempDir, downloading it when needed
+        {
+            string zipFile = $"{tempDir}{release}.zip";
+            string hashFile = $"{zipFile}.sha256";
+            if (File.Exists(zipFile) && File.Exists(hashFile) && new FileInfo(zipFile).Length != 0 && new FileInfo(hashFile).Length != 0)
+            {
+                ConsoleOutput($"{zipFile} and {hashFile} already exist and are not zero-byte files.");
+                if (await ReleaseHashMatches(zipFile, hashFile))
+                {
+                    return true;
+                }
+                ConsoleOutput("Hashes do not match, downloading the release file again...");
+            }
+            ConsoleOutput("Downloading release file and SHA256 to compare");
+            if (!await DownloadStates(zipFile, hashFile, uriZip, uriHash))
+            {
+                ConsoleOutput("[ERROR] Unable to download required Salt states.");
+                return false;
+            }
+            ConsoleOutput("Downloads complete...");
+            if (await ReleaseHashMatches(zipFile, hashFile))
+            {
+                return true;
+            }
+            ConsoleOutput("Hashes do not match, aborting");
+            return false;
+        }
+        private static async Task<bool> ReleaseHashMatches(string zipFile, string hashFile)
+        {
+            ConsoleOutput("Comparing hashes...");
+            string providedHash = (await File.ReadAllTextAsync(hashFile)).Trim().ToLowerInvariant().Split(' ')[0];
+            bool match = await Task.Run(() => CompareHash(providedHash, zipFile));
+            if (match)
+            {
+                ConsoleOutput("Hashes match, continuing...");
+            }
+            return match;
+        }
+        private async Task<Tooling?> LoadTooling()
+        // Reads the pinned Git and SaltStack versions and hashes from the .config file
+        {
+            List<ConfigItems> softwareConfig = await GetJsonConfig();
+            if (softwareConfig.Count == 0 || softwareConfig[0].Software is not Dictionary<string, SoftwareList> software
+                || !software.TryGetValue("Git", out SoftwareList? git) || !software.TryGetValue("SaltStack", out SoftwareList? salt)
+                || git.SoftwareVersion is null || git.SoftwareHash is null || salt.SoftwareVersion is null || salt.SoftwareHash is null)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput("[ERROR] Unable to read the software configuration - check your network connectivity and try again.");
+                return null;
+            }
+            return new Tooling(git.SoftwareVersion, git.SoftwareHash, git.SoftwareFile, salt.SoftwareVersion, salt.SoftwareHash);
+        }
+        private static async Task<bool> DownloadStates(string zipFile, string hashFile, string uriZip, string uriHash)
+        // Downloads the latest salt states and their SHA256 hash
         {
             try
             {
-                if (!Directory.Exists(tempDir))
-                {
-                    ConsoleOutput($"Temp directory {tempDir} does not exist, creating...");
-                    ManageDirectory(tempDir, "create");
-                }
-                else
-                {
-                    ManageDirectory(tempDir, "perms");
-                }
                 ConsoleOutput($"Downloading {uriZip}");
-                bool zipStatus = await FileDownload(uriZip, @$"{tempDir}\{currentRelease}.zip");
-                if (!zipStatus)
+                ConsoleOutput($"Downloading {uriHash}");
+                bool[] downloaded = await Task.WhenAll(FileDownload(uriZip, zipFile), FileDownload(uriHash, hashFile));
+                if (downloaded.Contains(false))
                 {
                     return false;
                 }
                 ConsoleOutput($"{uriZip} downloaded.");
-                ConsoleOutput($"Downloading {uriHash}");
-                bool hashStatus = await FileDownload(uriHash, @$"{tempDir}\{currentRelease}.zip.sha256");
-                if (!hashStatus)
-                {
-                    return false;
-                }
                 ConsoleOutput($"{uriHash} downloaded.");
                 return true;
-            }
-            catch (HttpRequestException)
-            {
-                ConsoleOutput("[ERROR] A network connectivity error occurred during download. Please check your connection and try again.");
-                return false;
-            }
-            catch (IOException)
-            {
-                ConsoleOutput("[ERROR] A network connectivity error occurred during download. Please check your connection and try again.");
-                return false;
             }
             catch (Exception ex)
             {
@@ -1557,46 +1780,31 @@ namespace WinFORCustomizer
         private static bool CompareHash(string hashValue, string file)
         // Used to calculate the SHA256 hash of a file, and compare it to a given hash
         {
-            bool match = false;
             try
             {
-                string fileHash;
                 if (!File.Exists(file))
                 {
-                    MessageBox.Show($"{file} does not exist!");
+                    ConsoleOutput($"[ERROR] {file} does not exist!");
+                    return false;
                 }
-                var sha256Gen = SHA256.Create();
-                var fileStream = File.OpenRead(file);
-                var hashOutput = sha256Gen.ComputeHash(fileStream);
-                fileHash = BitConverter.ToString(hashOutput).Replace("-", "").ToLowerInvariant();
-                fileStream.Close();
-                if (fileHash == hashValue)
-                {
-                    ConsoleOutput($"File Hash: {fileHash}");
-                    ConsoleOutput($"Given Hash: {hashValue}");
-                    match = true;
-                }
-                else
-                {
-                    ConsoleOutput($"File Hash: {fileHash}");
-                    ConsoleOutput($"Given Hash: {hashValue}");
-                    match = false;
-                }
+                using FileStream fileStream = File.OpenRead(file);
+                string fileHash = Convert.ToHexString(SHA256.HashData(fileStream)).ToLowerInvariant();
+                ConsoleOutput($"File Hash: {fileHash}");
+                ConsoleOutput($"Given Hash: {hashValue}");
+                return string.Equals(fileHash, hashValue.Trim(), StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception ex)
             {
                 ConsoleOutput($"[ERROR] Unable to Compare Hash:\n{ex}");
+                return false;
             }
-            return match;
         }
         private static bool ExtractStates(string tempDir, string release)
-        // Once downloaded, or available, this will extract the salt states to the required location in the Salt Project\Salt folder
+        // Once downloaded, or available, this will extract only the distro folder of the salt states to the required location in the Salt Project\Salt folder
         {
-            bool extracted = false;
             try
             {
-                string file = $"{tempDir}{release}.zip";
-                string saltBase = @"C:\ProgramData\Salt Project\Salt\";
+                string saltBase = $@"{saltDataRoot}\";
                 if (!Directory.Exists($"{saltBase}srv"))
                 {
                     ManageDirectory($"{saltBase}srv", "create");
@@ -1607,53 +1815,63 @@ namespace WinFORCustomizer
                 {
                     saltBase = @$"{saltPath}\";
                 }
-                string shortRelease = release.TrimStart('v');
-                string distroFolder = $@"{tempDir}{src}-salt-{shortRelease}\{src}";
-                string distroDest = $@"{saltBase}{src}";
-                ConsoleOutput($"Extracting {file} to {tempDir}");
-                ZipFile.ExtractToDirectory(file, tempDir, true);
-                ConsoleOutput($"Moving {distroFolder} folder to {distroDest}");
+                string file = $"{tempDir}{release}.zip";
+                string archiveFolder = $"{src}-salt-{release.TrimStart('v')}/{src}/";
+                string distroDest = Path.GetFullPath($@"{saltBase}{src}");
+                using ZipArchive archive = ZipFile.OpenRead(file);
+                List<ZipArchiveEntry> entries = archive.Entries.Where(entry => entry.FullName.StartsWith(archiveFolder, StringComparison.Ordinal)).ToList();
+                if (entries.Count == 0)
+                {
+                    ConsoleOutput($"[ERROR] Unable to extract states: {archiveFolder} was not found in {file}");
+                    return false;
+                }
+                ConsoleOutput($"Extracting {archiveFolder} from {file} to {distroDest}");
                 if (Directory.Exists(distroDest))
                 {
                     ManageDirectory(distroDest, "delete");
                 }
-                ManageDirectory(distroFolder, "move", distroDest);
-                extracted = true;
+                ManageDirectory(distroDest, "create");
+                foreach (ZipArchiveEntry entry in entries)
+                {
+                    string target = Path.GetFullPath(Path.Combine(distroDest, entry.FullName[archiveFolder.Length..]));
+                    if (!target.StartsWith(distroDest + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    if (entry.FullName.EndsWith('/'))
+                    {
+                        Directory.CreateDirectory(target);
+                        continue;
+                    }
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    entry.ExtractToFile(target, true);
+                }
+                return true;
             }
             catch (Exception ex)
             {
                 ConsoleOutput($"[ERROR] Unable to extract states:\n{ex}");
+                return false;
             }
-            return extracted;
         }
-        private static void InsertXwaysToken(string authtoken, bool install)
-        // This function will take the provided authtoken and insert it in the required spot in the x-ways.sls State file once available.
+        private static async Task WriteDebloatPreset(string stateRoot)
+        // Writes the saved Debloat selections to debloat.preset, which is left empty (zero bytes) when none were chosen so that no debloat is done
         {
-            string stateFile;
-            if (install)
-            {
-                stateFile = $@"{saltPath}\{src}\standalones\x-ways.sls";
-            }
-            else
-            {
-                stateFile = $@"{saltPath}\{src}\downloads\standalones\x-ways.sls";
-            }
-            try
-            {
-                if (File.Exists(stateFile))
-                {
-                    string allText = File.ReadAllText(stateFile);
-                    allText = allText.Replace("{% set auth_token = \"TOKENPLACEHOLDER\" %}", $"{{% set auth_token = \"{authtoken}\" %}}");
-                    File.WriteAllText(stateFile, allText);
-                    ConsoleOutput($"Authentication token written to {stateFile}");
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsoleOutput($"[ERROR] Unable to add X-Ways Token to {stateFile}:\n{ex}");
-            }
+            List<string> selections = DebloatWindow.DebloatSettings.Selections;
+            await File.WriteAllTextAsync($@"{stateRoot}\{src}\config\debloat.preset", string.Join("\n", selections));
+            ConsoleOutput(selections.Count == 0 ? "No debloat options selected - debloat.preset has been emptied, so no debloat will be done" : $"{selections.Count} debloat options written to debloat.preset");
         }
-
+        private async Task PrepareTheme(string standalonesPath)
+        // Writes the generated start layout, the custom theme (if chosen) and the host name into the extracted states
+        {
+            string layout = await GenerateLayout(standalonesPath);
+            await File.WriteAllTextAsync(@$"{saltPath}\{src}\config\layout\{startLayoutFile}", layout);
+            if (ThemeChoices.SelectedTheme == "Custom" && customThemeZip != "")
+            {
+                ExtractCustomTheme(customThemeZip);
+            }
+            InsertHostName(HostName.Text != "" ? HostName.Text : currentHostname, ThemeFolder(true));
+        }
         private static void InsertHostName(string hostName, string repo)
         {
             string hostnameState = $@"{saltPath}\{src}\theme\{repo}\computer-name.sls";
@@ -1662,7 +1880,7 @@ namespace WinFORCustomizer
                 if (File.Exists(hostnameState))
                 {
                     string allText = File.ReadAllText(hostnameState);
-                    allText = allText.Replace("WIN-FOR", hostName);
+                    allText = allText.Replace(defaultHostName, hostName);
                     File.WriteAllText(hostnameState, allText);
                     ConsoleOutput($"Chosen hostname {hostName} written to computer-name.sls");
                 }
@@ -1689,14 +1907,23 @@ namespace WinFORCustomizer
             return copied;
         }
         private async void DownloadOnly(object? sender, RoutedEventArgs e)
+        {
+            await DownloadSelected(false);
+        }
+        private async void OfflineDownload(object? sender, RoutedEventArgs e)
+        {
+            await DownloadSelected(true);
+        }
+        private async Task DownloadSelected(bool offline)
         // This is used to generate a custom state for simply downloading the selected files, without any installation or modification
+        // With offline set, an offline state is also generated so the downloads can be installed on a system without network access
         {
             try
             {
                 mode = "download";
                 stopWatch?.Reset();
                 stopWatch?.Start();
-                elapsedTimer?.Start();
+                StartTimer();
                 bool Connected = CheckNetworkConnection.IsConnected();
                 if (!Connected)
                 {
@@ -1710,79 +1937,23 @@ namespace WinFORCustomizer
                     MessageBox.Show("No items selected! Choose at least one item to download.", "No items selected!", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
-                if ((checkedItems.Count == 1) && (checkedItems.Contains("themed") || checkedItems.Contains("wsl")))
-                {
-                    string item = char.ToUpper(checkedItems[0][0]) + checkedItems[0][1..];
-                    if (item == "Wsl")
-                    {
-                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to download.\nTo install WSL only, use the \"WSL Only\" button on the side.\nWSL is not currently downloadable.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Only {item} checkbox was selected!\nChoose at least one item from the tool list to download.\nThe \"Theme\" itself is not downloadable.", $"Only {item} checkbox selected!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    return;
-                }
-                if ((checkedItems.Count == 2) && (checkedItems.Contains("themed") && checkedItems.Contains("wsl")))
-                {
-                    (string item0, string item1) = (checkedItems[0], checkedItems[1]);
-                    item0 = char.ToUpper(item0[0]) + item0[1..];
-                    item1 = char.ToUpper(item1[0]) + item1[1..];
-                    MessageBox.Show($"Only {item0} and {item1} were selected!\nChoose at least one item from the tool list to download.\nTo install WSL only, use the \"WSL Only\" button on the side.\nWSL is not currently downloadable.\nThe \"Theme\" itself is also not downloadable.",
-                                    $"Only {item0} and {item1} checkboxes selected!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"{displayName} v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
-                string stateList = GenerateState(mode, false, false);
-                string tempDir = $@"{driveLetter}{src}-temp\";
-                List<string>? currentReleaseData = await IdentifyRelease();
-                string releaseVersion = currentReleaseData![0];
-                string uriZip = currentReleaseData[1];
-                string uriHash = currentReleaseData[2];
-                string downloadPath;
-                string standalonesPath;
-                List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
-                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
-                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
-                string xwaysData;
-                string xwaysToken;
-                bool xwaysSelected;
-                if (XWays.IsChecked == true && (XUser.Text != "" || XPass.Text != ""))
+                bool addWSL = checkedItems.Contains("WSL");
+                bool addTheme = checkedItems.Contains("themed");
+                string stateList = GenerateState(mode, addTheme, addWSL);
+                string tempDir = $@"{driveLetter}{tempFolderName}\";
+                bool xwaysCancel = false;
+                bool xwaysSelected = false;
+                string xwaysToken = "";
+                XwaysCheckInputs(ref xwaysCancel, ref xwaysSelected, ref xwaysToken);
+                if (xwaysCancel)
                 {
-                    xwaysData = $"{XUser.Text}:{XPass.Text}";
-                    xwaysToken = Convert.ToBase64String(Encoding.UTF8.GetBytes(xwaysData));
-                    xwaysSelected = true;
-                    ConsoleOutput($"X-Ways is selected and credentials have been provided");
-                }
-                else if (XWays.IsChecked == true && (XUser.Text == "" || XPass.Text == ""))
-                {
-                    ConsoleOutput("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!");
-                    stopWatch?.Stop();
-                    elapsedTimer?.Stop();
-                    MessageBox.Show("With X-Ways enabled, neither X-Ways Portal User nor X-Ways Portal Pass can be empty!",
-                                    "X-Ways Portal Credentials Not Supplied",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Warning);
                     return;
                 }
-                else
-                {
-                    xwaysSelected = false;
-                    xwaysToken = "TOKENPLACEHOLDER";
-                    ConsoleOutput("X-Ways is not selected and will not be downloaded / installed");
-                }
-                if (DownloadsPath.Text == "")
-                {
-                    downloadPath = @$"C:\{src}-downloads\";
-                }
-                else
-                {
-                    downloadPath = DownloadsPath.Text;
-                }
+                string downloadPath = DownloadsPath.Text == "" ? $@"{defaultDownloadsPath}\" : DownloadsPath.Text;
+                string standalonesPath;
                 if (StandalonesPath.Text != "")
                 {
                     standalonesPath = $@"{StandalonesPath.Text}";
@@ -1790,118 +1961,48 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    standalonesPath = @$"C:\standalone";
+                    standalonesPath = defaultStandalonesPath;
                     ConsoleOutput($"Standalones path box was empty - default will be used - {standalonesPath}");
                 }
-                ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                if (!Directory.Exists(tempDir))
+                if (!InputsAreValid(downloadPath, standalonesPath) || (offline && addTheme && !HostNameIsValid()))
                 {
-                    ManageDirectory(tempDir, "create");
-                }
-                else
-                {
-                    ManageDirectory(tempDir, "perms");
-                }
-                if (!CheckGitInstalled(gitVersion))
-                {
-                    ConsoleOutput($"Git {gitVersion} is not installed");
-                    await DownloadGit(tempDir, gitVersion, gitHash);
-                    await InstallGit(tempDir, gitVersion);
-                }
-                else
-                {
-                    ConsoleOutput($"Git {gitVersion} is already installed");
-                }
-                if (!CheckSaltStackInstalled(saltVersion))
-                {
-                    ConsoleOutput($"SaltStack {saltVersion} is not installed");
-                    await DownloadSaltStack(tempDir, saltVersion, saltHash);
-                    await InstallSaltStack(tempDir, saltVersion);
-                }
-                else
-                {
-                    ConsoleOutput($"SaltStack {saltVersion} is already installed");
-                }
-                string releaseFile = $"{tempDir}{releaseVersion}.zip";
-                string providedHash;
-                bool hashMatch;
-                Environment.GetEnvironmentVariable("PATH");
-                ConsoleOutput($"Current release of WIN-FOR is {releaseVersion}");
-                FileInfo releaseFileFileInfo = new(releaseFile);
-                FileInfo releaseHashFileInfo = new($"{releaseFile}.sha256");
-                if ((File.Exists(releaseFile) && File.Exists($"{releaseFile}.sha256")) && (releaseFileFileInfo.Length != 0 && releaseHashFileInfo.Length != 0))
-                {
-                    ConsoleOutput($"{releaseFile} and {releaseFile}.sha256 already exist and not zero-byte files.");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
-                else
-                {
-                    ConsoleOutput("Downloading release file and SHA256 to compare");
-                    bool status = await DownloadStates(tempDir, releaseVersion, uriZip, uriHash);
-                    if (!status)
-                    {
-                        ConsoleOutput("[ERROR] Unable to download Salt states - an issue occurred with internet connectivity. Check your connection and try again.");
-                        return;
-                    }
-                    ConsoleOutput("Downloads complete...");
-                    ConsoleOutput("Comparing hashes...");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
-                bool extracted = ExtractStates(tempDir, releaseVersion);
-                if (extracted)
-                {
-                    ConsoleOutput($@"State files extracted, writing {src}\downloads\init.sls");
-                    await File.WriteAllTextAsync(@$"{saltPath}\{src}\downloads\init.sls", stateList);
-                }
-                if (xwaysSelected)
-                {
-                    ConsoleOutput("Adding authentication token to X-Ways state");
-                    InsertXwaysToken(xwaysToken, false);
-                }
-                if (File.Exists(@$"{saltPath}\{src}\downloads\init.sls"))
-                {
-                    if (OfflineCheck.IsChecked == true)
-                    {
-                        bool isThemed = themed.IsChecked == true;
-                        bool wslInstall = WSL.IsChecked == true;
-                        string offlineStates = GenerateState("offline", isThemed, wslInstall);
-                        await File.WriteAllTextAsync(@$"{saltPath}\{src}\offline\init.sls", offlineStates);
-                    }
-                    await ExecuteSaltStackDownloads(releaseVersion, downloadPath, standalonesPath);
-                }
-                else
-                {
-                    ConsoleOutput($@"{src}\downloads\init.sls not found, aborting!");
                     return;
                 }
-                stopWatch?.Stop();
-                elapsedTimer?.Stop();
+                string? releaseVersion = await PrepareEnvironment(tempDir);
+                if (releaseVersion is null)
+                {
+                    return;
+                }
+                ConsoleOutput("Extracting archive...");
+                if (!ExtractStates(tempDir, releaseVersion))
+                {
+                    return;
+                }
+                await WriteDebloatPreset(saltPath);
+                ConsoleOutput($@"State files extracted, writing {src}\downloads\init.sls");
+                await File.WriteAllTextAsync(@$"{saltPath}\{src}\downloads\init.sls", stateList);
+                XwaysInsertToken(xwaysSelected, xwaysToken, false);
+                if (offline)
+                {
+                    ConsoleOutput($@"Offline staging selected, writing {src}\offline\init.sls");
+                    string offlineStates = GenerateState("offline", addTheme, addWSL);
+                    await File.WriteAllTextAsync(@$"{saltPath}\{src}\offline\init.sls", offlineStates);
+                    if (addTheme)
+                    {
+                        // The theme is applied from the staged states, so its layout, custom theme and host name are written before they are copied
+                        await PrepareTheme(standalonesPath);
+                    }
+                }
+                await ExecuteSaltStackDownloads(releaseVersion, downloadPath, standalonesPath);
             }
             catch (Exception ex)
             {
                 ConsoleOutput($"[ERROR] Unable to complete the Download process:\n{ex}");
+            }
+            finally
+            {
+                stopWatch?.Stop();
+                StopTimer();
             }
         }
 
@@ -1909,81 +2010,114 @@ namespace WinFORCustomizer
         {
             if (!string.IsNullOrWhiteSpace(data))
             {
-                Application.Current.Dispatcher.Invoke(() => ConsoleOutput(data));
+                ConsoleOutput(data);
             }
         }
 
         private Process? saltproc;
         private Process? wslproc;
-        private TaskCompletionSource<bool>? ProcHandled;
-        private TaskCompletionSource<bool>? wslHandled;
-        private async Task ExecuteSaltStack(string userName, string standalonesPath, string release)
-        // Generate a salt-call.exe process with the required arguments to install the custom salt states
+        private static string BuildPillar(string key, string value, string standalonesPath, bool includeWsl = true)
+        // Single quotes are doubled so they cannot end the YAML string early
         {
-            string pillar = $"'{src}_user': '{userName}', 'inpath': '{standalonesPath}'";
-            if (WslChoices.WslSelection != null)
+            string pillar = $"'{key}': '{value.Replace("'", "''")}', 'inpath': '{standalonesPath.Replace("'", "''")}'";
+            if (includeWsl && WslChoices.WslSelection != null)
             {
                 pillar += $", 'wsl_choice': '{WslChoices.WslSelection}'";
             }
-            ProcHandled = new TaskCompletionSource<bool>();
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.custom pillar=\"{{ {pillar} }}\" --out-file=\"C:\\{src}-saltstack-{release}.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}.log\" --log-file-level=debug";
-            using (saltproc = new Process()
+            return pillar;
+        }
+        private Task ExecuteSaltStack(string userName, string standalonesPath, string release)
+        // Generate a salt-call.exe process with the required arguments to install the custom salt states
+        {
+            return RunSaltCall($"{src}.custom", BuildPillar($"{src}_user", userName, standalonesPath), release, "Installing the selected states.", false);
+        }
+        private Task ExecuteSaltStackDownloads(string release, string downloadPath, string standalonesPath)
+        // Generate a salt-call.exe process with the required argument to simply download the selected files
+        {
+            return RunSaltCall($"{src}.downloads", BuildPillar("downloads", downloadPath, standalonesPath), $"{release}-downloads", "Installing the selected states.", false);
+        }
+        private Task ExecuteWsl(string userName, string release, string standalonesPath)
+        // A salt-call.exe process used for the installation of the Windows Subsystem for Linux v2 environment
+        {
+            return RunSaltCall($"{src}.wsl", BuildPillar($"{src}_user", userName, standalonesPath), $"{release}-wsl", "Installing WSL.", true);
+        }
+        private async Task RunSaltCall(string state, string pillar, string logName, string heading, bool isWsl, string? exePath = null, string? fileRoot = null)
+        // An offline install passes the salt-call.exe and file root that were downloaded alongside the states
+        {
+            string logFile = $@"{localRoot}{saltLogPrefix}{logName}.log";
+            string exe = exePath ?? saltExe;
+            if (!File.Exists(exe))
             {
-                EnableRaisingEvents = true,
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] {exe} was not found - {(fileRoot is null ? "SaltStack may not have been installed correctly." : "check that the downloaded files are complete.")}");
+                return;
+            }
+            using Process process = new()
+            {
                 StartInfo =
                 {
-                    FileName = saltExe,
-                    Arguments = args,
+                    FileName = exe,
+                    Arguments = "-l info --local --retcode-passthrough --state-output=mixed " + (fileRoot is null ? "" : $"--file-root=\"{fileRoot}\" ") + $"state.sls {state} pillar=\"{{ {pillar} }}\" --out-file=\"{logFile}\" --out-file-append --log-file=\"{logFile}\" --log-file-level=debug",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
-                },
-            })
+                }
+            };
+            try
             {
-                try
+                ConsoleOutput(
+                    $"{heading}\n" +
+                    $"Log File: {logFile}\n" +
+                    $"Executing: salt call with the following variables\n" +
+                    $"  {state}\n" +
+                    $"  {{ {pillar} }}\n"
+                    );
+                if (fileRoot is null && !envPath.Contains(gitCmdDir))
                 {
-                    if (File.Exists(saltExe))
-                    {
-                        ConsoleOutput(
-                            $"Installing the selected states.\n" +
-                            $"Log File: C:\\{src}-saltstack-{release}.log\n" +
-                            $"Executing: salt call with the following variables\n" +
-                            $"  {src}.custom\n" +
-                            $"  {{ {pillar} }}\n"
-                            );
-                        saltproc.Exited += new EventHandler(ProcessExited);
-                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
-                        {
-                            saltproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
-                        }
-                        saltproc.OutputDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        saltproc.ErrorDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        saltproc.EnableRaisingEvents = true;
-                        StopButton.IsEnabled = true;
-                        StopButton.Visibility = Visibility.Visible;
-                        saltproc.Start();
-                        saltproc.BeginOutputReadLine();
-                        saltproc.BeginErrorReadLine();
-                        await saltproc.WaitForExitAsync();
-                        if (saltproc.ExitCode != 0)
-                        {
-                            ConsoleOutput("Installation has ended with errors.");
-                        }
-                        else
-                        {
-                            ConsoleOutput("Installation has completed successfully.");
-                        }
-                        StopButton.Visibility = Visibility.Hidden;
-                        StopButton.IsEnabled = false;
-                    }
+                    process.StartInfo.EnvironmentVariables["PATH"] = gitPath;
                 }
-                catch (Exception ex)
+                if (isWsl)
                 {
-                    ConsoleOutput($"[ERROR] Unable to execute SaltStack install:\n{ex}");
-                    return;
+                    ConsoleOutput("Saving Console Output before beginning WSL installation");
+                    SaveConsoleOutput("wsl", null);
+                    wslproc = process;
                 }
-                await Task.WhenAny(ProcHandled.Task, Task.Delay(10000));
+                else
+                {
+                    saltproc = process;
+                }
+                process.OutputDataReceived += (s, e) => HandleProcessOutput(e.Data);
+                process.ErrorDataReceived += (s, e) => HandleProcessOutput(e.Data);
+                StopButton.IsEnabled = true;
+                StopButton.Visibility = Visibility.Visible;
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                await process.WaitForExitAsync();
+                TimeSpan elapsed = process.ExitTime - process.StartTime;
+                ConsoleOutput(
+                    $"\nExited\t\t: {process.ExitTime}\n" +
+                    $"Exit code \t: {process.ExitCode}\n" +
+                    $"Elapsed time\t: {(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}");
+                ConsoleOutput(process.ExitCode != 0 ? "Installation has ended with errors." : "Installation has completed successfully.");
+            }
+            catch (Exception ex)
+            {
+                ConsoleOutput($"[ERROR] Unable to execute SaltStack ({state}):\n{ex}");
+            }
+            finally
+            {
+                if (isWsl)
+                {
+                    wslproc = null;
+                }
+                else
+                {
+                    saltproc = null;
+                }
+                StopButton.Visibility = Visibility.Hidden;
+                StopButton.IsEnabled = false;
             }
         }
         public void StopSaltStack_Click(object sender, RoutedEventArgs e)
@@ -2017,195 +2151,6 @@ namespace WinFORCustomizer
                 }
             }
         }
-        private async Task ExecuteSaltStackDownloads(string release, string downloadPath, string standalonesPath)
-        // Generate a salt-call.exe process with the required argument to simply download the selected files
-        {
-            string pillar = $"'downloads': '{downloadPath}', 'inpath': '{standalonesPath}'";
-            if (WslChoices.WslSelection != null)
-            {
-                pillar += $", 'wsl_choice': '{WslChoices.WslSelection}'";
-            }
-            ProcHandled = new TaskCompletionSource<bool>();
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.downloads pillar=\"{{ {pillar} }}\" --out-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}-downloads.log\" --log-file-level=debug";
-            using (saltproc = new Process()
-            {
-                EnableRaisingEvents = true,
-                StartInfo =
-                {
-                    FileName = saltExe,
-                    Arguments = args,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                },
-            })
-            {
-                try
-                {
-                    if (File.Exists(saltExe))
-                    {
-                        ConsoleOutput(
-                            $"Installing the selected states.\n" +
-                            $"Log File: C:\\{src}-saltstack-{release}-downloads.log\n" +
-                            $"Executing: salt call with the following variables\n" +
-                            $"  {src}.downloads\n" +
-                            $"  {{ {pillar} }}\n"
-                            );
-                        saltproc.Exited += new EventHandler(ProcessExited);
-                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
-                        {
-                            saltproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
-                        }
-                        saltproc.OutputDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        saltproc.ErrorDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        saltproc.EnableRaisingEvents = true;
-                        StopButton.IsEnabled = true;
-                        StopButton.Visibility = Visibility.Visible;
-                        saltproc.Start();
-                        saltproc.BeginOutputReadLine();
-                        saltproc.BeginErrorReadLine();
-                        await saltproc.WaitForExitAsync();
-                        if (saltproc.ExitCode != 0)
-                        {
-                            ConsoleOutput("Installation has ended with errors.");
-                        }
-                        else
-                        {
-                            ConsoleOutput("Installation has completed successfully.");
-                        }
-                        StopButton.Visibility = Visibility.Hidden;
-                        StopButton.IsEnabled = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ConsoleOutput($"[ERROR] Unable to execute SaltStack download install:\n{ex}");
-                    return;
-                }
-                await Task.WhenAny(ProcHandled.Task, Task.Delay(10000));
-            }
-        }
-        private async void ProcessExited(object? sender, EventArgs e)
-        // An Event Handler for tracking the ExecuteSaltStack and ExecuteSaltStackDownloads functions
-        {
-            if (sender is Process proc)
-            {
-                try
-                {
-                    await proc.WaitForExitAsync();
-                    TimeSpan elapsed = proc.ExitTime - proc.StartTime;
-                    string formatted_time = string.Format("{0:00}:{1:00}:{2:00}", (int)elapsed.TotalHours, elapsed.Minutes, elapsed.Seconds);
-                    ConsoleOutput(
-                    $"\nExited\t\t: {proc.ExitTime}\n" +
-                    $"Exit code \t: {proc.ExitCode}\n" +
-                    $"Elapsed time\t: {formatted_time}");
-                    ProcHandled?.TrySetResult(true);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Unable to display exit details: {ex}","Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-        private async Task ExecuteWsl(string userName, string release, string standalonesPath, bool waitForSalt)
-        // A salt-call.exe process used for the installation of the Windows Subsystem for Linux v2 environment
-        {
-            string pillar = $"'{src}_user': '{userName}', 'inpath': '{standalonesPath}'";
-            if (WslChoices.WslSelection != null)
-            {
-                pillar += $", 'wsl_choice': '{WslChoices.WslSelection}'";
-            }
-            wslHandled = new TaskCompletionSource<bool>();
-            string args = $"-l info --local --retcode-passthrough --state-output=mixed state.sls {src}.wsl pillar=\"{{ {pillar} }}\" --out-file=\"C:\\{src}-saltstack-{release}-wsl.log\" --out-file-append --log-file=\"C:\\{src}-saltstack-{release}-wsl.log\" --log-file-level=debug";
-            using (wslproc = new Process()
-            {
-                EnableRaisingEvents = true,
-                StartInfo =
-                {
-                    FileName = saltExe,
-                    Arguments = args,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                },
-            })
-            {
-                try
-                {
-                    if (File.Exists(saltExe))
-                    {
-                        if (waitForSalt)
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        { 
-                            await Task.WhenAny(ProcHandled.Task);
-                        }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                        ConsoleOutput(
-                           $"Installing WSL.\n" +
-                           $"Log File: C:\\{src}-saltstack-{release}-wsl.log\n" +
-                           $"Executing: salt call with the following variables\n" +
-                           $"  {src}.wsl\n" +
-                           $"  {{ {pillar} }}\n"
-                           );
-                        wslproc.Exited += new EventHandler(WslProcessExited);
-                        if (!envPath.Contains(@"C:\Program Files\Git\cmd"))
-                        {
-                            wslproc.StartInfo.EnvironmentVariables["PATH"] = gitPath;
-                        }
-                        ConsoleOutput("Saving Console Output before beginning WSL installation");
-                        SaveConsoleOutput("wsl", null);
-                        wslproc.OutputDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        wslproc.ErrorDataReceived += (s, e) => HandleProcessOutput(e.Data);
-                        wslproc.EnableRaisingEvents = true;
-                        StopButton.IsEnabled = true;
-                        StopButton.Visibility = Visibility.Visible;
-                        wslproc.Start();
-                        wslproc.BeginOutputReadLine();
-                        wslproc.BeginErrorReadLine();
-                        await wslproc.WaitForExitAsync();
-                        if (wslproc.ExitCode != 0)
-                        {
-                            ConsoleOutput("Installation has ended with errors.");
-                        }
-                        else
-                        {
-                            ConsoleOutput("Installation has completed successfully.");
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ConsoleOutput($"[ERROR] Unable to execute WSL install:\n{ex}");
-                    return;
-                }
-                await Task.WhenAny(wslHandled.Task, Task.Delay(10000));
-            }
-        }
-        private async void WslProcessExited(object? sender, EventArgs e)
-        // An Event Handler for tracking the ExecuteWsl process
-        {
-            if (sender is Process proc)
-            {
-                try
-                {
-                    await proc.WaitForExitAsync();
-                    TimeSpan elapsed = proc.ExitTime - proc.StartTime;
-                    string formatted_time = string.Format("{0:00}:{1:00}:{2:00}", (int)elapsed.TotalHours, elapsed.Minutes, elapsed.Seconds);
-                    ConsoleOutput(
-                    $"\nExited\t\t: {proc.ExitTime}\n" +
-                    $"Exit code \t: {proc.ExitCode}\n" +
-                    $"Elapsed time\t: {formatted_time}");
-                    wslHandled?.TrySetResult(true);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Unable to display out exit details: {ex}", "Unable to display exit details", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
         private async void InstallWslOnly(object sender, RoutedEventArgs e)
         // Used to install WSL without any other options selected.
         // This determines that all pre-reqs are met before beginning the ExecuteWsl function
@@ -2226,30 +2171,12 @@ namespace WinFORCustomizer
                 }
                 stopWatch?.Reset();
                 stopWatch?.Start();
-                elapsedTimer?.Start();
+                StartTimer();
                 OutputExpander.IsExpanded = true;
                 ConsoleOutput($"{displayName} v{appVersion}");
                 string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
-                string distro;
-                string userName;
+                string userName = UserName.Text == "" ? runningUser : UserName.Text;
                 string standalonesPath;
-                string currentUser = Environment.UserName;
-                if (Theme.Text == "")
-                {
-                    distro = "WIN-FOR";
-                }
-                else
-                {
-                    distro = Theme.Text;
-                }
-                if (UserName.Text == "")
-                {
-                    userName = currentUser;
-                }
-                else
-                {
-                    userName = UserName.Text;
-                }
                 ConsoleOutput($"Selected user is {userName}");
                 if (StandalonesPath.Text != "")
                 {
@@ -2258,107 +2185,36 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    standalonesPath = @$"C:\standalone";
+                    standalonesPath = defaultStandalonesPath;
                     ConsoleOutput($"Standalones path box was empty - default will be used - {standalonesPath}");
                 }
-                string tempDir = @$"{driveLetter}{src}-temp\";
-                List<string>? currentReleaseData = await IdentifyRelease();
-                string releaseVersion = currentReleaseData![0];
-                string uriZip = currentReleaseData[1];
-                string uriHash = currentReleaseData[2];
-                List<ConfigItems> softwareConfig = await GetJsonConfig();
-                string? gitVersion = softwareConfig[0].Software!["Git"].SoftwareVersion!;
-                string? gitHash = softwareConfig[0].Software!["Git"].SoftwareHash!;
-                string? saltVersion = softwareConfig[0].Software!["SaltStack"].SoftwareVersion!;
-                string? saltHash = softwareConfig[0].Software!["SaltStack"].SoftwareHash!;
-                ConsoleOutput($"{tempDir} is being created for temporary storage of required files");
-                if (!Directory.Exists(tempDir))
+                if (!InputsAreValid(userName, standalonesPath))
                 {
-                    ManageDirectory(tempDir, "create");
+                    return;
                 }
-                else
+                string tempDir = $@"{driveLetter}{tempFolderName}\";
+                string? releaseVersion = await PrepareEnvironment(tempDir);
+                if (releaseVersion is null)
                 {
-                    ManageDirectory(tempDir, "perms");
+                    return;
                 }
-                if (!CheckGitInstalled(gitVersion))
+                ConsoleOutput("Extracting archive...");
+                if (!ExtractStates(tempDir, releaseVersion))
                 {
-                    ConsoleOutput($"Git is being downloaded.");
-                    await DownloadGit(tempDir, gitVersion, gitHash);
-                    ConsoleOutput("Git is being installed...");
-                    await InstallGit(tempDir, gitVersion);
+                    return;
                 }
-                else
-                {
-                    ConsoleOutput($"Git {gitVersion} is already installed");
-                }
-                if (!CheckSaltStackInstalled(saltVersion))
-                {
-                    ConsoleOutput($"SaltStack is being downloaded");
-                    await DownloadSaltStack(tempDir, saltVersion, saltHash);
-                    ConsoleOutput("SaltStack is being installed...");
-                    await InstallSaltStack(tempDir, saltVersion);
-                }
-                else
-                {
-                    ConsoleOutput($"SaltStack {saltVersion} is already installed");
-                }
-                string releaseFile = $"{tempDir}{releaseVersion}.zip";
-                string providedHash;
-                bool hashMatch;
-                ConsoleOutput($"Current release of {distro} is {releaseVersion}");
-                if (File.Exists(releaseFile) && File.Exists($"{releaseFile}.sha256"))
-                {
-                    ConsoleOutput($"{releaseFile} and {releaseFile}.sha256 already exist!\nComparing hashes...");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
-                else
-                {
-                    ConsoleOutput("Downloading release file and SHA256 to compare");
-                    bool status = await DownloadStates(tempDir, releaseVersion, uriZip, uriHash);
-                    if (!status)
-                    {
-                        ConsoleOutput("[ERROR] Unable to download required Salt states.");
-                        return;
-                    }
-                    ConsoleOutput("Downloads complete...");
-                    ConsoleOutput("Comparing hashes...");
-                    providedHash = (await File.ReadAllTextAsync($"{tempDir}{releaseVersion}.zip.sha256")).ToLower().Split(" ")[0];
-                    hashMatch = CompareHash(providedHash, releaseFile);
-                    if (hashMatch)
-                    {
-                        ConsoleOutput("Hashes match, continuing...");
-                        ConsoleOutput("Extracting archive...");
-                    }
-                    else
-                    {
-                        ConsoleOutput("Hashes do not match, aborting");
-                        return;
-                    }
-                }
-                bool extracted = ExtractStates(tempDir, releaseVersion);
-                if (extracted)
-                {
-                    await ExecuteWsl(userName, releaseVersion, standalonesPath, false);
-                }
+                await WriteDebloatPreset(saltPath);
+                await ExecuteWsl(userName, releaseVersion, standalonesPath);
                 ConsoleOutput("SaltStack WSL installation completed.");
-                stopWatch?.Stop();
-                elapsedTimer?.Stop();
             }
             catch (Exception ex)
             {
                 ConsoleOutput($"[ERROR] Unable to execute WSL install:\n{ex}");
-                return;
+            }
+            finally
+            {
+                stopWatch?.Stop();
+                StopTimer();
             }
         }
         private static T? FindVisualParent<T>(DependencyObject dependencyObject) where T : DependencyObject
@@ -2378,65 +2234,38 @@ namespace WinFORCustomizer
         private void SectionUncheckAll(object sender, RoutedEventArgs e)
         // Used to identify the selected TreeViewItem and when its checkbox is unchecked, the CheckBox child items are also unchecked
         {
-            CheckBox? header = sender as CheckBox;
-            TreeViewItem treeViewItem = FindLogicalParent<TreeViewItem>(header!)!;
-            foreach (object item in treeViewItem.Items)
-            {
-                if (item.GetType() == typeof(CheckBox))
-                {
-                    CheckBox checkBox = (CheckBox)item;
-                    if (checkBox.Name.StartsWith("header_"))
-                    {
-                        continue;
-                    }
-                    else if (!checkBox.IsEnabled)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        checkBox.IsChecked = false;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-            }
+            SetSection(sender, false);
         }
         private void SectionCheckAll(object sender, RoutedEventArgs e)
         // Used to identify the selected TreeViewItem and when its checkbox is checked, the CheckBox child items are also checked
         {
-            CheckBox? header = (sender as CheckBox);
-            TreeViewItem treeViewItem = FindLogicalParent<TreeViewItem>(header!)!;
-            foreach (object item in treeViewItem.Items)
+            SetSection(sender, true);
+        }
+        private void SetSection(object sender, bool isChecked)
+        {
+            if (bulkUpdating || sender is not CheckBox header || FindLogicalParent<TreeViewItem>(header) is not TreeViewItem treeViewItem)
             {
-                if (item.GetType() == typeof(CheckBox))
+                return;
+            }
+            bulkUpdating = true;
+            try
+            {
+                foreach (CheckBox checkBox in treeViewItem.Items.OfType<CheckBox>())
                 {
-                    CheckBox checkBox = (CheckBox)item;
-                    if (checkBox.Name.StartsWith("header_"))
-                    {
-                        continue;
-                    }
-                    else if (!checkBox.IsEnabled)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        checkBox.IsChecked = true;
-                    }
-                }
-                else
-                { 
-                    continue;
+                    checkBox.IsChecked = isChecked;
                 }
             }
+            finally
+            {
+                bulkUpdating = false;
+            }
+            UpdateSectionState(treeViewItem);
         }
         private void SaveConsoleOutput(object sender, RoutedEventArgs? e)
         // Saves the TextBox console Output for log analysis or review
         {
-            string dateTimeNow = $"{DateTime.Now:yyyyMMdd-hhmmss}";
+            consoleWriter.FlushPending();
+            string dateTimeNow = $"{DateTime.Now:yyyyMMdd-HHmmss}";
             string fileName;
             if ((sender.GetType() == typeof(Button)) || (sender.GetType() == typeof(MenuItem)))
             {
@@ -2447,7 +2276,7 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    fileName = $@"C:\{src}-output-{dateTimeNow}.log";
+                    fileName = $@"{localRoot}{outputLogPrefix}{dateTimeNow}.log";
                     File.WriteAllText(fileName, OutputConsole.Text);
                     MessageBox.Show($"Output Console data saved to {fileName}.", "Output Console Log Saved", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
@@ -2460,13 +2289,13 @@ namespace WinFORCustomizer
                 }
                 else
                 {
-                    fileName = $@"C:\{src}-output-{dateTimeNow}-{sender}.log";
+                    fileName = $@"{localRoot}{outputLogPrefix}{dateTimeNow}-{sender}.log";
                     File.WriteAllText(fileName, OutputConsole.Text);
                 }
             }
             else
             {
-                fileName = $@"C:\{src}-output-{dateTimeNow}.log";
+                fileName = $@"{localRoot}{outputLogPrefix}{dateTimeNow}.log";
                 File.WriteAllText(fileName, OutputConsole.Text);
             }
         }
@@ -2475,13 +2304,7 @@ namespace WinFORCustomizer
         {
             try
             {
-                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
-                HttpClient httpClient = NewHttpClient();
-                string uri = $@"{githubBinaryApi}";
-                var getRequest = await httpClient.GetAsync(uri, cancellationToken.Token);
-                string data = getRequest.Content.ReadAsStringAsync().Result;
-                var jsonData = JsonDocument.Parse(data);
-                string release = (jsonData.RootElement.GetProperty("tag_name")).ToString();
+                string release = await LatestReleaseTag(githubBinaryRepo, githubBinaryApi) ?? throw new InvalidOperationException("The latest release could not be determined.");
                 Version releaseTag = new(release.Replace("v", ""));
                 string newRelease = $"{githubBinaryReleaseDownload}/{release}/{src}-{release}.exe";
                 if (releaseTag > appVersion)
@@ -2495,15 +2318,14 @@ namespace WinFORCustomizer
                         Process.Start(new ProcessStartInfo($"{newRelease}") { UseShellExecute = true });
                     }
                 }
-                else if (releaseTag <= appVersion)
-                {
-                    MessageBox.Show($"No new release of {displayName} found:\n{appVersion} is the most recent release.", $"No new release of {displayName} found", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
                 else if (appVersion > releaseTag)
                 {
                     MessageBox.Show($"Lucky you! You're ahead of the times!\nVersion {appVersion} is even newer than the current release!", "Where you're going, you don't need versions..", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                 }
-                cancellationToken.Dispose();
+                else
+                {
+                    MessageBox.Show($"No new release of {displayName} found:\n{appVersion} is the most recent release.", $"No new release of {displayName} found", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {
@@ -2512,44 +2334,23 @@ namespace WinFORCustomizer
         }
 
         private void ResultsButton_Click(object sender, RoutedEventArgs e)
-        // Parses the available logs for the SaltStack and WSL installs to determine its summary
+        // Lists every SaltStack log (install, download / stage, WSL and offline) found on the system drive
         {
-            string versionFileSalt = @$"{saltPath}\{src}\VERSION";
-            string versionFileLocal = @$"C:\{src}-version";
             try
             {
-                string releaseVersion = "";
-                if (File.Exists(versionFileLocal))
+                if (resultsWindow is not null)
                 {
-                    releaseVersion = File.ReadAllText($"{versionFileLocal}").TrimEnd();
-                }
-                else if (File.Exists(versionFileSalt))
-                {
-                    releaseVersion = File.ReadAllText($"{versionFileSalt}").TrimEnd();
-                }
-
-                else
-                {
-                    throw new FileNotFoundException("VERSION files not found");
-                }
-                if (!File.Exists(@$"C:\{src}-saltstack-{releaseVersion}.log") && !File.Exists(@$"C:\{src}-saltstack-{releaseVersion}-downloads.log") && !File.Exists(@$"C:\{src}-saltstack-{releaseVersion}-wsl.log"))
-                {
-                    MessageBox.Show($"The most recent attempt at installation\nwas for version {releaseVersion}.\n\nNo results were found in the log files,\n or no log file was found for {releaseVersion}.\nIt may have been canceled prematurely.\n\nTry reviewing the log files manually,\n and reach out on GitHub to let us know.", $"No results found for {releaseVersion}", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    resultsWindow.Activate();
                     return;
                 }
-                else
+                if (ResultsWindow.FindLogs().Count == 0)
                 {
-                    ResultsWindow resultsWindow = new(releaseVersion)
-                    {
-                        Owner = this
-                    };
-                    resultsWindow.Show();
+                    MessageBox.Show($"No {displayName} SaltStack log files ({localRoot}{saltLogPrefix}*.log) were found.\n\nRun an Install, Download, Stage for Offline, or Install Offline first, then try again.", "No results found", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                    return;
                 }
-            }
-            catch (FileNotFoundException)
-            {
-                OutputExpander.IsExpanded = true;
-                ConsoleOutput($"Unable to determine recent installation attempt:\n{versionFileSalt} and {versionFileLocal} are not present.");
+                resultsWindow = new() { Owner = this };
+                resultsWindow.Closed += (s, args) => resultsWindow = null;
+                resultsWindow.Show();
             }
             catch (Exception ex)
             {
@@ -2568,7 +2369,7 @@ namespace WinFORCustomizer
             string driveLetter = Path.GetPathRoot(path: Environment.GetFolderPath(Environment.SpecialFolder.UserProfile))!;
             string currentVersion;
             string msgBoxVersion;
-            string versionFile = driveLetter + $"{src}-version";
+            string versionFile = driveLetter + versionFileName;
             if (File.Exists(versionFile))
             {
                 currentVersion = File.ReadAllText(versionFile);
@@ -2579,7 +2380,7 @@ namespace WinFORCustomizer
                 currentVersion = $"not installed.\n" +
                                   $"If you are expecting version information, you may have\n" +
                                   $"encountered errors during your last install attempt.\n\n" +
-                                  $"You can check the log(s) labelled {driveLetter}{src}-saltstack-<version>.log";
+                                  $"You can check the log(s) labelled {driveLetter}{saltLogPrefix}<version>.log";
                 msgBoxVersion = "not installed.";
             }
             MessageBox.Show($"{displayName} is {currentVersion}", $"{displayName} {msgBoxVersion}", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -2589,7 +2390,7 @@ namespace WinFORCustomizer
         {
             MessageBoxResult result = MessageBox.Show(
                 $"{displayName} v{appVersion}\n" +
-                $"Author: Corey Forman (digitalsleuth)\n" +
+                $"Author: {authorName}\n" +
                 $"Source: {githubBinaryRepo}\n\n" +
                 $"Would you like to visit the repo on GitHub?",
                 $"{displayName} v{appVersion}", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
@@ -2603,22 +2404,8 @@ namespace WinFORCustomizer
         {
             return Array.FindIndex<string>(content, i => i.Contains(searchTerm));
         }
-        public static List<int> Find_AllLineNumbers(string[] content, string searchTerm)
-        // Used to identify all line numbers within the given content for the provided searchTerm
-        {
-            List<int> lineNumbers = [];
-            for (int i = 0; i < content.Length; i++)
-            {
-                if (content[i].Contains(searchTerm))
-                {
-                    int number = Array.FindIndex(content, i, x => x == content[i]);
-                    lineNumbers.Add(number);
-                }
-            }
-            return lineNumbers;
-        }
 
-        private static void ConsoleOutput(string message)
+        internal static void ConsoleOutput(string message)
         // Function to output the given content with a date/time value in front of it for tracking events
         {
             Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}");
@@ -2646,6 +2433,10 @@ namespace WinFORCustomizer
             try
             {
                 List<string> releaseData = await IdentifyRelease();
+                if (releaseData.Count == 0)
+                {
+                    return;
+                }
                 MessageBox.Show($"The latest version of {displayName} is {releaseData[0]}\nIf you wish to update, simply select your tools\nand click Install.", $"{releaseData[0]} is the latest version", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -2683,38 +2474,22 @@ namespace WinFORCustomizer
             xmlHeader += @"      <defaultlayout:StartLayout GroupCellWidth=""6"">" + '\n';
             xmlOutput.Append(xmlHeader);
             string groupName;
-            List<TreeItems>? jsonQuery = await GetJsonLayout();
-            int count = jsonQuery!.Count;
-            (List<string> checkedItems, _) = GetCheckStatus();
-            for (int i = 0; i < count; i++)
+            if (layoutItems.Count == 0)
+            {
+                layoutItems = await GetJsonLayout() ?? [];
+            }
+            (List<string> checkedList, _) = GetCheckStatus();
+            HashSet<string> checkedItems = [.. checkedList];
+            foreach (TreeItems section in layoutItems)
             {
                 int row = 0;
                 int column = 0;
-                string sectionTitle = jsonQuery[i].HeaderContent!;
-                List<TreeViewItem> treeViewItem = GetLogicalChildCollection<TreeViewItem>(AllTools);
-                TreeViewItem treeViewItemLabel = treeViewItem[i];
-                int checkedCount = 0;
-                foreach (object item in treeViewItemLabel!.Items)
-                {
-                    if (item.GetType() == typeof(CheckBox))
-                    {
-                        CheckBox checkBox = (CheckBox)item;
-                        if (checkBox.IsChecked == true)
-                        {
-                            checkedCount++;
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }
-                    else { continue; }
-                }
-                if (checkedCount > 0)
+                string sectionTitle = section.HeaderContent!;
+                if (section.Tools!.Values.Any(tool => checkedItems.Contains(tool.CbName!)))
                 {
                     groupName = $@"        <start:Group Name=""{sectionTitle}"">" + '\n';
                     xmlOutput.Append(groupName);
-                    var tools = jsonQuery[i].Tools;
+                    var tools = section.Tools;
                     foreach (var item in tools!)
                     {
                         var value = item.Value;
@@ -2777,53 +2552,65 @@ namespace WinFORCustomizer
         {
             public string? SoftwareHash { get; set; }
             public string? SoftwareVersion { get; set; }
+            public string? SoftwareFile { get; set; }
+        }
+        private async Task<List<ConfigItems>> GetLocalJsonConfig()
+        {
+            try
+            {
+                await using FileStream stream = File.OpenRead(localConfigFile);
+                ConsoleOutput($"[DEBUG] Using the local software configuration {localConfigFile}");
+                return await JsonSerializer.DeserializeAsync<List<ConfigItems>>(stream, new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? [];
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException)
+            {
+                OutputExpander.IsExpanded = true;
+                ConsoleOutput($"[ERROR] Debug mode could not read the local software configuration {localConfigFile} ({ex.Message})");
+                return [];
+            }
         }
         private async Task<List<ConfigItems>> GetJsonConfig()
         {
-            List<ConfigItems>? jsonConfig = [];
+            if (debugMode)
+            {
+                return await GetLocalJsonConfig();
+            }
             try
             {
-                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
-                HttpClient httpClient = NewHttpClient();
-                jsonConfig = await httpClient.GetFromJsonAsync<List<ConfigItems>>(configFile, cancellationToken.Token);
-                cancellationToken.Dispose();
+                using CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
+                return await httpClient.GetFromJsonAsync<List<ConfigItems>>(configFile, cancellationToken.Token) ?? [];
             }
-            catch (HttpRequestException)
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
             {
                 OutputExpander.IsExpanded = true;
-                ConsoleOutput($"[ERROR] Unable to get JSON Layout - check your network connectivity and try again");
+                ConsoleOutput($"[ERROR] Unable to get the software configuration - check your network connectivity and try again ({ex.Message})");
+                return [];
             }
-            return jsonConfig!;
         }
-        private async Task<List<TreeItems>> GetJsonLayout()
+        private async Task<List<TreeItems>> GetJsonLayout(bool hasLocalFallback = false)
         {
-            List<TreeItems>? jsonData = [];
             try
             {
-                CancellationTokenSource cancellationToken = new(new TimeSpan(0, 0, 200));
-                HttpClient httpClient = NewHttpClient();
-                jsonData = await httpClient.GetFromJsonAsync<List<TreeItems>>(layoutFile, cancellationToken.Token);
-                cancellationToken.Dispose();
+                using CancellationTokenSource cancellationToken = new(hasLocalFallback ? TimeSpan.FromSeconds(15) : TimeSpan.FromSeconds(200));
+                return await httpClient.GetFromJsonAsync<List<TreeItems>>(layoutFile, cancellationToken.Token) ?? [];
             }
-            catch (HttpRequestException)
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
             {
-                OutputExpander.IsExpanded = true;
-                ConsoleOutput($"[ERROR] Unable to get JSON Layout - check your network connectivity and try again");
+                if (!hasLocalFallback)
+                {
+                    OutputExpander.IsExpanded = true;
+                }
+                ConsoleOutput($"[{(hasLocalFallback ? "WARNING" : "ERROR")}] Unable to get JSON Layout - check your network connectivity and try again ({ex.Message})");
+                return [];
             }
-            return jsonData!;
         }
 
         private async Task<List<TreeItems>> GetLocalJsonLayout()
         {
             List<TreeItems>? jsonData = [];
-            string jsonFile = Path.Combine(AppContext.BaseDirectory, "layout.json");
             try
             {
-                if (!File.Exists(jsonFile))
-                {
-                    return jsonData!;
-                }
-                await using FileStream stream = File.OpenRead(jsonFile);
+                await using FileStream stream = File.OpenRead(localLayoutFile);
                 jsonData = await JsonSerializer.DeserializeAsync<List<TreeItems>>(stream) ?? [];
             }
             catch (JsonException ex)
@@ -2840,31 +2627,86 @@ namespace WinFORCustomizer
         }
 
         private readonly Dictionary<TreeViewItem, List<CheckBox>> originalChildOrder = [];
+        private async Task<List<TreeItems>> LoadLocalLayout(string reason)
+        {
+            List<TreeItems> items = await GetLocalJsonLayout();
+            if (items.Count > 0)
+            {
+                LayoutSourceText.Text = debugMode ? "Layout Source: Local (debug)" : "Layout Source: Local";
+                ConsoleOutput($"[INFO] {reason} - loaded the layout from {localLayoutFile}");
+            }
+            return items;
+        }
+        private void ResetTree()
+        // Clears the displayed tools and everything tied to them so a new layout can be built
+        {
+            XwaysReset();
+            ClearSearch(this, new RoutedEventArgs());
+            AllTools.Items.Clear();
+            toolBoxes.Clear();
+            originalChildOrder.Clear();
+            sectionCounts.Clear();
+            searchResults.Clear();
+            CheckUncheckTextBox.Text = "Uncheck All";
+        }
         private async Task GenerateTree()
         {
-            List<TreeItems>? jsonQuery = [];
-            jsonQuery = await GetLocalJsonLayout();
-            if (jsonQuery is null || jsonQuery.Count == 0)
+            List<TreeItems> jsonQuery = [];
+            bool hasLocalLayout = File.Exists(localLayoutFile);
+            string previousSource = LayoutSourceText.Text;
+            if ((OfflineMode || debugMode) && hasLocalLayout)
             {
-                bool Connected = CheckNetworkConnection.IsConnected();
-                if (!Connected)
-                {
-                    OutputExpander.IsExpanded = true;
-                    ConsoleOutput("[ERROR] No network connection detected - Please check your network connection and try launching the application again.");
-                    return;
-                }
-                jsonQuery = await GetJsonLayout();
+                jsonQuery = await LoadLocalLayout(debugMode ? "Debug mode" : "Offline mode");
             }
-            int count = jsonQuery!.Count;
+            if (jsonQuery.Count == 0 && !OfflineMode && !debugMode && CheckNetworkConnection.IsConnected())
+            {
+                jsonQuery = await GetJsonLayout(hasLocalLayout);
+                LayoutSourceText.Text = jsonQuery.Count > 0 ? "Layout Source: GitHub" : "";
+            }
+            if (jsonQuery.Count == 0 && !OfflineMode && !debugMode && hasLocalLayout)
+            {
+                jsonQuery = await LoadLocalLayout("Unable to load the layout from GitHub");
+            }
+            if (jsonQuery.Count == 0)
+            {
+                OutputExpander.IsExpanded = true;
+                if (layoutItems.Count == 0)
+                {
+                    LayoutSourceText.Text = "Layout Source: not loaded";
+                    ConsoleOutput(debugMode
+                        ? $"[ERROR] Debug mode needs a valid layout.json next to the application ({AppContext.BaseDirectory}) - it does not fall back to GitHub."
+                        : $"[ERROR] No layout available - connect to the internet, or place a valid layout.json next to the application ({AppContext.BaseDirectory}) and launch it again.");
+                }
+                else
+                {
+                    LayoutSourceText.Text = previousSource;
+                    ConsoleOutput("[ERROR] Unable to load the new layout, so the current layout was kept.");
+                }
+                return;
+            }
+            layoutItems = jsonQuery;
+            layoutLoadedOffline = OfflineMode;
+            ResetTree();
+            int count = layoutItems.Count;
             for (int i = 0; i < count; i++)
-            {   
-                string TVI = jsonQuery[i].TVI!;
-                string HEADER = jsonQuery[i].HeaderContent!;
-                string HEADERNAME = jsonQuery[i].HeaderName!;
+            {
+                string TVI = layoutItems[i].TVI!;
+                string HEADER = layoutItems[i].HeaderContent!;
+                string HEADERNAME = layoutItems[i].HeaderName!;
+                TextBlock sectionCount = new()
+                {
+                    Foreground = countBrush,
+                    FontSize = 11,
+                    Margin = new Thickness(8, 0, 0, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                StackPanel sectionHeader = new() { Orientation = Orientation.Horizontal };
+                sectionHeader.Children.Add(new TextBlock { Text = HEADER, VerticalAlignment = VerticalAlignment.Center });
+                sectionHeader.Children.Add(sectionCount);
                 CheckBox checkBox = new()
                 {
                     Name = HEADERNAME,
-                    Content = HEADER,
+                    Content = sectionHeader,
                     VerticalContentAlignment = VerticalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Top,
                     IsTabStop = false,
@@ -2880,7 +2722,8 @@ namespace WinFORCustomizer
                     VerticalAlignment = VerticalAlignment.Top
                 };
                 AllTools.Items.Add(newChild);
-                var tools = jsonQuery[i].Tools;
+                sectionCounts[newChild] = sectionCount;
+                var tools = layoutItems[i].Tools;
                 foreach (var tool in tools!)
                 {
                     CheckBox toolCheckBox = new()
@@ -2892,62 +2735,61 @@ namespace WinFORCustomizer
                         IsChecked = tool.Value.Checked,
                         IsEnabled = tool.Value.Enabled
                     };
-                    toolCheckBox.Checked += ChildCheckChanged;
-                    toolCheckBox.Unchecked += ChildCheckChanged;
                     if (!toolCheckBox.IsEnabled)
                     {
                         continue;
                     }
-                    else
+                    toolCheckBox.Checked += ChildCheckChanged;
+                    toolCheckBox.Unchecked += ChildCheckChanged;
+                    XwaysWireTool(tool.Value.CbName!, toolCheckBox);
+                    newChild.Items.Add(toolCheckBox);
+                    toolBoxes[tool.Value.CbName!] = toolCheckBox;
+                    if (!originalChildOrder.TryGetValue(newChild, out List<CheckBox>? children))
                     {
-                        newChild.Items.Add(toolCheckBox);
+                        children = [];
+                        originalChildOrder[newChild] = children;
                     }
-                    if (toolCheckBox.IsChecked is false)
-                    {
-                        checkBox.IsChecked = null;
-                    }
-                    if (!originalChildOrder.ContainsKey(newChild))
-                        originalChildOrder[newChild] = [];
-                    originalChildOrder[newChild].Add(toolCheckBox);
+                    children.Add(toolCheckBox);
                 }
+                UpdateSectionState(newChild);
             }
+            await Dispatcher.InvokeAsync(FitTreeHeight, DispatcherPriority.Loaded);
+            await Dispatcher.InvokeAsync(FitTreeWidth, DispatcherPriority.Loaded);
+        }
+
+        private void FitTreeWidth()
+        // Sizes the window so the longest tool name fits in the tree without a horizontal scrollbar
+        {
+            if (WindowState != WindowState.Normal)
+            {
+                return;
+            }
+            List<TreeViewItem> sections = [.. AllTools.Items.OfType<TreeViewItem>()];
+            List<bool> wasExpanded = [.. sections.Select(s => s.IsExpanded)];
+            sections.ForEach(s => s.IsExpanded = true);
+            AllTools.UpdateLayout();
+            double widest = sections
+                .SelectMany(s => s.Items.OfType<CheckBox>().Prepend((CheckBox)s.Header))
+                .Max(cb => cb.TranslatePoint(new Point(cb.ActualWidth, 0), AllTools).X);
+            for (int i = 0; i < sections.Count; i++)
+            {
+                sections[i].IsExpanded = wasExpanded[i];
+            }
+            AllTools.UpdateLayout();
+            double target = Math.Clamp(Width + widest + SystemParameters.VerticalScrollBarWidth + treeSlack - AllTools.ActualWidth, MinWidth, SystemParameters.WorkArea.Width);
+            Left -= (target - Width) / 2;
+            MinWidth = target;
+            Width = target;
         }
 
         private void ChildCheckChanged(object sender, RoutedEventArgs e)
         {
-            if (sender is not CheckBox childCheckBox)
+            if (bulkUpdating || sender is not CheckBox childCheckBox)
                 return;
 
-            TreeViewItem? parentItem = FindLogicalParent<TreeViewItem>(childCheckBox);
-            if (parentItem?.Header is not CheckBox parentCheckBox)
-                return;
-            var childCheckBoxes = parentItem.Items.OfType<CheckBox>().ToList();
-            if (childCheckBoxes.Count == 0)
+            if (FindLogicalParent<TreeViewItem>(childCheckBox) is TreeViewItem parentItem)
             {
-                childCheckBoxes = parentItem.Items
-                    .OfType<object>()
-                    .Select(item => item as CheckBox)
-                    .Where(cb => cb != null)
-                    .ToList()!;
-            }
-
-            int total = childCheckBoxes.Count;
-            int checkedCount = childCheckBoxes.Count(cb => cb.IsChecked == true);
-
-            if (checkedCount == total)
-            {
-                parentCheckBox.IsThreeState = false;
-                parentCheckBox.IsChecked = true;
-            }
-            else if (checkedCount == 0)
-            {
-                parentCheckBox.IsThreeState = false;
-                parentCheckBox.IsChecked = false;
-            }
-            else
-            {
-                parentCheckBox.IsThreeState = true;
-                parentCheckBox.IsChecked = null;
+                UpdateSectionState(parentItem);
             }
         }
 
@@ -2958,20 +2800,7 @@ namespace WinFORCustomizer
             {
                 return;
             }
-            string folderPath = "";
-            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
-            {
-                Description = "Select the directory where your standalone programs are stored...",
-                ShowNewFolderButton = false,
-                UseDescriptionForTitle = true,
-                RootFolder = Environment.SpecialFolder.Desktop,
-                InitialDirectory = Environment.CurrentDirectory
-            };
-            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                folderPath = folderDlg.SelectedPath;
-            }
+            string folderPath = PickFolder("Select the directory where your standalone programs are stored...");
             if (folderPath != "")
             {
                 string layout = await GenerateLayout(folderPath);
@@ -2980,60 +2809,47 @@ namespace WinFORCustomizer
                 MessageBox.Show(@$"Customized Start Layout written to {folderPath}\{displayName}-StartLayout.xml", "Customized Start Layout Saved!", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+        internal static string PickFolder(string title)
+        {
+            OpenFolderDialog dialog = new()
+            {
+                Title = title,
+                InitialDirectory = Environment.CurrentDirectory
+            };
+            return dialog.ShowDialog() == true ? dialog.FolderName : "";
+        }
         private async void LocalLayoutClick(object sender, RoutedEventArgs e)
         { 
             await LocalLayout();
         }
         private void StandalonesPicker(object sender, RoutedEventArgs e)
         {
-            string selectedPath = "";
-            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
-            {
-                Description = "Select the directory where you would like to store your standalone files",
-                ShowNewFolderButton = true,
-                UseDescriptionForTitle = true,
-                RootFolder = Environment.SpecialFolder.Desktop,
-                InitialDirectory = Environment.CurrentDirectory
-            };
-            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                selectedPath = folderDlg.SelectedPath;
-            }
+            string selectedPath = PickFolder("Select the directory where you would like to store your standalone files");
             if (selectedPath != "")
             {
                 StandalonesPath.Text = selectedPath;
-                StandalonesPlaceholder.Visibility = Visibility.Hidden;
             }
         }
         private void DownloadsPicker(object sender, RoutedEventArgs e)
         {
-            string selectedPath = "";
-            System.Windows.Forms.FolderBrowserDialog folderDlg = new()
-            {
-                Description = "Select the directory where you would like to store your downloaded files",
-                ShowNewFolderButton = true,
-                UseDescriptionForTitle = true,
-                RootFolder = Environment.SpecialFolder.Desktop,
-                InitialDirectory = Environment.CurrentDirectory
-            };
-            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                selectedPath = folderDlg.SelectedPath;
-            }
+            string selectedPath = PickFolder("Select the directory where you would like to store your downloaded files");
             if (selectedPath != "")
             {
                 DownloadsPath.Text = selectedPath;
-                DownloadsPlaceholder.Visibility = Visibility.Hidden;
             }
         }
         private void ShowDebloatOptions(object sender, RoutedEventArgs e)
         {
-            DebloatWindow debloatWindow = new()
+            if (debloatWindow is not null)
+            {
+                debloatWindow.Activate();
+                return;
+            }
+            debloatWindow = new()
             {
                 Owner = this
             };
+            debloatWindow.Closed += (s, args) => debloatWindow = null;
             debloatWindow.Show();
         }
 
@@ -3042,11 +2858,44 @@ namespace WinFORCustomizer
 
         public void SearchBoxTextChanged(object sender, TextChangedEventArgs e)
         {
-            if ((SearchBox.Text == string.Empty) && (SearchBox.IsFocused))
+            searchTimer.Stop();
+            searchTimer.Start();
+        }
+
+        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
             {
-                SearchBoxPlaceholder.Visibility = Visibility.Hidden;
+                bool pending = searchTimer.IsEnabled;
+                searchTimer.Stop();
+                if (pending)
+                {
+                    ApplySearch();
+                }
+                else if (Keyboard.Modifiers == ModifierKeys.Shift)
+                {
+                    PreviousResult(sender, e);
+                }
+                else
+                {
+                    NextResult(sender, e);
+                }
+                e.Handled = true;
             }
-            ExpandAll();
+            else if (e.Key == Key.Escape && SearchBox.Text.Length > 0)
+            {
+                ClearSearch(sender, e);
+                e.Handled = true;
+            }
+        }
+
+        private void UpdateSearchCount()
+        {
+            SearchCountText.Text = SearchBox.Text.Trim().Length == 0 ? "" : searchResults.Count == 0 ? "No matches" : $"{searchIndex + 1} of {searchResults.Count}";
+        }
+
+        private void ApplySearch()
+        {
             searchResults.Clear();
             searchIndex = -1;
 
@@ -3104,14 +2953,13 @@ namespace WinFORCustomizer
 
             if (string.IsNullOrWhiteSpace(searchText))
             {
-                SearchBoxPlaceholder.Visibility = Visibility.Hidden;
                 searchResults.Clear();
                 searchIndex = -1;
                 ClearSearch(this, new RoutedEventArgs());
             }
             else
             {
-                SearchBox.Background = null;
+                ExpandCollapseTextBox.Text = "Collapse All";
                 if (searchResults.Count > 0)
                 {
                     searchIndex = 0;
@@ -3119,6 +2967,7 @@ namespace WinFORCustomizer
                     searchResults[0].FontWeight = FontWeights.Bold;
                 }
             }
+            UpdateSearchCount();
         }
 
         public void NextResult(object sender, RoutedEventArgs e)
@@ -3135,6 +2984,7 @@ namespace WinFORCustomizer
             CheckBox current = searchResults[searchIndex];
             current.BringIntoView();
             current.FontWeight = FontWeights.Bold;
+            UpdateSearchCount();
         }
 
         public void PreviousResult(object sender, RoutedEventArgs e)
@@ -3151,15 +3001,11 @@ namespace WinFORCustomizer
             CheckBox current = searchResults[searchIndex];
             current.BringIntoView();
             current.FontWeight = FontWeights.Bold;
+            UpdateSearchCount();
         }
         public void ClearSearch(object sender, RoutedEventArgs e)
         {
             SearchBox.Text = string.Empty;
-            if (!SearchBox.IsFocused)
-            {
-                SearchBoxPlaceholder.Visibility = Visibility.Visible;
-            }
-
             foreach (TreeViewItem parent in AllTools.Items.OfType<TreeViewItem>())
             {
                 parent.Visibility = Visibility.Visible;
@@ -3175,6 +3021,7 @@ namespace WinFORCustomizer
             searchResults.Clear();
             searchIndex = 0;
             CollapseAll();
+            UpdateSearchCount();
         }
 
 
@@ -3186,96 +3033,54 @@ namespace WinFORCustomizer
         //private void TestButton_Click(object sender, RoutedEventArgs e)
         //Used simply for testing
 
-        private void StandalonesPath_GotFocus(object sender, RoutedEventArgs e)
+        private void OutputExpander_Changed(object sender, RoutedEventArgs e)
+        // The console takes whatever height the window has below the other boxes, so the window grows and shrinks with it and the tool list keeps its size
         {
-            StandalonesPlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void StandalonesPath_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(StandalonesPath.Text))
+            double margins = OutputConsole.Margin.Top + OutputConsole.Margin.Bottom;
+            bool normal = WindowState == WindowState.Normal;
+            if (OutputExpander.IsExpanded)
             {
-                StandalonesPlaceholder.Visibility = Visibility.Visible;
+                if (normal)
+                {
+                    Height = Math.Clamp(Height + consoleHeight + margins, MinHeight, SystemParameters.WorkArea.Height);
+                }
+                MinHeight = collapsedMinHeight + minConsoleHeight + margins;
+            }
+            else
+            {
+                if (normal)
+                {
+                    consoleHeight = Math.Max(minConsoleHeight, OutputConsole.ActualHeight);
+                }
+                MinHeight = collapsedMinHeight;
+                if (normal)
+                {
+                    Height = Math.Clamp(Height - consoleHeight - margins, MinHeight, SystemParameters.WorkArea.Height);
+                }
+            }
+        }
+        private void AllTools_SizeChanged(object sender, SizeChangedEventArgs e)
+        // Keeps the scrollbar and the highlights inside the rounded corners of the frame
+        {
+            AllTools.Clip = new RectangleGeometry(new Rect(0, 0, AllTools.ActualWidth, AllTools.ActualHeight), treeCornerRadius - 1, treeCornerRadius - 1);
+        }
+        private void FitTreeHeight()
+        // Sizes the tool list to show every section collapsed without a scrollbar, level with the bottom of the X-Ways box, and moves the window to match
+        {
+            AllTools.UpdateLayout();
+            double target = Math.Max(
+                AllTools.Items.OfType<TreeViewItem>().Sum(item => ((FrameworkElement)item.Header).ActualHeight) + treeFrame,
+                ActionColumn.DesiredSize.Height);
+            double change = target - ToolListFrame.Height;
+            ToolListFrame.Height = target;
+            collapsedMinHeight += change;
+            MinHeight += change;
+            if (WindowState == WindowState.Normal)
+            {
+                Height += change;
             }
         }
 
-        private void DownloadsPath_GotFocus(object sender, RoutedEventArgs e)
-        {
-            DownloadsPlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void DownloadsPath_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(DownloadsPath.Text))
-            {
-                DownloadsPlaceholder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void SearchBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            SearchBoxPlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void SearchBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(SearchBox.Text))
-            {
-                SearchBoxPlaceholder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void UserName_GotFocus(object sender, RoutedEventArgs e)
-        {
-            UserNamePlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void UserName_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(UserName.Text))
-            {
-                UserNamePlaceholder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void HostName_GotFocus(object sender, RoutedEventArgs e)
-        {
-            HostNamePlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void HostName_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(HostName.Text))
-            {
-                HostNamePlaceholder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void XUser_GotFocus(object sender, RoutedEventArgs e)
-        {
-            XUserPlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void XUser_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(XUser.Text))
-            {
-                XUserPlaceholder.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void XPass_GotFocus(object sender, RoutedEventArgs e)
-        {
-            XPassPlaceholder.Visibility = Visibility.Hidden;
-        }
-
-        private void XPass_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(XPass.Text))
-            {
-                XPassPlaceholder.Visibility = Visibility.Visible;
-            }
-        }
         private void ExpandCollapse_Click(object sender, RoutedEventArgs e)
         {
             if (ExpandCollapseTextBox.Text == "Expand All")

@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace WinFORCustomizer
+namespace WinFOR
 {
     public partial class SplashWindow : Window
     {
